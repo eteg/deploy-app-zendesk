@@ -20,7 +20,4 @@ jobs:
       - name: Print message Test
         run: echo 'Olá estou funcionando'
   test:
-      uses: eteg/deploy-app-zendesk/.github/workflows/test.yaml@main
-      with:
-        config-path: .github/test.yaml
-
+      uses: deploy-app-zendesk/.github/workflows/test.yaml@main
