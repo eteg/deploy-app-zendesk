@@ -21,5 +21,6 @@ jobs:
         run: echo 'Olá estou funcionando'
   test:
       uses: eteg/deploy-app-zendesk/.github/workflows/test.yaml@main
-      with: ''
+      with:
+        config-path: .github/test.yaml
 
