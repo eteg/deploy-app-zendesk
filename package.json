@@ -1,0 +1,30 @@
+{
+  "name": "deploy-app-zendesk",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "ncc build index.js -o dist",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eteg/deploy-app-zendesk.git"
+  },
+  "keywords": [],
+  "author": "Eteg",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/eteg/deploy-app-zendesk/issues"
+  },
+  "homepage": "https://github.com/eteg/deploy-app-zendesk#readme",
+  "dependencies": {
+    "@actions/core": "^1.10.0",
+    "@actions/exec": "^1.1.1",
+    "@actions/github": "^5.1.1",
+    "shelljs": "^0.8.5"
+  },
+  "devDependencies": {
+    "@vercel/ncc": "^0.34.0"
+  }
+}

@@ -1,0 +1,13 @@
+name: "Deploy App Zendesk"
+description: "Adds pull request file changes as a comment to a newly opened PR"
+inputs:
+  env:
+    description: "Environment"
+    required: true
+    default: "develop"
+  params:
+    description: "Manifest params"
+    required: true
+runs:
+  using: "node16"
+  main: "dist/index.js"
