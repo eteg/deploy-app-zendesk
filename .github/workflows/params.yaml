@@ -1,18 +1,13 @@
-name: zcli-action
+name: params
 
 on: 
   workflow_call
-  
-description: Github Action to deploy Zendesk Apps using ZCLI.
-inputs:
-  env:
-    description: "Params"
-    required: true
-    default: ""
-  path:
-    description: "Path to dist directory"
-    required: true
-    default: "apps/zendesk/dist"
-runs:
-  using: "node16"
-  main: "dist/index.js"
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: ./
+    - run: echo 'Test.yaml file access'
+      with:
+        milliseconds: 1000
