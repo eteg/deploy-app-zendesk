@@ -23,5 +23,4 @@ jobs:
       needs: build
       uses: eteg/deploy-app-zendesk/.github/workflows/test.yaml@main
   test:
-      needs: [build, params]
       uses: eteg/deploy-app-zendesk/.github/workflows/test.yaml@main
