@@ -2,6 +2,7 @@ name: zcli-action
 
 on: 
   workflow_call
+  
 description: Github Action to deploy Zendesk Apps using ZCLI.
 inputs:
   env:

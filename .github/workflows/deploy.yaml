@@ -23,7 +23,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
           cache: "yarn"
           cache-dependency-path: "yarn.lock"
-  test:
-    - name: Testing CI/CD
-      uses: ./.github/workflows/test.yml
+      - name: Print message Test
+        run: echo 'Olá estou funcionando'
+
 
