@@ -1,0 +1,13 @@
+name: "test"
+
+on: 
+  workflow_call
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - uses: ./
+    - run: echo 'Test.yaml file access'
+      with:
+        milliseconds: 1000

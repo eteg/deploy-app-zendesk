@@ -1,0 +1,29 @@
+name: deploy-app
+
+on:
+  push:
+    branches:
+      - main
+      - 'releases/*'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [16.15.1]
+        working-directory: [./]
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "yarn"
+          cache-dependency-path: "yarn.lock"
+  test:
+    - name: Testing CI/CD
+      uses: ./.github/workflows/test.yml
+
