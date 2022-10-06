@@ -19,5 +19,7 @@ jobs:
 
       - name: Print message Test
         run: echo 'Olá estou funcionando'
-
+  test:
+    - name: Test
+      uses: ./.github/workflows/test.yaml
 
