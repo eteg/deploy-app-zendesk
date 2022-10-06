@@ -20,4 +20,4 @@ jobs:
       - name: Print message Test
         run: echo 'Olá estou funcionando'
   test:
-      uses: deploy-app-zendesk/.github/workflows/test.yaml@main
+      uses: eteg/deploy-app-zendesk/.github/workflows/test.yaml
