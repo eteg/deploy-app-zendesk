@@ -7,6 +7,4 @@ test("test runs", () => {
   const ip = path.join(__dirname, "index.js");
   const result = cp.exec(`node ${ip}`, { env: process.env }).toString();
   console.dir(JSON.stringify(result));
-
-  console.log(`node ${ip}`, { env: process.env });
 });
