@@ -67,7 +67,7 @@ const { fileToJSON, jsonToFile, rootPath } = require("./functions");
       }
     }
 
-    const zcliConfigPath = rootPath(`${path}/zcli.apps.config.json`);
+    const zcliConfigPath = `${path}/zcli.apps.config.json`;
 
     if (ids[env]) {
       shell.echo(`🚀 Deploying an existing application...`);

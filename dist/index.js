@@ -11493,7 +11493,7 @@ const { fileToJSON, jsonToFile, rootPath } = __nccwpck_require__(3505);
       }
     }
 
-    const zcliConfigPath = rootPath(`${path}/zcli.apps.config.json`);
+    const zcliConfigPath = `${path}/zcli.apps.config.json`;
 
     if (ids[env]) {
       shell.echo(`🚀 Deploying an existing application...`);
