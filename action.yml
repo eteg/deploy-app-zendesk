@@ -8,6 +8,9 @@ inputs:
   params:
     description: "Manifest params"
     required: true
+  path:
+    description: "Directory path"
+    required: true
 runs:
   using: "node16"
   main: "dist/index.js"

@@ -9,6 +9,7 @@ const { fileToJSON, jsonToFile, rootPath } = require("./functions");
 
     const env = core.getInput("env", { required: true });
     const params = core.getInput("params", { required: true });
+    const path = core.getInput("path", { required: true });
 
     shell.echo(`💡 Job started at ${dateTime}`);
 
