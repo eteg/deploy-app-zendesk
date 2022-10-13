@@ -11475,7 +11475,6 @@ const { fileToJSON, jsonToFile } = __nccwpck_require__(3505);
     });
     const idsPath = `${path}/app_ids.json`;
     const ids = fileToJSON(idsPath);
-    shell.echo(ids);
 
     if (manifestParams.length) {
       const missigParams = manifestParams.filter((param) => {
@@ -11499,11 +11498,9 @@ const { fileToJSON, jsonToFile } = __nccwpck_require__(3505);
     } else {
       shell.echo(`🚀 Deploying a new application...`);
       jsonToFile(zcliConfigPath, { parameters: zcliParams });
-      //execute yarn create-app
       await exec.exec("yarn create-app");
       const appId = fileToJSON(zcliConfigPath).app_id;
       jsonToFile(idsPath, { ...ids, [env]: appId });
-      shell.echo({ ...ids, [env]: appId });
     }
 
     await exec.exec("rm -rf zcli.apps.config.json");
