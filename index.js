@@ -53,6 +53,7 @@ const { fileToJSON, jsonToFile, rootPath } = require("./functions");
     });
     const idsPath = `${path}/app_ids.json`;
     const ids = fileToJSON(idsPath);
+    shell.echo(ids);
 
     if (manifestParams.length) {
       const missigParams = manifestParams.filter((param) => {

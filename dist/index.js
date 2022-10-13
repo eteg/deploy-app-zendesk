@@ -11479,6 +11479,7 @@ const { fileToJSON, jsonToFile, rootPath } = __nccwpck_require__(3505);
     });
     const idsPath = `${path}/app_ids.json`;
     const ids = fileToJSON(idsPath);
+    shell.echo(ids);
 
     if (manifestParams.length) {
       const missigParams = manifestParams.filter((param) => {
