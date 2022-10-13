@@ -51,8 +51,8 @@ const { fileToJSON, jsonToFile, rootPath } = require("./functions");
       // to use only in this script file
       scriptParams[key] = secretParams[keyParams];
     });
-
-    const ids = fileToJSON(`${path}/app_ids.json`);
+    const idsPath = `${path}/app_ids.json`;
+    const ids = fileToJSON(idsPath);
 
     if (manifestParams.length) {
       const missigParams = manifestParams.filter((param) => {
