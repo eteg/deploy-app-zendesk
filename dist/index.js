@@ -11255,6 +11255,14 @@ function wrappy (fn, cb) {
 
 /***/ }),
 
+/***/ 153:
+/***/ ((module) => {
+
+module.exports = eval("require")("dotenv");
+
+
+/***/ }),
+
 /***/ 9491:
 /***/ ((module) => {
 
@@ -11403,6 +11411,46 @@ module.exports = require("util");
 /******/ 	}
 /******/ 	
 /************************************************************************/
+/******/ 	/* webpack/runtime/compat get default export */
+/******/ 	(() => {
+/******/ 		// getDefaultExport function for compatibility with non-harmony modules
+/******/ 		__nccwpck_require__.n = (module) => {
+/******/ 			var getter = module && module.__esModule ?
+/******/ 				() => (module['default']) :
+/******/ 				() => (module);
+/******/ 			__nccwpck_require__.d(getter, { a: getter });
+/******/ 			return getter;
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/define property getters */
+/******/ 	(() => {
+/******/ 		// define getter functions for harmony exports
+/******/ 		__nccwpck_require__.d = (exports, definition) => {
+/******/ 			for(var key in definition) {
+/******/ 				if(__nccwpck_require__.o(definition, key) && !__nccwpck_require__.o(exports, key)) {
+/******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
+/******/ 				}
+/******/ 			}
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/hasOwnProperty shorthand */
+/******/ 	(() => {
+/******/ 		__nccwpck_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/make namespace object */
+/******/ 	(() => {
+/******/ 		// define __esModule on exports
+/******/ 		__nccwpck_require__.r = (exports) => {
+/******/ 			if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 				Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 			}
+/******/ 			Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 		};
+/******/ 	})();
+/******/ 	
 /******/ 	/* webpack/runtime/node module decorator */
 /******/ 	(() => {
 /******/ 		__nccwpck_require__.nmd = (module) => {
@@ -11418,98 +11466,98 @@ module.exports = require("util");
 /******/ 	
 /************************************************************************/
 var __webpack_exports__ = {};
-// This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
+// This entry need to be wrapped in an IIFE because it need to be in strict mode.
 (() => {
+"use strict";
+__nccwpck_require__.r(__webpack_exports__);
+/* harmony import */ var _functions__WEBPACK_IMPORTED_MODULE_0__ = __nccwpck_require__(3505);
+/* harmony import */ var _functions__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__nccwpck_require__.n(_functions__WEBPACK_IMPORTED_MODULE_0__);
 const core = __nccwpck_require__(2186);
 const exec = __nccwpck_require__(1514);
 const shell = __nccwpck_require__(3516);
-const { fileToJSON, jsonToFile } = __nccwpck_require__(3505);
 
-(async function main() {
-  try {
+
+(__nccwpck_require__(153).config)();
+
+function getManifestParameters(){
+  const manifestPath = rootPath("manifest.json");
+  const manifest = (0,_functions__WEBPACK_IMPORTED_MODULE_0__.fileToJSON)(manifestPath);
+
+  return manifest?.parameters || [];
+}
+
+function isEqual(a, b) {
+  return a.toLowerCase() === b.toLowerCase();
+}
+
+function filterParams(params) {
+  const paramsWithoutValue = Object.entries(params).filter(([_, value]) => typeof value === "undefined");
+
+  if (paramsWithoutValue.length) {
+    throw new Error(`Following secrets missing their values: ${paramsWithoutValue.map(([key]) => key).join(', ')}`);
+  }
+
+  const manifestParams = getManifestParameters();
+
+  const requiredParamsNotFound = manifestParams.filter((m) => m.required && !Object.keys(params).find((key) => isEqual(m.name, key)));
+  
+  if (requiredParamsNotFound.length) {
+    throw new Error(`Missing following required parameters: ${requiredParamsNotFound.map((p) => p.name).join(', ')}`);
+  }
+
+  const paramaters = {};
+  manifestParams.forEach(({ name }) => {
+    const param = Object.entries(params).find(([key]) => isEqual(name, key));
+    
+    if(param) 
+      Object.assign(paramaters, { [name]: param[1] })
+  });
+
+  return paramaters;
+}
+
+async function deploy() {
+  try {    
     const dateTime = new Date().toLocaleString("pt-BR");
 
     const env = core.getInput("env", { required: true });
-    const params = core.getInput("params", { required: true });
     const path = core.getInput("path", { required: true });
+    const params = JSON.parse(core.getInput("params", { required: true })); // O default será {}
 
     shell.echo(`💡 Job started at ${dateTime}`);
 
-    const envParams = {};
-    const scriptParams = {};
-    const secureParams = [];
-    const zcliParams = {};
+    const parameters = filterParams(params);
 
-    const secretParams = JSON.parse(params);
+    const zcliConfigPath = `${path}/dist/zcli.apps.config.json`
+    const zendeskConfigPath = `${path}/zendesk.apps.config.json`;
+    const zendeskConfig = (0,_functions__WEBPACK_IMPORTED_MODULE_0__.fileToJSON)(zendeskConfigPath);
+    const ids = zendeskConfig?.ids;
 
-    const keysParams = Object.keys(secretParams).filter((item) =>
-      item.includes("PARAMS_")
-    );
-
-    const manifest = fileToJSON(`${path}/manifest.json`);
-    const manifestParams = manifest?.params || [];
-
-    manifestParams.map((parameter) => {
-      if (parameter.secure) secureParams.push(parameter.name.toUpperCase());
-    });
-
-    // Check the env params with secret prefix
-    keysParams.forEach((keyParams) => {
-      const key = keyParams.replace("PARAMS_", ""); // remove secrets prefix
-      const requestedManifestParams = manifestParams.find(
-        (it) => it.name.toLowerCase() === key.toLowerCase()
-      );
-      // set all requested manifest params
-      if (requestedManifestParams) {
-        const { name, secure } = requestedManifestParams;
-        zCliParams[name] = secretParams[keyParams];
-        // check if is not a sensitive param
-        // to set on .env without secret prefix
-        if (!secure) envParams[key] = secretParams[keyParams];
-      } else {
-        envParams[key] = secretParams[keyParams];
-      }
-      // set all params from secrets withou the prefix
-      // to use only in this script file
-      scriptParams[key] = secretParams[keyParams];
-    });
-    const idsPath = `${path}/app_ids.json`;
-    const ids = fileToJSON(idsPath);
-
-    if (manifestParams.length) {
-      const missigParams = manifestParams.filter((param) => {
-        return param.required && typeof zCliParams[param.name] === "undefined";
-      });
-      if (missigParams.length) {
-        const missigParamsName = missigParams
-          .map((it) => `"${it.name}"`)
-          .join(", ");
-        throw new Error(`All parameters ${missigParamsName} must have values`);
-      }
-    }
-
-    const zcliConfigPath = `${path}/zcli.apps.config.json`;
-
-    if (ids[env]) {
+    if (ids && ids[env]) {
       shell.echo(`🚀 Deploying an existing application...`);
-      const zcliConfig = { app_id: ids[env] };
-      jsonToFile(zcliConfigPath, zcliConfig);
-      await exec.exec("yarn deploy");
+      const zcliConfig = { app_id: ids[env], parameters };
+      (0,_functions__WEBPACK_IMPORTED_MODULE_0__.jsonToFile)(zcliConfigPath, zcliConfig);
+
+      await exec.exec(`zcli apps:update ${path}/dist`);
     } else {
       shell.echo(`🚀 Deploying a new application...`);
-      jsonToFile(zcliConfigPath, { parameters: zcliParams });
-      await exec.exec("yarn create-app");
-      const appId = fileToJSON(zcliConfigPath).app_id;
-      jsonToFile(idsPath, { ...ids, [env]: appId });
+      (0,_functions__WEBPACK_IMPORTED_MODULE_0__.jsonToFile)(zcliConfigPath, { parameters });
+
+      await exec.exec(`zcli apps:create ${path}/dist`);
+
+      const appId = (0,_functions__WEBPACK_IMPORTED_MODULE_0__.fileToJSON)(zcliConfigPath).app_id;
+      
+      zendeskConfig.ids[env] = appId;
+      (0,_functions__WEBPACK_IMPORTED_MODULE_0__.jsonToFile)(zendeskConfigPath, zendeskConfig);
     }
 
-    await exec.exec("rm -rf zcli.apps.config.json");
-
-    shell.echo(`🎉 Job has been finished`);
+    await exec.exec(`rm -rf ${path}/zcli.apps.config.json`);
   } catch (error) {
     core.setFailed(error.message);
   }
-})();
+}
+
+deploy();
 
 })();
 

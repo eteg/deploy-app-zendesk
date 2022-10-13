@@ -1,90 +1,86 @@
 const core = require("@actions/core");
 const exec = require("@actions/exec");
 const shell = require("shelljs");
-const { fileToJSON, jsonToFile } = require("./functions");
+import { fileToJSON, jsonToFile } from "./functions";
 
-(async function main() {
-  try {
+require("dotenv").config();
+
+function getManifestParameters(){
+  const manifestPath = rootPath("manifest.json");
+  const manifest = fileToJSON(manifestPath);
+
+  return manifest?.parameters || [];
+}
+
+function isEqual(a, b) {
+  return a.toLowerCase() === b.toLowerCase();
+}
+
+function filterParams(params) {
+  const paramsWithoutValue = Object.entries(params).filter(([_, value]) => typeof value === "undefined");
+
+  if (paramsWithoutValue.length) {
+    throw new Error(`Following secrets missing their values: ${paramsWithoutValue.map(([key]) => key).join(', ')}`);
+  }
+
+  const manifestParams = getManifestParameters();
+
+  const requiredParamsNotFound = manifestParams.filter((m) => m.required && !Object.keys(params).find((key) => isEqual(m.name, key)));
+  
+  if (requiredParamsNotFound.length) {
+    throw new Error(`Missing following required parameters: ${requiredParamsNotFound.map((p) => p.name).join(', ')}`);
+  }
+
+  const paramaters = {};
+  manifestParams.forEach(({ name }) => {
+    const param = Object.entries(params).find(([key]) => isEqual(name, key));
+    
+    if(param) 
+      Object.assign(paramaters, { [name]: param[1] })
+  });
+
+  return paramaters;
+}
+
+async function deploy() {
+  try {    
     const dateTime = new Date().toLocaleString("pt-BR");
 
     const env = core.getInput("env", { required: true });
-    const params = core.getInput("params", { required: true });
     const path = core.getInput("path", { required: true });
+    const params = JSON.parse(core.getInput("params", { required: true })); // O default será {}
 
     shell.echo(`💡 Job started at ${dateTime}`);
 
-    const envParams = {};
-    const scriptParams = {};
-    const secureParams = [];
-    const zcliParams = {};
+    const parameters = filterParams(params);
 
-    const secretParams = JSON.parse(params);
+    const zcliConfigPath = `${path}/dist/zcli.apps.config.json`
+    const zendeskConfigPath = `${path}/zendesk.apps.config.json`;
+    const zendeskConfig = fileToJSON(zendeskConfigPath);
+    const ids = zendeskConfig?.ids;
 
-    const keysParams = Object.keys(secretParams).filter((item) =>
-      item.includes("PARAMS_")
-    );
-
-    const manifest = fileToJSON(`${path}/manifest.json`);
-    const manifestParams = manifest?.params || [];
-
-    manifestParams.map((parameter) => {
-      if (parameter.secure) secureParams.push(parameter.name.toUpperCase());
-    });
-
-    // Check the env params with secret prefix
-    keysParams.forEach((keyParams) => {
-      const key = keyParams.replace("PARAMS_", ""); // remove secrets prefix
-      const requestedManifestParams = manifestParams.find(
-        (it) => it.name.toLowerCase() === key.toLowerCase()
-      );
-      // set all requested manifest params
-      if (requestedManifestParams) {
-        const { name, secure } = requestedManifestParams;
-        zCliParams[name] = secretParams[keyParams];
-        // check if is not a sensitive param
-        // to set on .env without secret prefix
-        if (!secure) envParams[key] = secretParams[keyParams];
-      } else {
-        envParams[key] = secretParams[keyParams];
-      }
-      // set all params from secrets withou the prefix
-      // to use only in this script file
-      scriptParams[key] = secretParams[keyParams];
-    });
-    const idsPath = `${path}/app_ids.json`;
-    const ids = fileToJSON(idsPath);
-
-    if (manifestParams.length) {
-      const missigParams = manifestParams.filter((param) => {
-        return param.required && typeof zCliParams[param.name] === "undefined";
-      });
-      if (missigParams.length) {
-        const missigParamsName = missigParams
-          .map((it) => `"${it.name}"`)
-          .join(", ");
-        throw new Error(`All parameters ${missigParamsName} must have values`);
-      }
-    }
-
-    const zcliConfigPath = `${path}/zcli.apps.config.json`;
-
-    if (ids[env]) {
+    if (ids && ids[env]) {
       shell.echo(`🚀 Deploying an existing application...`);
-      const zcliConfig = { app_id: ids[env] };
+      const zcliConfig = { app_id: ids[env], parameters };
       jsonToFile(zcliConfigPath, zcliConfig);
-      await exec.exec("yarn deploy");
+
+      await exec.exec(`zcli apps:update ${path}/dist`);
     } else {
       shell.echo(`🚀 Deploying a new application...`);
-      jsonToFile(zcliConfigPath, { parameters: zcliParams });
-      await exec.exec("yarn create-app");
+      jsonToFile(zcliConfigPath, { parameters });
+
+      await exec.exec(`zcli apps:create ${path}/dist`);
+
       const appId = fileToJSON(zcliConfigPath).app_id;
-      jsonToFile(idsPath, { ...ids, [env]: appId });
+      
+      zendeskConfig.ids[env] = appId;
+      jsonToFile(zendeskConfigPath, zendeskConfig);
     }
 
-    await exec.exec("rm -rf zcli.apps.config.json");
-
-    shell.echo(`🎉 Job has been finished`);
+    await exec.exec(`rm -rf ${path}/zcli.apps.config.json`);
   } catch (error) {
     core.setFailed(error.message);
   }
-})();
+}
+
+deploy();
