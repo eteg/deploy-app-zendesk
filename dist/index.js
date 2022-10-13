@@ -16,7 +16,7 @@ const jsonToFile = (filePath, json) => {
 };
 
 const rootPath = (fileName) => {
-  return path.join(__dirname, "..", fileName);
+  return path.join(__dirname, fileName);
 };
 
 module.exports = { fileToJSON, jsonToFile, rootPath };
