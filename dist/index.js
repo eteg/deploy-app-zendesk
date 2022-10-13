@@ -11507,6 +11507,7 @@ const { fileToJSON, jsonToFile, rootPath } = __nccwpck_require__(3505);
       await exec.exec("yarn create-app");
       const appId = fileToJSON(zcliConfigPath).app_id;
       jsonToFile(idsPath, { ...ids, [env]: appId });
+      shell.echo({ ...ids, [env]: appId });
     }
 
     await exec.exec("rm -rf zcli.apps.config.json");
