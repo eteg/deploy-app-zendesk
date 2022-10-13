@@ -9,8 +9,4 @@ const jsonToFile = (filePath, json) => {
   fs.writeFileSync(filePath, JSON.stringify(json));
 };
 
-const rootPath = (fileName) => {
-  return path.join(__dirname, fileName);
-};
-
-module.exports = { fileToJSON, jsonToFile, rootPath };
+module.exports = { fileToJSON, jsonToFile };

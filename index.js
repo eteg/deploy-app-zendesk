@@ -1,7 +1,7 @@
 const core = require("@actions/core");
 const exec = require("@actions/exec");
 const shell = require("shelljs");
-const { fileToJSON, jsonToFile, rootPath } = require("./functions");
+const { fileToJSON, jsonToFile } = require("./functions");
 
 (async function main() {
   try {

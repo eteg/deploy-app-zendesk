@@ -15,11 +15,7 @@ const jsonToFile = (filePath, json) => {
   fs.writeFileSync(filePath, JSON.stringify(json));
 };
 
-const rootPath = (fileName) => {
-  return path.join(__dirname, fileName);
-};
-
-module.exports = { fileToJSON, jsonToFile, rootPath };
+module.exports = { fileToJSON, jsonToFile };
 
 
 /***/ }),
@@ -11427,7 +11423,7 @@ var __webpack_exports__ = {};
 const core = __nccwpck_require__(2186);
 const exec = __nccwpck_require__(1514);
 const shell = __nccwpck_require__(3516);
-const { fileToJSON, jsonToFile, rootPath } = __nccwpck_require__(3505);
+const { fileToJSON, jsonToFile } = __nccwpck_require__(3505);
 
 (async function main() {
   try {
