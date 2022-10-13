@@ -11450,8 +11450,7 @@ const { fileToJSON, jsonToFile, rootPath } = __nccwpck_require__(3505);
       item.includes("PARAMS_")
     );
 
-    const manifestPath = rootPath("manifest.json");
-    const manifest = fileToJSON(manifestPath);
+    const manifest = fileToJSON(`${path}/manifest.json`);
     const manifestParams = manifest?.params || [];
 
     manifestParams.map((parameter) => {
@@ -11479,8 +11478,7 @@ const { fileToJSON, jsonToFile, rootPath } = __nccwpck_require__(3505);
       scriptParams[key] = secretParams[keyParams];
     });
 
-    const idsPath = rootPath("app_ids.json");
-    const ids = fileToJSON(idsPath);
+    const ids = fileToJSON(`${path}/app_ids.json`);
 
     if (manifestParams.length) {
       const missigParams = manifestParams.filter((param) => {
@@ -11494,7 +11492,7 @@ const { fileToJSON, jsonToFile, rootPath } = __nccwpck_require__(3505);
       }
     }
 
-    const zcliConfigPath = rootPath("zcli.apps.config.json");
+    const zcliConfigPath = rootPath(`${path}/zcli.apps.config.json`);
 
     if (ids[env]) {
       shell.echo(`🚀 Deploying an existing application...`);
