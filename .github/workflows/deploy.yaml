@@ -17,8 +17,8 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v3
 
-      - name: Print message Test
-        run: echo 'Olá estou funcionando'|
+      - name: Intall Dependencies
+        run: yarn
 
       - name: Build Action
         run: yarn build

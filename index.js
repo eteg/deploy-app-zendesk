@@ -5,8 +5,6 @@ const exec = require("@actions/exec");
 const shell = require("shelljs");
 import { fileToJSON, jsonToFile } from "./functions";
 
-require("dotenv").config();
-
 function getManifestParameters(){
   const manifestPath = rootPath("manifest.json");
   const manifest = fileToJSON(manifestPath);
