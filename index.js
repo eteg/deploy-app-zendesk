@@ -59,7 +59,7 @@ async function deploy() {
     const dateTime = new Date().toLocaleString("pt-BR");
 
     const env = getInput("env", { required: true });
-    const path = getInput("path", { required: true });
+    const path = getInput("path", { required: true }).replace(/(\/)$/g, "");
     const params = JSON.parse(getInput("params", { required: false }) || "{}"); // O default será {}
 
     echo(`💡 Job started at ${ dateTime }`);
