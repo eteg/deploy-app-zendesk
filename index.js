@@ -4,8 +4,8 @@ const exec = require("@actions/exec");
 const shell = require("shelljs");
 import { fileToJSON, jsonToFile } from "./functions";
 
-function getManifestParameters(){
-  const manifestPath = rootPath("manifest.json");
+function getManifestParameters(path){
+  const manifestPath = `${path}/dist/manifest.json`;
   const manifest = fileToJSON(manifestPath);
 
   return manifest?.parameters || [];
@@ -15,14 +15,14 @@ function isEqual(a, b) {
   return a.toLowerCase() === b.toLowerCase();
 }
 
-function filterParams(params) {
+function filterParams(params, path) {
   const paramsWithoutValue = Object.entries(params).filter(([_, value]) => typeof value === "undefined");
 
   if (paramsWithoutValue.length) {
     throw new Error(`Following secrets missing their values: ${paramsWithoutValue.map(([key]) => key).join(', ')}`);
   }
 
-  const manifestParams = getManifestParameters();
+  const manifestParams = getManifestParameters(path);
 
   const requiredParamsNotFound = manifestParams.filter((m) => m.required && !Object.keys(params).find((key) => isEqual(m.name, key)));
   
@@ -53,7 +53,7 @@ async function deploy() {
     shell.echo(`🎉 The job was automat ically triggered by a ${ github.event_name } event.`)
     shell.echo(`🔎 The name of your branch is ${ github.ref } and your repository is ${ github.repository }.`)
 
-    const parameters = filterParams(params);
+    const parameters = filterParams(params, path);
 
     const zcliConfigPath = `${path}/dist/zcli.apps.config.json`;
     const zendeskConfigPath = `${path}/zendesk.apps.config.json`;
