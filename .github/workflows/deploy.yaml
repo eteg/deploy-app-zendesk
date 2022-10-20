@@ -17,9 +17,6 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v3
 
-      - name: Print message Test
-        run: echo 'Olá estou funcionando'|
-
       - name: Build Action
         run: yarn build
   params:
