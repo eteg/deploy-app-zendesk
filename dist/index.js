@@ -17985,14 +17985,6 @@ function wrappy (fn, cb) {
 
 /***/ }),
 
-/***/ 8774:
-/***/ ((module) => {
-
-module.exports = eval("require")("@actions/runner");
-
-
-/***/ }),
-
 /***/ 2877:
 /***/ ((module) => {
 
@@ -18252,7 +18244,6 @@ __nccwpck_require__.r(__webpack_exports__);
 /* harmony import */ var _functions__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__nccwpck_require__.n(_functions__WEBPACK_IMPORTED_MODULE_0__);
 const core = __nccwpck_require__(2186);
 const github = __nccwpck_require__(5438);
-const runner = __nccwpck_require__(8774);
 const exec = __nccwpck_require__(1514);
 const shell = __nccwpck_require__(3516);
 
@@ -18304,7 +18295,6 @@ async function deploy() {
 
     shell.echo(`💡 Job started at ${ dateTime }`);
     shell.echo(`🎉 The job was automat ically triggered by a ${ github.event_name } event.`)
-    shell.echo(`🐧 This job is now running on a ${ runner.os } server hosted by GitHub!`)
     shell.echo(`🔎 The name of your branch is ${ github.ref } and your repository is ${ github.repository }.`)
 
     const parameters = filterParams(params);

@@ -1,6 +1,5 @@
 const core = require("@actions/core");
 const github = require("@actions/github");
-const runner = require("@actions/runner");
 const exec = require("@actions/exec");
 const shell = require("shelljs");
 import { fileToJSON, jsonToFile } from "./functions";
@@ -52,7 +51,6 @@ async function deploy() {
 
     shell.echo(`💡 Job started at ${ dateTime }`);
     shell.echo(`🎉 The job was automat ically triggered by a ${ github.event_name } event.`)
-    shell.echo(`🐧 This job is now running on a ${ runner.os } server hosted by GitHub!`)
     shell.echo(`🔎 The name of your branch is ${ github.ref } and your repository is ${ github.repository }.`)
 
     const parameters = filterParams(params);
