@@ -18240,7 +18240,7 @@ __nccwpck_require__.r(__webpack_exports__);
 
 
 const fileToJSON = (filePath) => {
-  return JSON.parse((0,fs__WEBPACK_IMPORTED_MODULE_0__.readFileSync)(filePath, "utf-8"));
+  return JSON.parse((0,fs__WEBPACK_IMPORTED_MODULE_0__.readFileSync)(filePath, "utf-8") || "{}");
 };
 
 const jsonToFile = (filePath, json) => {
@@ -18293,7 +18293,7 @@ async function deploy() {
     const dateTime = new Date().toLocaleString("pt-BR");
 
     const env = (0,_actions_core__WEBPACK_IMPORTED_MODULE_2__.getInput)("env", { required: true });
-    const path = (0,_actions_core__WEBPACK_IMPORTED_MODULE_2__.getInput)("path", { required: true });
+    const path = (0,_actions_core__WEBPACK_IMPORTED_MODULE_2__.getInput)("path", { required: true }).replace(/(\/)$/g, "");
     const params = JSON.parse((0,_actions_core__WEBPACK_IMPORTED_MODULE_2__.getInput)("params", { required: false }) || "{}"); // O default será {}
 
     (0,shelljs__WEBPACK_IMPORTED_MODULE_5__.echo)(`💡 Job started at ${ dateTime }`);
@@ -18305,7 +18305,7 @@ async function deploy() {
     const zcliConfigPath = `${path}/dist/zcli.apps.config.json`;
     const zendeskConfigPath = `${path}/zendesk.apps.config.json`;
     const zendeskConfig = fileToJSON(zendeskConfigPath);
-    const ids = zendeskConfig?.ids;
+    const ids = zendeskConfig?.ids; 
 
     if (ids && ids[env]) {
       (0,shelljs__WEBPACK_IMPORTED_MODULE_5__.echo)(`🚀 Deploying an existing application...`);
@@ -18326,7 +18326,7 @@ async function deploy() {
     }
     (0,shelljs__WEBPACK_IMPORTED_MODULE_5__.echo)(`🚀 Deployed!`);
 
-    await (0,_actions_exec__WEBPACK_IMPORTED_MODULE_4__.exec)(`rm -rf ${path}/zcli.apps.config.json`);
+    await (0,_actions_exec__WEBPACK_IMPORTED_MODULE_4__.exec)(`rm -rf ${path}/dist/zcli.apps.config.json`);
   } catch (error) {
     (0,_actions_core__WEBPACK_IMPORTED_MODULE_2__.setFailed)(error.message);
   }
