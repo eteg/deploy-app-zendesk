@@ -1,25 +1,6 @@
 /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
-/***/ 3505:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-const fs = __nccwpck_require__(7147);
-const path = __nccwpck_require__(1017);
-
-const fileToJSON = (filePath) => {
-  return JSON.parse(fs.readFileSync(filePath, "utf-8"));
-};
-
-const jsonToFile = (filePath, json) => {
-  fs.writeFileSync(filePath, JSON.stringify(json));
-};
-
-module.exports = { fileToJSON, jsonToFile };
-
-
-/***/ }),
-
 /***/ 7351:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -18240,17 +18221,39 @@ var __webpack_exports__ = {};
 (() => {
 "use strict";
 __nccwpck_require__.r(__webpack_exports__);
-/* harmony import */ var _functions__WEBPACK_IMPORTED_MODULE_0__ = __nccwpck_require__(3505);
-/* harmony import */ var _functions__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__nccwpck_require__.n(_functions__WEBPACK_IMPORTED_MODULE_0__);
-const core = __nccwpck_require__(2186);
-const github = __nccwpck_require__(5438);
-const exec = __nccwpck_require__(1514);
-const shell = __nccwpck_require__(3516);
+/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0__ = __nccwpck_require__(7147);
+/* harmony import */ var fs__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__nccwpck_require__.n(fs__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var path__WEBPACK_IMPORTED_MODULE_1__ = __nccwpck_require__(1017);
+/* harmony import */ var path__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__nccwpck_require__.n(path__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _actions_core__WEBPACK_IMPORTED_MODULE_2__ = __nccwpck_require__(2186);
+/* harmony import */ var _actions_core__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__nccwpck_require__.n(_actions_core__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var _actions_github__WEBPACK_IMPORTED_MODULE_3__ = __nccwpck_require__(5438);
+/* harmony import */ var _actions_github__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__nccwpck_require__.n(_actions_github__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var _actions_exec__WEBPACK_IMPORTED_MODULE_4__ = __nccwpck_require__(1514);
+/* harmony import */ var _actions_exec__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__nccwpck_require__.n(_actions_exec__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var shelljs__WEBPACK_IMPORTED_MODULE_5__ = __nccwpck_require__(3516);
 
 
-function getManifestParameters(){
-  const manifestPath = rootPath("manifest.json");
-  const manifest = (0,_functions__WEBPACK_IMPORTED_MODULE_0__.fileToJSON)(manifestPath);
+
+
+
+
+
+const fileToJSON = (filePath) => {
+  return JSON.parse((0,fs__WEBPACK_IMPORTED_MODULE_0__.readFileSync)(filePath, "utf-8"));
+};
+
+const jsonToFile = (filePath, json) => {
+  (0,fs__WEBPACK_IMPORTED_MODULE_0__.writeFileSync)(filePath, JSON.stringify(json));
+};
+
+const rootPath = (fileName) => {
+  return join(__dirname, "..", fileName);
+};
+
+function getManifestParameters(path){
+  const manifestPath = `${path}/dist/manifest.json`;
+  const manifest = fileToJSON(manifestPath);
 
   return manifest?.parameters || [];
 }
@@ -18259,14 +18262,14 @@ function isEqual(a, b) {
   return a.toLowerCase() === b.toLowerCase();
 }
 
-function filterParams(params) {
+function filterParams(params, path) {
   const paramsWithoutValue = Object.entries(params).filter(([_, value]) => typeof value === "undefined");
 
   if (paramsWithoutValue.length) {
     throw new Error(`Following secrets missing their values: ${paramsWithoutValue.map(([key]) => key).join(', ')}`);
   }
 
-  const manifestParams = getManifestParameters();
+  const manifestParams = getManifestParameters(path);
 
   const requiredParamsNotFound = manifestParams.filter((m) => m.required && !Object.keys(params).find((key) => isEqual(m.name, key)));
   
@@ -18289,43 +18292,43 @@ async function deploy() {
   try {    
     const dateTime = new Date().toLocaleString("pt-BR");
 
-    const env = core.getInput("env", { required: true });
-    const path = core.getInput("path", { required: true });
-    const params = JSON.parse(core.getInput("params", { required: false }) || "{}"); // O default será {}
+    const env = (0,_actions_core__WEBPACK_IMPORTED_MODULE_2__.getInput)("env", { required: true });
+    const path = (0,_actions_core__WEBPACK_IMPORTED_MODULE_2__.getInput)("path", { required: true });
+    const params = JSON.parse((0,_actions_core__WEBPACK_IMPORTED_MODULE_2__.getInput)("params", { required: false }) || "{}"); // O default será {}
 
-    shell.echo(`💡 Job started at ${ dateTime }`);
-    shell.echo(`🎉 The job was automat ically triggered by a ${ github.event_name } event.`)
-    shell.echo(`🔎 The name of your branch is ${ github.ref } and your repository is ${ github.repository }.`)
+    (0,shelljs__WEBPACK_IMPORTED_MODULE_5__.echo)(`💡 Job started at ${ dateTime }`);
+    (0,shelljs__WEBPACK_IMPORTED_MODULE_5__.echo)(`🎉 The job was automat ically triggered by a ${ _actions_github__WEBPACK_IMPORTED_MODULE_3__.event_name } event.`)
+    ;(0,shelljs__WEBPACK_IMPORTED_MODULE_5__.echo)(`🔎 The name of your branch is ${ _actions_github__WEBPACK_IMPORTED_MODULE_3__.ref } and your repository is ${ _actions_github__WEBPACK_IMPORTED_MODULE_3__.repository }.`)
 
-    const parameters = filterParams(params);
+    const parameters = filterParams(params, path);
 
     const zcliConfigPath = `${path}/dist/zcli.apps.config.json`;
     const zendeskConfigPath = `${path}/zendesk.apps.config.json`;
-    const zendeskConfig = (0,_functions__WEBPACK_IMPORTED_MODULE_0__.fileToJSON)(zendeskConfigPath);
+    const zendeskConfig = fileToJSON(zendeskConfigPath);
     const ids = zendeskConfig?.ids;
 
     if (ids && ids[env]) {
-      shell.echo(`🚀 Deploying an existing application...`);
+      (0,shelljs__WEBPACK_IMPORTED_MODULE_5__.echo)(`🚀 Deploying an existing application...`);
       const zcliConfig = { app_id: ids[env], parameters };
-      (0,_functions__WEBPACK_IMPORTED_MODULE_0__.jsonToFile)(zcliConfigPath, zcliConfig);
+      jsonToFile(zcliConfigPath, zcliConfig);
 
-      await exec.exec(`zcli apps:update ${path}/dist`);
+      await (0,_actions_exec__WEBPACK_IMPORTED_MODULE_4__.exec)(`zcli apps:update ${path}/dist`);
     } else {
-      shell.echo(`🚀 Deploying a new application...`);
-      (0,_functions__WEBPACK_IMPORTED_MODULE_0__.jsonToFile)(zcliConfigPath, { parameters });
+      (0,shelljs__WEBPACK_IMPORTED_MODULE_5__.echo)(`🚀 Deploying a new application...`);
+      jsonToFile(zcliConfigPath, { parameters });
 
-      await exec.exec(`zcli apps:create ${path}/dist`);
+      await (0,_actions_exec__WEBPACK_IMPORTED_MODULE_4__.exec)(`zcli apps:create ${path}/dist`);
 
-      const appId = (0,_functions__WEBPACK_IMPORTED_MODULE_0__.fileToJSON)(zcliConfigPath).app_id;
+      const appId = fileToJSON(zcliConfigPath).app_id;
       
       zendeskConfig.ids[env] = appId;
-      (0,_functions__WEBPACK_IMPORTED_MODULE_0__.jsonToFile)(zendeskConfigPath, zendeskConfig);
+      jsonToFile(zendeskConfigPath, zendeskConfig);
     }
-    shell.echo(`🚀 Deployed!`);
+    (0,shelljs__WEBPACK_IMPORTED_MODULE_5__.echo)(`🚀 Deployed!`);
 
-    await exec.exec(`rm -rf ${path}/zcli.apps.config.json`);
+    await (0,_actions_exec__WEBPACK_IMPORTED_MODULE_4__.exec)(`rm -rf ${path}/zcli.apps.config.json`);
   } catch (error) {
-    core.setFailed(error.message);
+    (0,_actions_core__WEBPACK_IMPORTED_MODULE_2__.setFailed)(error.message);
   }
 }
 

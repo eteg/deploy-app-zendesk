@@ -1,11 +1,24 @@
-const core = require("@actions/core");
-const github = require("@actions/github");
-const exec = require("@actions/exec");
-const shell = require("shelljs");
-import { fileToJSON, jsonToFile } from "./functions";
+import { readFileSync, writeFileSync } from "fs";
+import { join } from "path";
+import { getInput, setFailed } from "@actions/core";
+import { event_name, ref, repository } from "@actions/github";
+import { exec as _exec } from "@actions/exec";
+import { echo } from "shelljs";
 
-function getManifestParameters(){
-  const manifestPath = rootPath("manifest.json");
+const fileToJSON = (filePath) => {
+  return JSON.parse(readFileSync(filePath, "utf-8"));
+};
+
+const jsonToFile = (filePath, json) => {
+  writeFileSync(filePath, JSON.stringify(json));
+};
+
+const rootPath = (fileName) => {
+  return join(__dirname, "..", fileName);
+};
+
+function getManifestParameters(path){
+  const manifestPath = `${path}/dist/manifest.json`;
   const manifest = fileToJSON(manifestPath);
 
   return manifest?.parameters || [];
@@ -15,14 +28,14 @@ function isEqual(a, b) {
   return a.toLowerCase() === b.toLowerCase();
 }
 
-function filterParams(params) {
+function filterParams(params, path) {
   const paramsWithoutValue = Object.entries(params).filter(([_, value]) => typeof value === "undefined");
 
   if (paramsWithoutValue.length) {
     throw new Error(`Following secrets missing their values: ${paramsWithoutValue.map(([key]) => key).join(', ')}`);
   }
 
-  const manifestParams = getManifestParameters();
+  const manifestParams = getManifestParameters(path);
 
   const requiredParamsNotFound = manifestParams.filter((m) => m.required && !Object.keys(params).find((key) => isEqual(m.name, key)));
   
@@ -45,15 +58,15 @@ async function deploy() {
   try {    
     const dateTime = new Date().toLocaleString("pt-BR");
 
-    const env = core.getInput("env", { required: true });
-    const path = core.getInput("path", { required: true });
-    const params = JSON.parse(core.getInput("params", { required: false }) || "{}"); // O default será {}
+    const env = getInput("env", { required: true });
+    const path = getInput("path", { required: true });
+    const params = JSON.parse(getInput("params", { required: false }) || "{}"); // O default será {}
 
-    shell.echo(`💡 Job started at ${ dateTime }`);
-    shell.echo(`🎉 The job was automat ically triggered by a ${ github.event_name } event.`)
-    shell.echo(`🔎 The name of your branch is ${ github.ref } and your repository is ${ github.repository }.`)
+    echo(`💡 Job started at ${ dateTime }`);
+    echo(`🎉 The job was automat ically triggered by a ${ event_name } event.`)
+    echo(`🔎 The name of your branch is ${ ref } and your repository is ${ repository }.`)
 
-    const parameters = filterParams(params);
+    const parameters = filterParams(params, path);
 
     const zcliConfigPath = `${path}/dist/zcli.apps.config.json`;
     const zendeskConfigPath = `${path}/zendesk.apps.config.json`;
@@ -61,27 +74,27 @@ async function deploy() {
     const ids = zendeskConfig?.ids;
 
     if (ids && ids[env]) {
-      shell.echo(`🚀 Deploying an existing application...`);
+      echo(`🚀 Deploying an existing application...`);
       const zcliConfig = { app_id: ids[env], parameters };
       jsonToFile(zcliConfigPath, zcliConfig);
 
-      await exec.exec(`zcli apps:update ${path}/dist`);
+      await _exec(`zcli apps:update ${path}/dist`);
     } else {
-      shell.echo(`🚀 Deploying a new application...`);
+      echo(`🚀 Deploying a new application...`);
       jsonToFile(zcliConfigPath, { parameters });
 
-      await exec.exec(`zcli apps:create ${path}/dist`);
+      await _exec(`zcli apps:create ${path}/dist`);
 
       const appId = fileToJSON(zcliConfigPath).app_id;
       
       zendeskConfig.ids[env] = appId;
       jsonToFile(zendeskConfigPath, zendeskConfig);
     }
-    shell.echo(`🚀 Deployed!`);
+    echo(`🚀 Deployed!`);
 
-    await exec.exec(`rm -rf ${path}/zcli.apps.config.json`);
+    await _exec(`rm -rf ${path}/zcli.apps.config.json`);
   } catch (error) {
-    core.setFailed(error.message);
+    setFailed(error.message);
   }
 }
 
