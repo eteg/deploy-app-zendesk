@@ -1,4 +1,6 @@
 const core = require("@actions/core");
+const github = require("@actions/github");
+const runner = require("@actions/runner");
 const exec = require("@actions/exec");
 const shell = require("shelljs");
 import { fileToJSON, jsonToFile } from "./functions";
@@ -50,11 +52,14 @@ async function deploy() {
     const path = core.getInput("path", { required: true });
     const params = JSON.parse(core.getInput("params", { required: true })); // O default será {}
 
-    shell.echo(`💡 Job started at ${dateTime}`);
+    shell.echo(`💡 Job started at ${ dateTime }`);
+    shell.echo(`🎉 The job was automat ically triggered by a ${ github.event_name } event.`)
+    shell.echo(`🐧 This job is now running on a ${ runner.os } server hosted by GitHub!`)
+    shell.echo(`🔎 The name of your branch is ${ github.ref } and your repository is ${ github.repository }.`)
 
     const parameters = filterParams(params);
 
-    const zcliConfigPath = `${path}/dist/zcli.apps.config.json`
+    const zcliConfigPath = `${path}/dist/zcli.apps.config.json`;
     const zendeskConfigPath = `${path}/zendesk.apps.config.json`;
     const zendeskConfig = fileToJSON(zendeskConfigPath);
     const ids = zendeskConfig?.ids;
@@ -76,6 +81,7 @@ async function deploy() {
       zendeskConfig.ids[env] = appId;
       jsonToFile(zendeskConfigPath, zendeskConfig);
     }
+    shell.echo(`🚀 Deployed!`);
 
     await exec.exec(`rm -rf ${path}/zcli.apps.config.json`);
   } catch (error) {
