@@ -17993,14 +17993,6 @@ module.exports = eval("require")("@actions/runner");
 
 /***/ }),
 
-/***/ 153:
-/***/ ((module) => {
-
-module.exports = eval("require")("dotenv");
-
-
-/***/ }),
-
 /***/ 2877:
 /***/ ((module) => {
 
@@ -18264,8 +18256,6 @@ const runner = __nccwpck_require__(8774);
 const exec = __nccwpck_require__(1514);
 const shell = __nccwpck_require__(3516);
 
-
-(__nccwpck_require__(153).config)();
 
 function getManifestParameters(){
   const manifestPath = rootPath("manifest.json");
