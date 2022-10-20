@@ -17,6 +17,9 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v3
 
+      - name: Intall Dependencies
+        run: yarn
+
       - name: Build Action
         run: yarn build
   params:
