@@ -6,7 +6,7 @@ import { exec as _exec } from "@actions/exec";
 import { echo } from "shelljs";
 
 const fileToJSON = (filePath) => {
-  return JSON.parse(readFileSync(filePath, "utf-8"));
+  return JSON.parse(readFileSync(filePath, "utf-8") || "{}");
 };
 
 const jsonToFile = (filePath, json) => {
@@ -71,7 +71,7 @@ async function deploy() {
     const zcliConfigPath = `${path}/dist/zcli.apps.config.json`;
     const zendeskConfigPath = `${path}/zendesk.apps.config.json`;
     const zendeskConfig = fileToJSON(zendeskConfigPath);
-    const ids = zendeskConfig?.ids;
+    const ids = zendeskConfig?.ids; 
 
     if (ids && ids[env]) {
       echo(`🚀 Deploying an existing application...`);
@@ -92,7 +92,7 @@ async function deploy() {
     }
     echo(`🚀 Deployed!`);
 
-    await _exec(`rm -rf ${path}/zcli.apps.config.json`);
+    await _exec(`rm -rf ${path}/dist/zcli.apps.config.json`);
   } catch (error) {
     setFailed(error.message);
   }
