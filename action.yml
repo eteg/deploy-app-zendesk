@@ -7,7 +7,7 @@ inputs:
     default: "develop"
   params:
     description: "Manifest params"
-    required: true
+    required: false
   path:
     description: "Directory path"
     required: true

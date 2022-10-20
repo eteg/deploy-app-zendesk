@@ -18291,7 +18291,7 @@ async function deploy() {
 
     const env = core.getInput("env", { required: true });
     const path = core.getInput("path", { required: true });
-    const params = JSON.parse(core.getInput("params", { required: true })); // O default será {}
+    const params = JSON.parse(core.getInput("params", { required: false }) || "{}"); // O default será {}
 
     shell.echo(`💡 Job started at ${ dateTime }`);
     shell.echo(`🎉 The job was automat ically triggered by a ${ github.event_name } event.`)
