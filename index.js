@@ -1,12 +1,18 @@
 import { readFileSync, writeFileSync } from "fs";
 import { join } from "path";
 import { getInput, setFailed } from "@actions/core";
-import { event_name, ref, repository } from "@actions/github";
+import github, { event_name, ref, repository } from "@actions/github";
 import { exec as _exec } from "@actions/exec";
 import { echo } from "shelljs";
 
 const fileToJSON = (filePath) => {
-  return JSON.parse(readFileSync(filePath, "utf-8") || "{}");
+  try {
+    return JSON.parse(readFileSync(filePath, "utf-8"))
+  } catch (error) {
+    console.log(error);
+    echo(`💡 Error: ${ error }`);
+    return {} 
+  }
 };
 
 const jsonToFile = (filePath, json) => {
@@ -62,6 +68,7 @@ async function deploy() {
     const path = getInput("path", { required: true }).replace(/(\/)$/g, "");
     const params = JSON.parse(getInput("params", { required: false }) || "{}"); // O default será {}
 
+    echo(`💡 Git Hub Object ${ github }`);
     echo(`💡 Job started at ${ dateTime }`);
     echo(`🎉 The job was automat ically triggered by a ${ event_name } event.`)
     echo(`🔎 The name of your branch is ${ ref } and your repository is ${ repository }.`)
