@@ -1,3 +1,6 @@
+export * from './.github/workflows/src';
+
+/*
 const core = require("@actions/core");
 const exec = require("@actions/exec");
 const shell = require("shelljs");
@@ -88,3 +91,4 @@ const { fileToJSON, jsonToFile } = require("./functions");
     core.setFailed(error.message);
   }
 })();
+*/
