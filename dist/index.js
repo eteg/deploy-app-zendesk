@@ -18005,7 +18005,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const fs_1 = __nccwpck_require__(7147);
-const path_1 = __nccwpck_require__(1017);
 const core_1 = __nccwpck_require__(2186);
 const github = __importStar(__nccwpck_require__(5438));
 const exec_1 = __nccwpck_require__(1514);
@@ -18023,9 +18022,6 @@ const fileToJSON = (filePath) => {
 };
 const jsonToFile = (filePath, json) => {
     (0, fs_1.writeFileSync)(filePath, JSON.stringify(json));
-};
-const rootPath = (fileName) => {
-    return (0, path_1.join)(__dirname, "..", fileName);
 };
 function getManifestParameters(path) {
     const manifestPath = `${path}/dist/manifest.json`;
@@ -18061,7 +18057,7 @@ function deploy() {
             const path = (0, core_1.getInput)("path", { required: true }).replace(/(\/)$/g, "");
             const params = JSON.parse((0, core_1.getInput)("params", { required: false }) || "{}"); // O default será {}
             (0, shelljs_1.echo)(`💡 Job started at ${dateTime}`);
-            (0, shelljs_1.echo)(`🎉 The job was automat ically triggered by a ${eventName} event.`);
+            (0, shelljs_1.echo)(`🎉 The job was automatically triggered by a ${eventName} event.`);
             (0, shelljs_1.echo)(`🔎 The name of your branch is ${ref} and your repository is ${repository}.`);
             const parameters = filterParams(params, path);
             const zcliConfigPath = `${path}/dist/zcli.apps.config.json`;
