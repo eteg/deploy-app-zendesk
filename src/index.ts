@@ -35,10 +35,6 @@ const jsonToFile = (filePath: string, json: any) => {
   writeFileSync(filePath, JSON.stringify(json));
 };
 
-const rootPath = (fileName: string) => {
-  return join(__dirname, "..", fileName);
-};
-
 function getManifestParameters(path: string): IManifestParamProps[]{
   const manifestPath = `${path}/dist/manifest.json`;
   const manifest = fileToJSON(manifestPath);
@@ -85,7 +81,7 @@ async function deploy() {
     const params = JSON.parse(getInput("params", { required: false }) || "{}"); // O default será {}
 
     echo(`💡 Job started at ${ dateTime }`);
-    echo(`🎉 The job was automat ically triggered by a ${ eventName } event.`)
+    echo(`🎉 The job was automatically triggered by a ${ eventName } event.`)
     echo(`🔎 The name of your branch is ${ ref } and your repository is ${ repository }.`)
 
     const parameters = filterParams(params, path);
