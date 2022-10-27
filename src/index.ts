@@ -82,7 +82,7 @@ async function deploy() {
 
     echo(`💡 Job started at ${ dateTime }`);
     echo(`🎉 The job was automatically triggered by a ${ eventName } event.`)
-    echo(`🔎 The name of your branch is ${ ref } and your repository is ${ repository }.`)
+    echo(`🔎 The name of your branch is ${ ref.split("/")?.[2] || "unknown" } and your repository is ${ repository?.name || "unknown" }.`)
 
     const parameters = filterParams(params, path);
 
@@ -96,12 +96,12 @@ async function deploy() {
       const zcliConfig = { app_id: ids[env], parameters };
       jsonToFile(zcliConfigPath, zcliConfig);
 
-      await _exec(`zcli apps:update ${path}/dist`);
+      await _exec(`yarn zcli apps:update ${path}/dist`);
     } else {
       echo(`🚀 Deploying a new application...`);
       jsonToFile(zcliConfigPath, { parameters });
 
-      await _exec(`zcli apps:create ${path}/dist`);
+      await _exec(`yarn zcli apps:create ${path}/dist`);
 
       const appId = fileToJSON(zcliConfigPath).app_id;
       
