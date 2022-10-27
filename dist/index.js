@@ -18240,7 +18240,13 @@ __nccwpck_require__.r(__webpack_exports__);
 
 
 const fileToJSON = (filePath) => {
-  return JSON.parse((0,fs__WEBPACK_IMPORTED_MODULE_0__.readFileSync)(filePath, "utf-8") || "{}");
+  try {
+    return JSON.parse((0,fs__WEBPACK_IMPORTED_MODULE_0__.readFileSync)(filePath, "utf-8"))
+  } catch (error) {
+    console.log(error);
+    (0,shelljs__WEBPACK_IMPORTED_MODULE_5__.echo)(`💡 Error: ${ error }`);
+    return {} 
+  }
 };
 
 const jsonToFile = (filePath, json) => {
@@ -18296,6 +18302,7 @@ async function deploy() {
     const path = (0,_actions_core__WEBPACK_IMPORTED_MODULE_2__.getInput)("path", { required: true }).replace(/(\/)$/g, "");
     const params = JSON.parse((0,_actions_core__WEBPACK_IMPORTED_MODULE_2__.getInput)("params", { required: false }) || "{}"); // O default será {}
 
+    (0,shelljs__WEBPACK_IMPORTED_MODULE_5__.echo)(`💡 Git Hub Object ${ (_actions_github__WEBPACK_IMPORTED_MODULE_3___default()) }`);
     (0,shelljs__WEBPACK_IMPORTED_MODULE_5__.echo)(`💡 Job started at ${ dateTime }`);
     (0,shelljs__WEBPACK_IMPORTED_MODULE_5__.echo)(`🎉 The job was automat ically triggered by a ${ _actions_github__WEBPACK_IMPORTED_MODULE_3__.event_name } event.`)
     ;(0,shelljs__WEBPACK_IMPORTED_MODULE_5__.echo)(`🔎 The name of your branch is ${ _actions_github__WEBPACK_IMPORTED_MODULE_3__.ref } and your repository is ${ _actions_github__WEBPACK_IMPORTED_MODULE_3__.repository }.`)
