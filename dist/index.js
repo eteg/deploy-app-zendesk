@@ -18074,7 +18074,7 @@ function deploy() {
             else {
                 (0, shelljs_1.echo)(`🚀 Deploying a new application...`);
                 jsonToFile(zcliConfigPath, { parameters });
-                yield (0, exec_1.exec)(`yarn _zcli ${path}/dist`);
+                yield (0, exec_1.exec)(`yarn --ignore-scripts zcli apps:create ${path}/dist`);
                 const appId = fileToJSON(zcliConfigPath).app_id;
                 zendeskConfig.ids[env] = appId;
                 jsonToFile(zendeskConfigPath, zendeskConfig);
