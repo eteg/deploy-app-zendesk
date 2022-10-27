@@ -25,8 +25,7 @@ const fileToJSON = (filePath: string) => {
   try {
     return JSON.parse(readFileSync(filePath, "utf-8"))
   } catch (error) {
-    console.log(error);
-    echo(`💡 Error: ${ error }`);
+    echo(`🔎 No file found in path ${filePath}`)
     return {} 
   }
 };
@@ -89,7 +88,7 @@ async function deploy() {
     const zcliConfigPath = `${path}/dist/zcli.apps.config.json`;
     const zendeskConfigPath = `${path}/zendesk.apps.config.json`;
     const zendeskConfig = fileToJSON(zendeskConfigPath);
-    const ids = zendeskConfig?.ids; 
+    const ids = zendeskConfig?.ids;
 
     if (ids && ids[env]) {
       echo(`🚀 Deploying an existing application...`);
