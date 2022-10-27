@@ -18069,12 +18069,12 @@ function deploy() {
                 (0, shelljs_1.echo)(`🚀 Deploying an existing application...`);
                 const zcliConfig = { app_id: ids[env], parameters };
                 jsonToFile(zcliConfigPath, zcliConfig);
-                yield (0, exec_1.exec)(`yarn zcli apps:update ${path}/dist`);
+                yield (0, exec_1.exec)(`zcli apps:update ${path}/dist`);
             }
             else {
                 (0, shelljs_1.echo)(`🚀 Deploying a new application...`);
                 jsonToFile(zcliConfigPath, { parameters });
-                yield (0, exec_1.exec)(`yarn --ignore-scripts zcli apps:create ${path}/dist`);
+                yield (0, exec_1.exec)(`zcli apps:create ${path}/dist`);
                 const appId = fileToJSON(zcliConfigPath).app_id;
                 zendeskConfig.ids[env] = appId;
                 jsonToFile(zendeskConfigPath, zendeskConfig);
