@@ -103,8 +103,8 @@ async function deploy() {
       await _exec(`npx zcli apps:create ${path}/dist`);
 
       const appId = fileToJSON(zcliConfigPath).app_id;
-      
-      zendeskConfig.ids[env] = appId;
+
+      zendeskConfig.ids = {...ids, [env]: appId};
       jsonToFile(zendeskConfigPath, zendeskConfig);
     }
     echo(`🚀 Deployed!`);
