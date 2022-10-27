@@ -18015,8 +18015,7 @@ const fileToJSON = (filePath) => {
         return JSON.parse((0, fs_1.readFileSync)(filePath, "utf-8"));
     }
     catch (error) {
-        console.log(error);
-        (0, shelljs_1.echo)(`💡 Error: ${error}`);
+        (0, shelljs_1.echo)(`🔎 No file found in path ${filePath}`);
         return {};
     }
 };
