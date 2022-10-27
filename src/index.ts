@@ -101,7 +101,7 @@ async function deploy() {
       echo(`🚀 Deploying a new application...`);
       jsonToFile(zcliConfigPath, { parameters });
 
-      await _exec(`yarn zcli apps:create ${path}/dist`);
+      await _exec(`yarn _zcli ${path}/dist`);
 
       const appId = fileToJSON(zcliConfigPath).app_id;
       

@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "ncc build src/index.ts",
+    "_zcli": "zcli apps:create",
     "test": "jest"
   },
   "repository": {
