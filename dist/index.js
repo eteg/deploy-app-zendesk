@@ -18075,7 +18075,7 @@ function deploy() {
                 jsonToFile(zcliConfigPath, { parameters });
                 yield (0, exec_1.exec)(`npx zcli apps:create ${path}/dist`);
                 const appId = fileToJSON(zcliConfigPath).app_id;
-                zendeskConfig.ids[env] = appId;
+                zendeskConfig.ids = Object.assign(Object.assign({}, ids), { [env]: appId });
                 jsonToFile(zendeskConfigPath, zendeskConfig);
             }
             (0, shelljs_1.echo)(`🚀 Deployed!`);
