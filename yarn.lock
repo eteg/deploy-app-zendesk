@@ -2025,10 +2025,6 @@ resolve@^1.1.6, resolve@^1.20.0:
     path-parse "^1.0.7"
     supports-preserve-symlinks-flag "^1.0.0"
 
-runner@actions/runner:
-  version "0.0.0"
-  resolved "https://codeload.github.com/actions/runner/tar.gz/5421fe3f7107f770c904ed4c7e506ae7a5cde2c2"
-
 semver@^6.0.0, semver@^6.3.0:
   version "6.3.0"
   resolved "https://registry.npmjs.org/semver/-/semver-6.3.0.tgz"
