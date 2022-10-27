@@ -18050,6 +18050,7 @@ function filterParams(params, path) {
     return paramaters;
 }
 function deploy() {
+    var _a;
     return __awaiter(this, void 0, void 0, function* () {
         try {
             const dateTime = new Date().toLocaleString("pt-BR");
@@ -18058,7 +18059,7 @@ function deploy() {
             const params = JSON.parse((0, core_1.getInput)("params", { required: false }) || "{}"); // O default será {}
             (0, shelljs_1.echo)(`💡 Job started at ${dateTime}`);
             (0, shelljs_1.echo)(`🎉 The job was automatically triggered by a ${eventName} event.`);
-            (0, shelljs_1.echo)(`🔎 The name of your branch is ${ref} and your repository is ${repository}.`);
+            (0, shelljs_1.echo)(`🔎 The name of your branch is ${((_a = ref.split("/")) === null || _a === void 0 ? void 0 : _a[2]) || "unknown"} and your repository is ${(repository === null || repository === void 0 ? void 0 : repository.name) || "unknown"}.`);
             const parameters = filterParams(params, path);
             const zcliConfigPath = `${path}/dist/zcli.apps.config.json`;
             const zendeskConfigPath = `${path}/zendesk.apps.config.json`;
@@ -18068,12 +18069,12 @@ function deploy() {
                 (0, shelljs_1.echo)(`🚀 Deploying an existing application...`);
                 const zcliConfig = { app_id: ids[env], parameters };
                 jsonToFile(zcliConfigPath, zcliConfig);
-                yield (0, exec_1.exec)(`zcli apps:update ${path}/dist`);
+                yield (0, exec_1.exec)(`yarn zcli apps:update ${path}/dist`);
             }
             else {
                 (0, shelljs_1.echo)(`🚀 Deploying a new application...`);
                 jsonToFile(zcliConfigPath, { parameters });
-                yield (0, exec_1.exec)(`zcli apps:create ${path}/dist`);
+                yield (0, exec_1.exec)(`yarn zcli apps:create ${path}/dist`);
                 const appId = fileToJSON(zcliConfigPath).app_id;
                 zendeskConfig.ids[env] = appId;
                 jsonToFile(zendeskConfigPath, zendeskConfig);
