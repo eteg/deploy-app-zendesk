@@ -1,5 +1,6 @@
 import FormData from 'form-data'
 import fs from 'fs'
+import jszip from 'jszip';
 import { AxiosInstance } from 'axios'
 
 export default class CommonApp {
@@ -10,10 +11,12 @@ export default class CommonApp {
   }
 
   async uploadApp(appPath: string): Promise<{ id: string }> {
-    const payload = new FormData();
-    const appBuffer = fs.createReadStream(appPath);
+    const compress = new jszip();
 
-    payload.append('uploaded_data', appBuffer);
+    const payload = new FormData();
+    const appCompress = compress.folder(appPath);
+
+    payload.append('uploaded_data', appCompress);
 
     console.log({ payload });
 

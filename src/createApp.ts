@@ -1,6 +1,6 @@
-import CommonApp from "./services/CommonApp";
-import ZendeskAuthentication from "./services/ZendeskAuthentication";
-import { cleanParameters } from "./utils";
+import CommonApp from "./services/CommonApp"
+import ZendeskAuthentication from "./services/ZendeskAuthentication"
+import { cleanParameters } from "./utils/index";
 
 export async function createApp(
   authenticate: AuthenticateZendesk,
@@ -8,10 +8,6 @@ export async function createApp(
   appConfig: Manifest,
   distPath: string
 ): Promise<AppId> {
-  console.log({ authenticate });
-  console.log({ parameters });
-  console.log({ appConfig });
-  console.log({ distPath });
 
   const { api } = new ZendeskAuthentication(authenticate);
 
@@ -21,15 +17,11 @@ export async function createApp(
 
   const appName = appConfig.name;
 
-  const { job_id } = await commonApp.deployApp(newAppUploadId, appName, "post");
+  const { job_id } = await commonApp.deployApp(newAppUploadId, appName, 'post');
 
   const { app_id: appIdFromJobStatus } = await commonApp.getUploadJobStatus(job_id);
 
-  const { app_id } = await commonApp.updateProductInstallation(
-    cleanParameters(parameters),
-    appConfig,
-    appIdFromJobStatus
-  );
+  const { app_id } = await commonApp.updateProductInstallation(cleanParameters(parameters), appConfig, appIdFromJobStatus);
 
   return app_id;
 }

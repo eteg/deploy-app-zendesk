@@ -24,6 +24,7 @@
     "@actions/exec": "^1.1.1",
     "@actions/github": "^5.1.1",
     "@zendesk/zcli": "^1.0.0-beta.16",
+    "jszip": "^3.10.1",
     "shelljs": "^0.8.5"
   },
   "devDependencies": {

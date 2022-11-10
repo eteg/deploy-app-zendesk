@@ -11,7 +11,7 @@ export default class ZendeskAuthentication {
   }
 
   _createBasicAuthToken(email: string, apiToken: string): string {
-    const plainToken = Buffer.from(`${email}:${apiToken}`);
+    const plainToken = Buffer.from(`${email}/token:${apiToken}`);
     return `Basic ${plainToken.toString("base64")}`;
   }
 }
