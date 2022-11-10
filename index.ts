@@ -51,7 +51,7 @@ function getAuthenticateParams(): AuthenticateZendesk {
 function getManifest(path: string): Manifest {
   const manifestPath = `${path}/dist/manifest.json`;
   const manifest = fileToJSON(manifestPath);
-  if (!manifest) throw new Error(`Missing manifest file on ${manifestPath}`);
+  if (!Object.keys(manifest).length) throw new Error(`Missing manifest file on ${manifestPath}`);
   return manifest;
 }
 
@@ -118,7 +118,7 @@ async function deploy() {
 
     if (appId) {
       echo(`📌 Updating an existing application with appId ${appId}...`);
-      await updateApp(authenticate, parameters, manifest, path);;
+      await updateApp(authenticate, parameters, manifest, path);
     } else {
       echo(`✨ Deploying a new application...`);
 
@@ -130,7 +130,7 @@ async function deploy() {
 
     echo(`🚀 App ${manifest.name} with appId ${appId} Deployed!`);
   } catch (error: any) {
-    setFailed(error.message);
+    setFailed(error);
   }
 }
 
