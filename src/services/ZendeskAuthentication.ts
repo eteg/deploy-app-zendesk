@@ -5,7 +5,7 @@ export default class ZendeskAuthentication {
 
   constructor({ apiToken, email, subdomain }: AuthenticateZendesk) {
     const authorization = this._createBasicAuthToken(email, apiToken);
-    const baseURL = `${subdomain}.zendesk.com`;
+    const baseURL = `https://${subdomain}.zendesk.com`;
 
     this.api = axios.create({ baseURL, headers: { authorization } });
   }
