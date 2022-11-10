@@ -1,19 +1,19 @@
 import * as path from 'path'
-import * as fs from 'fs-extra'
+import * as fs from 'fs'
 import core from "@actions/core"
 
 
-export const setConfig = async (json, appPath) => {
+export const setConfig = async (json: any, appPath: string) => {
   fs.writeFileSync(`${appPath}/apps_id.json`, JSON.stringify(json));
 }
 
-const validatePath = (path) => {
+const validatePath = (path: string) => {
   if (!fs.existsSync(path)) {
     core.error(`Invalid path: ${path}`);
   }
 }
 
-export const getManifestFile = (appPath) => {
+export const getManifestFile = (appPath: string): any => {
   const manifestFilePath = path.join(appPath, 'manifest.json')
   validatePath(manifestFilePath)
 
@@ -21,16 +21,17 @@ export const getManifestFile = (appPath) => {
   return JSON.parse(manifest)
 }
 
-export const getManifestAppName = (appPath) => {
+export const getManifestAppName = (appPath: string): string => {
   return getManifestFile(appPath).name
 }
 
-export const cleanParameters = (environment) => {
+//TODO: MUDAR ISSO O MAIS RÀPIDO POSSÌVEL
+export const cleanParameters = (environment: any): any => {
   const keysEnv = Object.keys(environment);
 
-  const parameters = { };
+  const parameters: any = { };
 
-  keysEnv.forEach((item) => {
+  keysEnv.forEach((item: string) => {
     parameters[item.replace('PARAMS_', '').toLowerCase()] = environment[item];
   });
 

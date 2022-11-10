@@ -11,6 +11,15 @@ inputs:
   path:
     description: "Directory path"
     required: true
+  zendesk_subdomain:
+    description: "Zendesk subdomain where the app will be deployed"
+    required: true
+  zendesk_email:
+    description: "Zendesk email to authenticate"
+    required: true
+  zendesk_api_token:
+    description: "Zendesk api token to authenticate"
+    required: true
 runs:
   using: "node16"
   main: "dist/index.js"

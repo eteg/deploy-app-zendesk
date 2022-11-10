@@ -1,13 +1,15 @@
-import * as FormData from 'form-data'
+import FormData from 'form-data'
+import fs from 'fs'
+import { AxiosInstance } from 'axios'
 
 export default class CommonApp {
-  _apiAuthentication
+  private _apiAuthentication: AxiosInstance 
 
-  constructor(apiAuthentication) {
+  constructor(apiAuthentication: AxiosInstance) {
     this._apiAuthentication = apiAuthentication;
   }
 
-  async uploadApp(appPath) {
+  async uploadApp(appPath: string): { id: string } {
     const payload = new FormData();
     const appBuffer = fs.createReadStream(appPath);
 
@@ -19,8 +21,8 @@ export default class CommonApp {
     return data;
   }
 
-  async deployApp(uploadId, name, httpMethod) {
-    const payload = { upload_id: uploadId };
+  async deployApp(uploadId: string, name: string, httpMethod: 'post'|'put') {
+    const payload: { upload_id: string, name?: string } = { upload_id: uploadId };
 
     if (name) {
       payload.name = name;
@@ -33,7 +35,7 @@ export default class CommonApp {
   }
 
   //Check job status and return the app_id
-  async getUploadJobStatus (job_id, appPath, pollAfter = 1000) {
+  async getUploadJobStatus (job_id: string, pollAfter = 1000): Promise<any> {
     return new Promise((resolve, reject) => {
       const polling = setInterval(async () => {
         const { data } = await this._apiAuthentication
@@ -41,26 +43,26 @@ export default class CommonApp {
   
         if (data.status === 'completed') {
           clearInterval(polling)
-          resolve({ status: data.status, message: data.message, app_id })
+          resolve({ status: data.status, message: data.message, app_id: data.app_id })
         } else if (data.status === 'failed') {
           clearInterval(polling)
-          reject(message)
+          reject(data.message)
         }
       }, pollAfter);
     })
   }
 
-  async updateProductInstallation(parameters, manifest, app_id) {
+  async updateProductInstallation(parameters: ManifestParameter[], manifest: Manifest , app_id: string): Promise<any> {
     const installationResp = await this._apiAuthentication
       .get(`/api/support/apps/installations.json`);
 
     const installations = installationResp.data;
-    const installation_id = installations.installations.filter(i => i.app_id === app_id)[0].id
+    const installation_id = installations.installations.filter((i: Installation) => i.app_id === app_id)[0].id
   
-    const updated = await this._apiAuthentication.put(`/api/support/apps/installations/${installation_id}.json`, {
+    const { data } = await this._apiAuthentication.put(`/api/support/apps/installations/${installation_id}.json`, {
       settings: { name: manifest.name, ...parameters }
     });
   
-    return updated.status === 201 || updated.status === 200;
+    return data;
   }
 }

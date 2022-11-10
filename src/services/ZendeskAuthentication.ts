@@ -1,16 +1,16 @@
-const axios = require('axios');
+import axios, { AxiosInstance } from 'axios';
 
 export default class ZendeskAuthentication {
-  _api;
+  api: AxiosInstance;
 
-  constructor(email, apiToken, subdomain) {
+  constructor({ apiToken, email, subdomain }: AuthenticateZendesk) {
     const authorization = this._createBasicAuthToken(email, apiToken);
 
-    return this._api = axios.create({ baseURL: subdomain, headers: { authorization } });
+    this.api = axios.create({ baseURL: subdomain, headers: { authorization } });
   }
 
-  _createBasicAuthToken(email, apiToken) {
-    const plainToken = Buffer.from(`${email}:${apiToken}`)
-    return `Basic ${plainToken.toString('base64')}`
+  _createBasicAuthToken(email: string, apiToken: string): string {
+    const plainToken = Buffer.from(`${email}:${apiToken}`);
+    return `Basic ${plainToken.toString('base64')}`;
   }
 }
