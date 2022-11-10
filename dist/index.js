@@ -23050,10 +23050,14 @@ class CommonApp {
     uploadApp(appPath) {
         return __awaiter(this, void 0, void 0, function* () {
             const payload = new form_data_1.default();
+            console.log({ payload });
             const appBuffer = fs_1.default.createReadStream(appPath);
+            console.log({ appBuffer });
             payload.append('uploaded_data', appBuffer);
+            console.log({ payload });
             const { data } = yield this._apiAuthentication
                 .post('api/v2/apps/uploads.json', payload);
+            console.log({ data });
             return data;
         });
     }
