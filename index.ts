@@ -112,8 +112,8 @@ async function deploy() {
 
     echo(`🗄️ looking for existing applications`);
     const zendeskConfigPath = `${path}/zendesk.apps.config.json`;
-    const zendeskConfig = fileToJSON(zendeskConfigPath);
-    const ids = zendeskConfig?.ids;
+    const zendeskConfig: ZendeskAppsConfig = fileToJSON(zendeskConfigPath);
+    const ids = zendeskConfig?.ids || {};
     let appId: AppId | undefined = ids[env];
 
     if (appId) {

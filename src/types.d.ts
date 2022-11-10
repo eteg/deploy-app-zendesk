@@ -8,9 +8,13 @@ type AuthenticateZendesk = {
   email: string;
   subdomain: string;
   apiToken: string;
-} 
+}
 
-type Manifest = { 
+type ZendeskAppsConfig = {
+  ids?: Record<string, AppId>;
+}
+
+type Manifest = {
   name: string;
   author: Author;
   defaultLocale: string;
