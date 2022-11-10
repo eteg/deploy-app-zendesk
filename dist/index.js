@@ -22900,7 +22900,7 @@ function getAuthenticateParams() {
     return auth;
 }
 function getManifest(path) {
-    const manifestPath = `${path}/dist/manifest.json`;
+    const manifestPath = `${path}/manifest.json`;
     const manifest = fileToJSON(manifestPath);
     if (!Object.keys(manifest).length)
         throw new Error(`Missing manifest file on ${manifestPath}`);
@@ -23004,6 +23004,7 @@ function createApp(authenticate, parameters, appConfig, distPath) {
         const { api } = new ZendeskAuthentication_1.default(authenticate);
         console.log({ api });
         const commonApp = new CommonApp_1.default(api);
+        console.log({ commonApp });
         const { id: newAppUploadId } = yield commonApp.uploadApp(distPath);
         console.log({ newAppUploadId });
         const appName = appConfig.name;
