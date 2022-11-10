@@ -23116,11 +23116,12 @@ const axios_1 = __importDefault(__nccwpck_require__(6545));
 class ZendeskAuthentication {
     constructor({ apiToken, email, subdomain }) {
         const authorization = this._createBasicAuthToken(email, apiToken);
-        this.api = axios_1.default.create({ baseURL: subdomain, headers: { authorization } });
+        const baseURL = `${subdomain}.zendesk.com`;
+        this.api = axios_1.default.create({ baseURL, headers: { authorization } });
     }
     _createBasicAuthToken(email, apiToken) {
         const plainToken = Buffer.from(`${email}:${apiToken}`);
-        return `Basic ${plainToken.toString('base64')}`;
+        return `Basic ${plainToken.toString("base64")}`;
     }
 }
 exports["default"] = ZendeskAuthentication;
