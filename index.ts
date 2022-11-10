@@ -49,7 +49,7 @@ function getAuthenticateParams(): AuthenticateZendesk {
 }
 
 function getManifest(path: string): Manifest {
-  const manifestPath = `${path}/dist/manifest.json`;
+  const manifestPath = `${path}/manifest.json`;
   const manifest = fileToJSON(manifestPath);
   if (!Object.keys(manifest).length) throw new Error(`Missing manifest file on ${manifestPath}`);
   return manifest;

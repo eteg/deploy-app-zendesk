@@ -20,6 +20,8 @@ export async function createApp(
 
   const commonApp = new CommonApp(api);
 
+  console.log({ commonApp });
+
   const { id: newAppUploadId } = await commonApp.uploadApp(distPath);
 
   console.log({ newAppUploadId });
