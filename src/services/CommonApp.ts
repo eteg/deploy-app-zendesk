@@ -11,12 +11,18 @@ export default class CommonApp {
 
   async uploadApp(appPath: string): Promise<{ id: string }> {
     const payload = new FormData();
+    console.log({ payload });
     const appBuffer = fs.createReadStream(appPath);
+    console.log({ appBuffer });
 
     payload.append('uploaded_data', appBuffer);
 
+    console.log({ payload });
+
     const { data } = await this._apiAuthentication
       .post('api/v2/apps/uploads.json', payload);
+
+    console.log({ data });
 
     return data;
   }
