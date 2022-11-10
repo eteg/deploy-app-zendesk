@@ -22997,13 +22997,23 @@ const ZendeskAuthentication_1 = __importDefault(__nccwpck_require__(6893));
 const utils_1 = __nccwpck_require__(6252);
 function createApp(authenticate, parameters, appConfig, distPath) {
     return __awaiter(this, void 0, void 0, function* () {
+        console.log({ authenticate });
+        console.log({ parameters });
+        console.log({ appConfig });
+        console.log({ distPath });
         const { api } = new ZendeskAuthentication_1.default(authenticate);
+        console.log({ api });
         const commonApp = new CommonApp_1.default(api);
         const { id: newAppUploadId } = yield commonApp.uploadApp(distPath);
+        console.log({ newAppUploadId });
         const appName = appConfig.name;
+        console.log({ appName });
         const { job_id } = yield commonApp.deployApp(newAppUploadId, appName, 'post');
+        console.log({ job_id });
         const { app_id: appIdFromJobStatus } = yield commonApp.getUploadJobStatus(job_id);
+        console.log({ appIdFromJobStatus });
         const { app_id } = yield commonApp.updateProductInstallation((0, utils_1.cleanParameters)(parameters), appConfig, appIdFromJobStatus);
+        console.log({ app_id });
         return app_id;
     });
 }
