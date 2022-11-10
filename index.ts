@@ -2,7 +2,8 @@ import { readFileSync, writeFileSync } from "fs";
 import { getInput, setFailed } from "@actions/core";
 import { exec as _exec } from "@actions/exec";
 import { echo } from "shelljs";
-import { createApp } from "./src/uploadApps";
+import { createApp } from "./src/createApp";
+import { updateApp } from "./src/updateApp";
 import * as github from "@actions/github";
 
 const {
@@ -25,7 +26,6 @@ const jsonToFile = (filePath: string, json: any) => {
 };
 
 function getAuthenticateParams(): AuthenticateZendesk {
-
   const subdomain = getInput("zendesk_subdomain", { required: true });
   const email = getInput("zendesk_email", { required: true });
   const apiToken = getInput("zendesk_api_token", { required: true });
@@ -37,16 +37,14 @@ function getAuthenticateParams(): AuthenticateZendesk {
   };
 
   const missingAuthParams = Object.keys(auth).filter(
-    (param) => typeof auth[param] !== "string"
+    (param) => typeof auth[param as keyof AuthenticateZendesk] !== "string"
   );
 
   if (missingAuthParams.length)
     throw new Error(
-      `Following authentication variables missing their values: ${missingAuthParams
-        .map((param) => param)
-        .join(", ")}`
+      `Following authentication variables missing their values: ${missingAuthParams.map((param) => param).join(", ")}`
     );
-  
+
   return auth;
 }
 
@@ -61,33 +59,20 @@ function isEqual(a: string, b: string) {
   return a.toLowerCase() === b.toLowerCase();
 }
 
-function filterParams(params: Record<string, string>, path: string) {
-  const paramsWithoutValue = Object.entries(params).filter(
-    ([_, value]) => typeof value === "undefined"
-  );
+function filterParams(manifest: Manifest, params: Record<string, string>) {
+  const paramsWithoutValue = Object.entries(params).filter(([_, value]) => typeof value === "undefined");
 
   if (paramsWithoutValue.length) {
-    throw new Error(
-      `Following secrets missing their values: ${paramsWithoutValue
-        .map(([key]) => key)
-        .join(", ")}`
-    );
+    throw new Error(`Following secrets missing their values: ${paramsWithoutValue.map(([key]) => key).join(", ")}`);
   }
 
-  const manifest = getManifest(path);
   const manifestParams = manifest?.parameters ?? [];
-
   const requiredParamsNotFound = manifestParams.filter(
-    (m) =>
-      m?.required && !Object.keys(params).find((key) => isEqual(m.name, key))
+    (m) => m?.required && !Object.keys(params).find((key) => isEqual(m.name, key))
   );
 
   if (requiredParamsNotFound.length) {
-    throw new Error(
-      `Missing following required parameters: ${requiredParamsNotFound
-        .map((p) => p.name)
-        .join(", ")}`
-    );
+    throw new Error(`Missing following required parameters: ${requiredParamsNotFound.map((p) => p.name).join(", ")}`);
   }
 
   const paramaters = {};
@@ -111,40 +96,39 @@ async function deploy() {
     echo(`💡 Job started at ${dateTime}`);
     echo(`🎉 The job was automatically triggered by a ${eventName} event.`);
     echo(
-      `🔎 The name of your branch is ${
-        ref.split("/")?.[2] || "unknown"
-      } and your repository is ${repository?.name || "unknown"}.`
+      `🔎 The name of your branch is ${ref.split("/")?.[2] || "unknown"} and your repository is ${repository?.name || "unknown"
+      }.`
     );
 
+    echo(`🔐 
+    checking if all credentials for authentications are here.`);
     const authenticate = getAuthenticateParams();
-    const parameters = filterParams(params, path);
 
-    const zcliConfigPath = `${path}/dist/zcli.apps.config.json`;
+    echo(`📖 looking for manifest file.`);
+    const manifest = getManifest(path);
+
+    echo(`🔎 Validating parameters.`);
+    const parameters = filterParams(manifest, params);
+
+    echo(`🗄️ looking for existing applications`);
     const zendeskConfigPath = `${path}/zendesk.apps.config.json`;
     const zendeskConfig = fileToJSON(zendeskConfigPath);
     const ids = zendeskConfig?.ids;
-    let appId = ids[env];
+    let appId: AppId | undefined = ids[env];
 
     if (appId) {
-      echo(`🚀 Deploying an existing application...`);
-      await _exec(`npx zcli apps:update ${path}/dist`);
-
+      echo(`📌 Updating an existing application with appId ${appId}...`);
+      await updateApp(authenticate, parameters, manifest, path);;
     } else {
-      echo(`🚀 Deploying a new application...`);
+      echo(`✨ Deploying a new application...`);
 
-      appId = await createApp(
-        authenticate,
-        parameters,
-        manifest,
-        path
-      );
+      appId = await createApp(authenticate, parameters, manifest, path);
 
       zendeskConfig.ids = { ...ids, [env]: appId };
       jsonToFile(zendeskConfigPath, zendeskConfig);
     }
 
-    echo(`🚀 App ${appId} Deployed!`);
-
+    echo(`🚀 App ${manifest.name} with appId ${appId} Deployed!`);
   } catch (error: any) {
     setFailed(error.message);
   }

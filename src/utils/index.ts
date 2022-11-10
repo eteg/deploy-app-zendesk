@@ -25,11 +25,10 @@ export const getManifestAppName = (appPath: string): string => {
   return getManifestFile(appPath).name
 }
 
-//TODO: MUDAR ISSO O MAIS RÀPIDO POSSÌVEL
-export const cleanParameters = (environment: any): any => {
+export const cleanParameters = (environment: Record<string, string>): Record<string, string> => {
   const keysEnv = Object.keys(environment);
 
-  const parameters: any = { };
+  const parameters: any = {};
 
   keysEnv.forEach((item: string) => {
     parameters[item.replace('PARAMS_', '').toLowerCase()] = environment[item];
