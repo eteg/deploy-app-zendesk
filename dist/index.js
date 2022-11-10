@@ -22902,7 +22902,7 @@ function getAuthenticateParams() {
 function getManifest(path) {
     const manifestPath = `${path}/dist/manifest.json`;
     const manifest = fileToJSON(manifestPath);
-    if (!manifest)
+    if (!Object.keys(manifest).length)
         throw new Error(`Missing manifest file on ${manifestPath}`);
     return manifest;
 }
@@ -22954,7 +22954,6 @@ function deploy() {
             if (appId) {
                 (0, shelljs_1.echo)(`📌 Updating an existing application with appId ${appId}...`);
                 yield (0, updateApp_1.updateApp)(authenticate, parameters, manifest, path);
-                ;
             }
             else {
                 (0, shelljs_1.echo)(`✨ Deploying a new application...`);
@@ -22965,7 +22964,7 @@ function deploy() {
             (0, shelljs_1.echo)(`🚀 App ${manifest.name} with appId ${appId} Deployed!`);
         }
         catch (error) {
-            (0, core_1.setFailed)(error.message);
+            (0, core_1.setFailed)(error);
         }
     });
 }
