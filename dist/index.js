@@ -22949,7 +22949,7 @@ function deploy() {
             (0, shelljs_1.echo)(`🗄️ looking for existing applications`);
             const zendeskConfigPath = `${path}/zendesk.apps.config.json`;
             const zendeskConfig = fileToJSON(zendeskConfigPath);
-            const ids = zendeskConfig === null || zendeskConfig === void 0 ? void 0 : zendeskConfig.ids;
+            const ids = (zendeskConfig === null || zendeskConfig === void 0 ? void 0 : zendeskConfig.ids) || {};
             let appId = ids[env];
             if (appId) {
                 (0, shelljs_1.echo)(`📌 Updating an existing application with appId ${appId}...`);
