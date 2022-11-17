@@ -25837,7 +25837,6 @@ function createApp(authenticate, parameters, appConfig, distPath) {
         const { api } = new ZendeskAuthentication_1.default(authenticate);
         const commonApp = new CommonApp_1.default(api);
         const { id: newAppUploadId } = yield commonApp.uploadApp(distPath);
-        return "1";
         console.log("newAppUploadId", newAppUploadId);
         const appName = appConfig.name;
         console.log("appName", appName);
@@ -25884,7 +25883,6 @@ class CommonApp {
             const compress = new adm_zip_1.default();
             const outputFile = `${appPath}/app.zip`;
             try {
-                console.log(fs_1.default.readdirSync(appPath), 'ee');
                 compress.addLocalFolder(appPath);
                 compress.writeZip(outputFile);
                 console.log(`Created ${outputFile} successfully`);
