@@ -47,12 +47,13 @@ export default class CommonApp {
 
   async deployApp(uploadId: string, name: string, httpMethod: "post" | "put"): Promise<{ job_id: string }> {
     const payload: { upload_id: string; name?: string } = { upload_id: uploadId };
-
     if (name) {
       payload.name = name;
     }
-
+    console.log("payload", payload);
+    
     const { data } = await this._apiAuthentication[httpMethod]("api/v2/apps.json", payload);
+    console.log("data", data);
 
     return data;
   }
