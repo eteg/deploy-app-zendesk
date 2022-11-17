@@ -25882,7 +25882,7 @@ class CommonApp {
     uploadApp(appPath) {
         return __awaiter(this, void 0, void 0, function* () {
             const compress = new adm_zip_1.default();
-            const outputFile = "app.zip";
+            const outputFile = `${appPath}/app.zip`;
             try {
                 console.log(fs_1.default.readdirSync(appPath), 'ee');
                 compress.addLocalFolder(appPath);
