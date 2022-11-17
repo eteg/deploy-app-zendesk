@@ -841,7 +841,7 @@
 
 "@types/adm-zip@^0.5.0":
   version "0.5.0"
-  resolved "https://registry.npmjs.org/@types/adm-zip/-/adm-zip-0.5.0.tgz"
+  resolved "https://registry.yarnpkg.com/@types/adm-zip/-/adm-zip-0.5.0.tgz#94c90a837ce02e256c7c665a6a1eb295906333c1"
   integrity sha512-FCJBJq9ODsQZUNURo5ILAQueuA8WJhRvuihS3ke2iI25mJlfV2LK8jG2Qj2z2AWg8U0FtWWqBHVRetceLskSaw==
   dependencies:
     "@types/node" "*"

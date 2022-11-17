@@ -20,13 +20,13 @@ export default class CommonApp {
       console.log(`Created ${outputFile} successfully`);
       
     } catch (error) {
-      throw new Error("Some error: ", error);    
+      throw new Error(`Some error: ${error}`);    
     }
 
     var formData = {
       name: 'uploaded_data',
       file: {
-        value: fs.createReadStream(`./${outputFile}`),
+        value: fs.createReadStream(`${outputFile}`),
         options: {
           filename: outputFile,
           contentType: 'application/zip'
