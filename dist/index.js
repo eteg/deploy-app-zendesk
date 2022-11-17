@@ -25939,11 +25939,14 @@ class CommonApp {
         });
     }
     updateProductInstallation(parameters, manifest, app_id) {
+        var _a;
         return __awaiter(this, void 0, void 0, function* () {
             const installationResp = yield this._apiAuthentication.get(`/api/support/apps/installations.json`);
-            const installations = installationResp.data;
+            console.log({ app_id });
+            const { installations } = installationResp.data;
             console.log(JSON.stringify(installations, null, 2));
-            const installation_id = installations.installations.filter((i) => i.app_id === app_id)[0].id;
+            const installation_id = (_a = installations.find((i) => String(i.app_id) === String(app_id))) === null || _a === void 0 ? void 0 : _a.id;
+            console.log({ installation_id });
             const { data } = yield this._apiAuthentication.put(`/api/support/apps/installations/${installation_id}.json`, {
                 settings: Object.assign({ name: manifest.name }, parameters),
             });
