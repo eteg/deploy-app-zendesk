@@ -15,7 +15,8 @@ export default class CommonApp {
     const outputFile = "./app.zip";
 
     try {
-      fs.readdirSync(appPath);
+      console.log(fs.readdirSync(appPath), 'ee');
+      
       compress.addLocalFolder(appPath);
       compress.writeZip(outputFile);
       console.log(`Created ${outputFile} successfully`);
