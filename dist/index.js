@@ -25836,13 +25836,14 @@ function createApp(authenticate, parameters, appConfig, distPath) {
         const { api } = new ZendeskAuthentication_1.default(authenticate);
         const commonApp = new CommonApp_1.default(api);
         const { id: newAppUploadId } = yield commonApp.uploadApp(distPath);
+        return "1";
         console.log("newAppUploadId", newAppUploadId);
         const appName = appConfig.name;
         console.log("appName", appName);
         const { job_id } = yield commonApp.deployApp(newAppUploadId, appName, 'post');
         console.log("job_id", job_id);
         const { app_id: appIdFromJobStatus } = yield commonApp.getUploadJobStatus(job_id);
-        console.log("job_id", job_id);
+        console.log("appIdFromJobStatus", appIdFromJobStatus);
         const { app_id } = yield commonApp.updateProductInstallation((0, index_1.cleanParameters)(parameters), appConfig, appIdFromJobStatus);
         console.log("app_id", app_id);
         return app_id;
@@ -25882,6 +25883,7 @@ class CommonApp {
             const compress = new adm_zip_1.default();
             const outputFile = "app.zip";
             try {
+                fs_1.default.readdirSync(appPath);
                 compress.addLocalFolder(appPath);
                 compress.writeZip(outputFile);
                 console.log(`Created ${outputFile} successfully`);
