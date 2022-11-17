@@ -14,17 +14,27 @@ export default class CommonApp {
     const compress = new AdmZip();
     const outputFile = "app.zip";
 
-    compress.addLocalFolder(appPath);
-    compress.writeZip(outputFile);
+    try {
+      compress.addLocalFolder(appPath);
+      compress.writeZip(outputFile);
+      console.log(`Created ${outputFile} successfully`);
+      
+    } catch (error) {
+      throw new Error("Some error: ", error);    
+    }
 
-    const payload = new FormData();
-    //const appCompress = compress.folder(appPath);
+    var formData = {
+      name: 'uploaded_data',
+      file: {
+        value: fs.createReadStream(`./${outputFile}`),
+        options: {
+          filename: outputFile,
+          contentType: 'application/zip'
+        }
+      }
+    };
 
-    //payload.append("uploaded_data", appCompress);
-
-    console.log({ payload });
-
-    const { data } = await this._apiAuthentication.post("api/v2/apps/uploads.json", payload).catch((err) => {
+    const { data } = await this._apiAuthentication.post("api/v2/apps/uploads.json", formData).catch((err) => {
       console.log("erros acontecem né, fazer o que ");
       console.log({ err });
       return { data: { id: 1 } };
