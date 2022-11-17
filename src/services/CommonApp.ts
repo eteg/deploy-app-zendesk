@@ -12,7 +12,7 @@ export default class CommonApp {
 
   async uploadApp(appPath: string): Promise<{ id: string }> {
     const compress = new AdmZip();
-    const outputFile = "app.zip";
+    const outputFile = "./app.zip";
 
     try {
       fs.readdirSync(appPath);
