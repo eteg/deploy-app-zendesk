@@ -85,10 +85,12 @@ export default class CommonApp {
     app_id: string
   ): Promise<{ app_id: string }> {
     const installationResp = await this._apiAuthentication.get(`/api/support/apps/installations.json`);
+    console.log({app_id})
 
-    const installations = installationResp.data;
+    const { installations } = installationResp.data;
     console.log(JSON.stringify(installations, null, 2))
-    const installation_id = installations.installations.filter((i: Installation) => i.app_id === app_id)[0].id;
+    const installation_id = installations.find((i: Installation) => String(i.app_id) === String(app_id))?.id;
+    console.log({ installation_id })
 
     const { data } = await this._apiAuthentication.put(`/api/support/apps/installations/${installation_id}.json`, {
       settings: { name: manifest.name, ...parameters },
