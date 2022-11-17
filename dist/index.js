@@ -25866,7 +25866,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const form_data_1 = __importDefault(__nccwpck_require__(4334));
+const fs_1 = __importDefault(__nccwpck_require__(7147));
 const adm_zip_1 = __importDefault(__nccwpck_require__(6761));
 class CommonApp {
     constructor(apiAuthentication) {
@@ -25876,13 +25876,25 @@ class CommonApp {
         return __awaiter(this, void 0, void 0, function* () {
             const compress = new adm_zip_1.default();
             const outputFile = "app.zip";
-            compress.addLocalFolder(appPath);
-            compress.writeZip(outputFile);
-            const payload = new form_data_1.default();
-            //const appCompress = compress.folder(appPath);
-            //payload.append("uploaded_data", appCompress);
-            console.log({ payload });
-            const { data } = yield this._apiAuthentication.post("api/v2/apps/uploads.json", payload).catch((err) => {
+            try {
+                compress.addLocalFolder(appPath);
+                compress.writeZip(outputFile);
+                console.log(`Created ${outputFile} successfully`);
+            }
+            catch (error) {
+                throw new Error(`Some error: ${error}`);
+            }
+            var formData = {
+                name: 'uploaded_data',
+                file: {
+                    value: fs_1.default.createReadStream(`${outputFile}`),
+                    options: {
+                        filename: outputFile,
+                        contentType: 'application/zip'
+                    }
+                }
+            };
+            const { data } = yield this._apiAuthentication.post("api/v2/apps/uploads.json", formData).catch((err) => {
                 console.log("erros acontecem né, fazer o que ");
                 console.log({ err });
                 return { data: { id: 1 } };
