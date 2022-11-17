@@ -14,7 +14,6 @@ export async function createApp(
   const commonApp = new CommonApp(api);
 
   const { id: newAppUploadId } = await commonApp.uploadApp(distPath);
-  return "1"
   console.log("newAppUploadId", newAppUploadId);
   const appName = appConfig.name;
   console.log("appName", appName);
