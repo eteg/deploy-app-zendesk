@@ -25836,10 +25836,15 @@ function createApp(authenticate, parameters, appConfig, distPath) {
         const { api } = new ZendeskAuthentication_1.default(authenticate);
         const commonApp = new CommonApp_1.default(api);
         const { id: newAppUploadId } = yield commonApp.uploadApp(distPath);
+        console.log("newAppUploadId", newAppUploadId);
         const appName = appConfig.name;
+        console.log("appName", appName);
         const { job_id } = yield commonApp.deployApp(newAppUploadId, appName, 'post');
+        console.log("job_id", job_id);
         const { app_id: appIdFromJobStatus } = yield commonApp.getUploadJobStatus(job_id);
+        console.log("job_id", job_id);
         const { app_id } = yield commonApp.updateProductInstallation((0, index_1.cleanParameters)(parameters), appConfig, appIdFromJobStatus);
+        console.log("app_id", app_id);
         return app_id;
     });
 }
@@ -25909,7 +25914,9 @@ class CommonApp {
             if (name) {
                 payload.name = name;
             }
+            console.log("payload", payload);
             const { data } = yield this._apiAuthentication[httpMethod]("api/v2/apps.json", payload);
+            console.log("data", data);
             return data;
         });
     }
