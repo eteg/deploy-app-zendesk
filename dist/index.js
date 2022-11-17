@@ -25708,6 +25708,7 @@ const shelljs_1 = __nccwpck_require__(3516);
 const createApp_1 = __nccwpck_require__(2679);
 const updateApp_1 = __nccwpck_require__(6887);
 const github = __importStar(__nccwpck_require__(5438));
+const relativePath = __importStar(__nccwpck_require__(1017));
 const { ref, eventName, payload: { repository }, } = github.context;
 const fileToJSON = (filePath) => {
     try {
@@ -25783,7 +25784,7 @@ function deploy() {
             (0, shelljs_1.echo)(`🔎 Validating parameters.`);
             const parameters = filterParams(manifest, params);
             (0, shelljs_1.echo)(`🗄️ looking for existing applications`);
-            const zendeskConfigPath = `${path}/zendesk.apps.config.json`;
+            const zendeskConfigPath = relativePath.normalize(`${path}/../zendesk.apps.config.json`);
             const zendeskConfig = fileToJSON(zendeskConfigPath);
             const ids = (zendeskConfig === null || zendeskConfig === void 0 ? void 0 : zendeskConfig.ids) || {};
             let appId = ids[env];
@@ -25881,7 +25882,7 @@ class CommonApp {
     uploadApp(appPath) {
         return __awaiter(this, void 0, void 0, function* () {
             const compress = new adm_zip_1.default();
-            const outputFile = "app.zip";
+            const outputFile = "./app.zip";
             try {
                 fs_1.default.readdirSync(appPath);
                 compress.addLocalFolder(appPath);
