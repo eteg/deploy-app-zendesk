@@ -84,6 +84,7 @@ export default class CommonApp {
     manifest: Manifest,
     app_id: string
   ): Promise<{ app_id: string }> {
+    //TODO: Verificar se o app_id está certo
     const installationResp = await this._apiAuthentication.get(`/api/support/apps/installations.json`);
     console.log({app_id})
 
