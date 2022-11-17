@@ -87,6 +87,7 @@ export default class CommonApp {
     const installationResp = await this._apiAuthentication.get(`/api/support/apps/installations.json`);
 
     const installations = installationResp.data;
+    console.log(JSON.stringify(installations, null, 2))
     const installation_id = installations.installations.filter((i: Installation) => i.app_id === app_id)[0].id;
 
     const { data } = await this._apiAuthentication.put(`/api/support/apps/installations/${installation_id}.json`, {
