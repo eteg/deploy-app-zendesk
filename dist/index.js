@@ -25941,6 +25941,7 @@ class CommonApp {
     updateProductInstallation(parameters, manifest, app_id) {
         var _a;
         return __awaiter(this, void 0, void 0, function* () {
+            //TODO: Verificar se o app_id está certo
             const installationResp = yield this._apiAuthentication.get(`/api/support/apps/installations.json`);
             console.log({ app_id });
             const { installations } = installationResp.data;
