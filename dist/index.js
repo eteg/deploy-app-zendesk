@@ -25884,7 +25884,7 @@ class CommonApp {
             const compress = new adm_zip_1.default();
             const outputFile = "./app.zip";
             try {
-                fs_1.default.readdirSync(appPath);
+                console.log(fs_1.default.readdirSync(appPath), 'ee');
                 compress.addLocalFolder(appPath);
                 compress.writeZip(outputFile);
                 console.log(`Created ${outputFile} successfully`);
