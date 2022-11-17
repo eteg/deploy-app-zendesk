@@ -23,18 +23,22 @@ export default class CommonApp {
       throw new Error(`Some error: ${error}`);    
     }
 
-    var formData = {
-      name: 'uploaded_data',
-      file: {
-        value: fs.createReadStream(`${outputFile}`),
-        options: {
-          filename: outputFile,
-          contentType: 'application/zip'
-        }
-      }
-    };
+    const form = new FormData();
 
-    const { data } = await this._apiAuthentication.post("api/v2/apps/uploads.json", formData).catch((err) => {
+    form.append('uploaded_data', fs.createReadStream(outputFile));
+
+    // const formData = {
+    //   name: '',
+    //   file: {
+    //     value: fs.createReadStream(`${outputFile}`),
+    //     options: {
+    //       filename: outputFile,
+    //       contentType: 'application/zip'
+    //     }
+    //   }
+    // };
+
+    const { data } = await this._apiAuthentication.post("api/v2/apps/uploads.json", form).catch((err) => {
       console.log("erros acontecem né, fazer o que ");
       console.log({ err });
       return { data: { id: 1 } };
