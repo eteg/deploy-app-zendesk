@@ -25837,15 +25837,11 @@ function createApp(authenticate, parameters, appConfig, distPath) {
         const { api } = new ZendeskAuthentication_1.default(authenticate);
         const commonApp = new CommonApp_1.default(api);
         const { id: newAppUploadId } = yield commonApp.uploadApp(distPath);
-        console.log("newAppUploadId", newAppUploadId);
         const appName = appConfig.name;
-        console.log("appName", appName);
         const { job_id } = yield commonApp.deployApp(newAppUploadId, appName, 'post');
-        console.log("job_id", job_id);
         const { app_id: appIdFromJobStatus } = yield commonApp.getUploadJobStatus(job_id);
-        console.log("appIdFromJobStatus", appIdFromJobStatus);
+        //TODO: Erro nessa função de baixo
         const { app_id } = yield commonApp.updateProductInstallation((0, index_1.cleanParameters)(parameters), appConfig, appIdFromJobStatus);
-        console.log("app_id", app_id);
         return app_id;
     });
 }
@@ -25946,6 +25942,7 @@ class CommonApp {
         return __awaiter(this, void 0, void 0, function* () {
             const installationResp = yield this._apiAuthentication.get(`/api/support/apps/installations.json`);
             const installations = installationResp.data;
+            console.log(JSON.stringify(installations, null, 2));
             const installation_id = installations.installations.filter((i) => i.app_id === app_id)[0].id;
             const { data } = yield this._apiAuthentication.put(`/api/support/apps/installations/${installation_id}.json`, {
                 settings: Object.assign({ name: manifest.name }, parameters),
