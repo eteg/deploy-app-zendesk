@@ -70,17 +70,26 @@ export default class CommonApp {
     appName: string,
     appId: string
   ): Promise<{ job_id: string }> {
-    console.log({ upload_id: Number(uploadId), name: appName });
+    try {
+      console.log({ appId });
+      console.log({ upload_id: Number(uploadId), name: appName });
 
-    const { data, headers } = await this._apiAuthentication["put"](
-      `api/v2/apps/${String(appId)}`,
-      { upload_id: Number(uploadId), name: appName }
-    );
+      const url = `api/v2/apps/${String(appId)}`;
+      console.log({ url });
 
-    console.log({ headers });
-    console.log("data", data);
+      const { data, headers } = await this._apiAuthentication.put(url, {
+        upload_id: Number(uploadId),
+        name: appName,
+      });
 
-    return data;
+      console.log({ headers });
+      console.log("data", data);
+
+      return data;
+    } catch (error) {
+      console.log({ error });
+      throw error;
+    }
   }
 
   //Check job status and return the app_id
