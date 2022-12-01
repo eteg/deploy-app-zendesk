@@ -86,8 +86,9 @@ export default class CommonApp {
       console.log("data", data);
 
       return data;
-    } catch (error) {
-      console.log({ error });
+    } catch (error: any) {
+      console.log("só pra garantir que não é cache")
+      console.log(JSON.stringify(error?.reponse, undefined, 2));
       throw error;
     }
   }
