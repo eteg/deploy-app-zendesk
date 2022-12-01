@@ -25940,7 +25940,10 @@ class CommonApp {
         var _a;
         return __awaiter(this, void 0, void 0, function* () {
             //TODO: Verificar se o app_id está certo
-            console.log(parameters, "parameters", manifest, "manifest", app_id, "app_id");
+            yield this._apiAuthentication.post(`/api/support/apps/installations.json`, {
+                app_id,
+                parameters,
+            });
             const installationResp = yield this._apiAuthentication.get(`/api/support/apps/installations.json`);
             console.log(installationResp, "installationResp TODAS AS INSTALAÇÕES");
             const { installations } = installationResp.data;
