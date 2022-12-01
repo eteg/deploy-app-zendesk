@@ -37,11 +37,7 @@ export default class CommonApp {
     //   }
     // };
 
-    const { data } = await this._apiAuthentication.post("api/v2/apps/uploads.json", form).catch((err) => {
-      console.log("erros acontecem né, fazer o que ");
-      console.log({ err });
-      return { data: { id: 1 } };
-    });
+    const { data } = await this._apiAuthentication.post("api/v2/apps/uploads.json", form);
 
     console.log({ data });
 
@@ -84,12 +80,16 @@ export default class CommonApp {
     app_id: string
   ): Promise<{ app_id: string }> {
     //TODO: Verificar se o app_id está certo
+    console.log(parameters, "parameters", manifest, "manifest", app_id, "app_id");
+
     const installationResp = await this._apiAuthentication.get(`/api/support/apps/installations.json`);
+    console.log(installationResp, "installationResp TODAS AS INSTALAÇÕES");
 
     const { installations } = installationResp.data;
-    //console.log(JSON.stringify(installations, null, 2))
+    console.log("LINGUICETA", JSON.stringify(installations, null, 2), "LINGUICETA");
+
     const installation_id = installations.find((i: Installation) => String(i.app_id) === String(app_id))?.id;
-    //console.log({ installation_id })
+    console.log({ installation_id }, "achou algo?");
 
     const { data } = await this._apiAuthentication.put(`/api/support/apps/installations/${installation_id}.json`, {
       settings: { name: manifest.name, ...parameters },
