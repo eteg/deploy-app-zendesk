@@ -25837,10 +25837,11 @@ function createApp(authenticate, parameters, appConfig, distPath) {
         const { api } = new ZendeskAuthentication_1.default(authenticate);
         const commonApp = new CommonApp_1.default(api);
         const { id: newAppUploadId } = yield commonApp.uploadApp(distPath);
+        console.log(newAppUploadId, "newAppUploadId");
         const appName = appConfig.name;
         const { job_id } = yield commonApp.deployApp(newAppUploadId, appName, "post");
-        const appIdFromJobStatus = yield commonApp.getUploadJobStatus(job_id);
-        console.log(appIdFromJobStatus, "obj geral");
+        const { app_id: appIdFromJobStatus } = yield commonApp.getUploadJobStatus(job_id);
+        console.log(appIdFromJobStatus, "appIdFromJobStatus");
         //TODO: Erro nessa função de baixo
         const { app_id } = yield commonApp.updateProductInstallation((0, index_1.cleanParameters)(parameters), appConfig, appIdFromJobStatus);
         return app_id;
@@ -25900,11 +25901,7 @@ class CommonApp {
             //     }
             //   }
             // };
-            const { data } = yield this._apiAuthentication.post("api/v2/apps/uploads.json", form).catch((err) => {
-                console.log("erros acontecem né, fazer o que ");
-                console.log({ err });
-                return { data: { id: 1 } };
-            });
+            const { data } = yield this._apiAuthentication.post("api/v2/apps/uploads.json", form);
             console.log({ data });
             return data;
         });
@@ -25943,11 +25940,13 @@ class CommonApp {
         var _a;
         return __awaiter(this, void 0, void 0, function* () {
             //TODO: Verificar se o app_id está certo
+            console.log(parameters, "parameters", manifest, "manifest", app_id, "app_id");
             const installationResp = yield this._apiAuthentication.get(`/api/support/apps/installations.json`);
+            console.log(installationResp, "installationResp TODAS AS INSTALAÇÕES");
             const { installations } = installationResp.data;
-            //console.log(JSON.stringify(installations, null, 2))
+            console.log("LINGUICETA", JSON.stringify(installations, null, 2), "LINGUICETA");
             const installation_id = (_a = installations.find((i) => String(i.app_id) === String(app_id))) === null || _a === void 0 ? void 0 : _a.id;
-            //console.log({ installation_id })
+            console.log({ installation_id }, "achou algo?");
             const { data } = yield this._apiAuthentication.put(`/api/support/apps/installations/${installation_id}.json`, {
                 settings: Object.assign({ name: manifest.name }, parameters),
             });
