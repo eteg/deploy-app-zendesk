@@ -25838,8 +25838,9 @@ function createApp(authenticate, parameters, appConfig, distPath) {
         const commonApp = new CommonApp_1.default(api);
         const { id: newAppUploadId } = yield commonApp.uploadApp(distPath);
         const appName = appConfig.name;
-        const { job_id } = yield commonApp.deployApp(newAppUploadId, appName, 'post');
-        const { app_id: appIdFromJobStatus } = yield commonApp.getUploadJobStatus(job_id);
+        const { job_id } = yield commonApp.deployApp(newAppUploadId, appName, "post");
+        const appIdFromJobStatus = yield commonApp.getUploadJobStatus(job_id);
+        console.log(appIdFromJobStatus, "obj geral");
         //TODO: Erro nessa função de baixo
         const { app_id } = yield commonApp.updateProductInstallation((0, index_1.cleanParameters)(parameters), appConfig, appIdFromJobStatus);
         return app_id;
@@ -25888,7 +25889,7 @@ class CommonApp {
                 throw new Error(`Some error: ${error}`);
             }
             const form = new form_data_1.default();
-            form.append('uploaded_data', fs_1.default.createReadStream(outputFile));
+            form.append("uploaded_data", fs_1.default.createReadStream(outputFile));
             // const formData = {
             //   name: '',
             //   file: {
@@ -25943,11 +25944,10 @@ class CommonApp {
         return __awaiter(this, void 0, void 0, function* () {
             //TODO: Verificar se o app_id está certo
             const installationResp = yield this._apiAuthentication.get(`/api/support/apps/installations.json`);
-            console.log({ app_id });
             const { installations } = installationResp.data;
-            console.log(JSON.stringify(installations, null, 2));
+            //console.log(JSON.stringify(installations, null, 2))
             const installation_id = (_a = installations.find((i) => String(i.app_id) === String(app_id))) === null || _a === void 0 ? void 0 : _a.id;
-            console.log({ installation_id });
+            //console.log({ installation_id })
             const { data } = yield this._apiAuthentication.put(`/api/support/apps/installations/${installation_id}.json`, {
                 settings: Object.assign({ name: manifest.name }, parameters),
             });
