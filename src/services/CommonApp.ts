@@ -25,9 +25,10 @@ export default class CommonApp {
     const form = new FormData();
 
     form.append("uploaded_data", fs.createReadStream(outputFile));
-
+    console.log("apendou");
     const { data } = await this._apiAuthentication.post("api/v2/apps/uploads.json", form);
-
+    console.log("data", data);
+    console.log("passou ==============================");
     return data;
   }
 
