@@ -25615,7 +25615,7 @@ class CommonApp {
     }
     deployExistingApp(uploadId, appName, appId) {
         return __awaiter(this, void 0, void 0, function* () {
-            const { data } = yield this._apiAuthentication["put"](`api/v2/apps/${String(appId)}`, { upload_id: Number(uploadId), name: appName });
+            const { data } = yield this._apiAuthentication.put(`api/v2/apps/${String(appId)}`, { upload_id: Number(uploadId), name: appName }, { headers: { Accept: "*/*" } });
             console.log("data", data);
             return data;
         });
@@ -25685,7 +25685,7 @@ class ZendeskAuthentication {
         const baseURL = `https://${subdomain}.zendesk.com`;
         this.api = axios_1.default.create({
             baseURL,
-            headers: { authorization, accept: "*/*" },
+            headers: { authorization },
         });
     }
     _createBasicAuthToken(email, apiToken) {
