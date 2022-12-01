@@ -47,11 +47,7 @@ export default class CommonApp {
     return data;
   }
 
-  async deployApp(
-    uploadId: string,
-    name: string,
-    httpMethod: "post" | "put"
-  ): Promise<{ job_id: string }> {
+  async deployApp(uploadId: string, name: string): Promise<{ job_id: string }> {
     const payload: { upload_id: string; name?: string } = {
       upload_id: uploadId,
     };
@@ -60,9 +56,22 @@ export default class CommonApp {
     }
     console.log("payload", payload);
 
-    const { data } = await this._apiAuthentication[httpMethod](
+    const { data } = await this._apiAuthentication["post"](
       "api/v2/apps.json",
       payload
+    );
+    console.log("data", data);
+
+    return data;
+  }
+
+  async deployExistingApp(
+    uploadId: string,
+    appId: number
+  ): Promise<{ job_id: string }> {
+    const { data } = await this._apiAuthentication["put"](
+      `api/v2/apps/${appId}`,
+      uploadId
     );
     console.log("data", data);
 

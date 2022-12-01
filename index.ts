@@ -5,7 +5,7 @@ import { echo } from "shelljs";
 import { createApp } from "./src/createApp";
 import { updateApp } from "./src/updateApp";
 import * as github from "@actions/github";
-import * as relativePath from 'path';
+import * as relativePath from "path";
 
 const {
   ref,
@@ -43,7 +43,9 @@ function getAuthenticateParams(): AuthenticateZendesk {
 
   if (missingAuthParams.length)
     throw new Error(
-      `Following authentication variables missing their values: ${missingAuthParams.map((param) => param).join(", ")}`
+      `Following authentication variables missing their values: ${missingAuthParams
+        .map((param) => param)
+        .join(", ")}`
     );
 
   return auth;
@@ -52,7 +54,8 @@ function getAuthenticateParams(): AuthenticateZendesk {
 function getManifest(path: string): Manifest {
   const manifestPath = `${path}/manifest.json`;
   const manifest = fileToJSON(manifestPath);
-  if (!Object.keys(manifest).length) throw new Error(`Missing manifest file on ${manifestPath}`);
+  if (!Object.keys(manifest).length)
+    throw new Error(`Missing manifest file on ${manifestPath}`);
   return manifest;
 }
 
@@ -61,19 +64,30 @@ function isEqual(a: string, b: string) {
 }
 
 function filterParams(manifest: Manifest, params: Record<string, string>) {
-  const paramsWithoutValue = Object.entries(params).filter(([_, value]) => typeof value === "undefined");
+  const paramsWithoutValue = Object.entries(params).filter(
+    ([_, value]) => typeof value === "undefined"
+  );
 
   if (paramsWithoutValue.length) {
-    throw new Error(`Following secrets missing their values: ${paramsWithoutValue.map(([key]) => key).join(", ")}`);
+    throw new Error(
+      `Following secrets missing their values: ${paramsWithoutValue
+        .map(([key]) => key)
+        .join(", ")}`
+    );
   }
 
   const manifestParams = manifest?.parameters ?? [];
   const requiredParamsNotFound = manifestParams.filter(
-    (m) => m?.required && !Object.keys(params).find((key) => isEqual(m.name, key))
+    (m) =>
+      m?.required && !Object.keys(params).find((key) => isEqual(m.name, key))
   );
 
   if (requiredParamsNotFound.length) {
-    throw new Error(`Missing following required parameters: ${requiredParamsNotFound.map((p) => p.name).join(", ")}`);
+    throw new Error(
+      `Missing following required parameters: ${requiredParamsNotFound
+        .map((p) => p.name)
+        .join(", ")}`
+    );
   }
 
   const paramaters = {};
@@ -97,8 +111,9 @@ async function deploy() {
     echo(`💡 Job started at ${dateTime}`);
     echo(`🎉 The job was automatically triggered by a ${eventName} event.`);
     echo(
-      `🔎 The name of your branch is ${ref.split("/")?.[2] || "unknown"} and your repository is ${repository?.name || "unknown"
-      }.`
+      `🔎 The name of your branch is ${
+        ref.split("/")?.[2] || "unknown"
+      } and your repository is ${repository?.name || "unknown"}.`
     );
 
     echo(`🔐 
@@ -112,14 +127,16 @@ async function deploy() {
     const parameters = filterParams(manifest, params);
 
     echo(`🗄️ looking for existing applications`);
-    const zendeskConfigPath = relativePath.normalize(`${path}/../zendesk.apps.config.json`);
+    const zendeskConfigPath = relativePath.normalize(
+      `${path}/../zendesk.apps.config.json`
+    );
     const zendeskConfig: ZendeskAppsConfig = fileToJSON(zendeskConfigPath);
     const ids = zendeskConfig?.ids || {};
     let appId: AppId | undefined = ids[env];
 
     if (appId) {
       echo(`📌 Updating an existing application with appId ${appId}...`);
-      await updateApp(authenticate, parameters, manifest, path);
+      await updateApp(authenticate, parameters, manifest, path, appId);
     } else {
       echo(`✨ Deploying a new application...`);
 
