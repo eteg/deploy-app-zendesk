@@ -25908,7 +25908,9 @@ class CommonApp {
     }
     deployApp(uploadId, name, httpMethod) {
         return __awaiter(this, void 0, void 0, function* () {
-            const payload = { upload_id: uploadId };
+            const payload = {
+                upload_id: uploadId,
+            };
             if (name) {
                 payload.name = name;
             }
@@ -25926,7 +25928,11 @@ class CommonApp {
                     const { data } = yield this._apiAuthentication.get(`api/v2/apps/job_statuses/${job_id}`);
                     if (data.status === "completed") {
                         clearInterval(polling);
-                        resolve({ status: data.status, message: data.message, app_id: data.app_id });
+                        resolve({
+                            status: data.status,
+                            message: data.message,
+                            app_id: data.app_id,
+                        });
                     }
                     else if (data.status === "failed") {
                         clearInterval(polling);
@@ -25940,6 +25946,7 @@ class CommonApp {
         var _a;
         return __awaiter(this, void 0, void 0, function* () {
             //TODO: Verificar se o app_id está certo
+            console.log({ app_id, settings: parameters }, "aq1uuui");
             yield this._apiAuthentication.post(`/api/support/apps/installations.json`, {
                 app_id,
                 settings: parameters,
