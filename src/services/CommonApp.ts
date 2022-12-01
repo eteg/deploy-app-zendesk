@@ -10,7 +10,7 @@ export default class CommonApp {
     this._apiAuthentication = apiAuthentication;
   }
 
-  async uploadApp(appPath: string): Promise<{ id: string }> {
+  async uploadApp(appPath: string) {
     const compress = new AdmZip();
     const outputFile = `${appPath}/app.zip`;
 
@@ -25,11 +25,14 @@ export default class CommonApp {
     const form = new FormData();
 
     form.append("uploaded_data", fs.createReadStream(outputFile));
-    console.log("apendou");
-    const { data } = await this._apiAuthentication.post("api/v2/apps/uploads.json", form);
-    console.log("data", data);
-    console.log("passou ==============================");
-    return data;
+
+    try {
+      const retorno = await this._apiAuthentication.post("api/v2/apps/uploads.json", form);
+      console.log(retorno, "retorno");
+      return retorno.data;
+    } catch (error: any) {
+      console.log(error.response);
+    }
   }
 
   async deployApp(uploadId: string, name: string): Promise<{ job_id: string }> {
