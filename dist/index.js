@@ -25962,7 +25962,7 @@ class CommonApp {
                 //   upload_id: Number(uploadId),
                 //   name: appName,
                 // });
-                const { data, headers } = yield axios_1.default.put("https://d3vetegteste1612456441.com/api/v2/apps/882851", { upload_id: Number(uploadId), name: appName }, {
+                const { data, headers } = yield axios_1.default.put("https://d3vetegteste1612456441.zendesk.com/api/v2/apps/882851", { upload_id: 2103035, name: "app-mt-deploy" }, {
                     auth: {
                         username: "dev-zendesk@eteg.com.br/token",
                         password: "34YqJcZ1LQlthndTv7LMV8wFxG6Ns8tAJVwJY3jC",
