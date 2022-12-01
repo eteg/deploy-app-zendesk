@@ -18,14 +18,13 @@ export default class CommonApp {
       compress.addLocalFolder(appPath);
       compress.writeZip(outputFile);
       console.log(`Created ${outputFile} successfully`);
-      
     } catch (error) {
-      throw new Error(`Some error: ${error}`);    
+      throw new Error(`Some error: ${error}`);
     }
 
     const form = new FormData();
 
-    form.append('uploaded_data', fs.createReadStream(outputFile));
+    form.append("uploaded_data", fs.createReadStream(outputFile));
 
     // const formData = {
     //   name: '',
@@ -55,7 +54,7 @@ export default class CommonApp {
       payload.name = name;
     }
     console.log("payload", payload);
-    
+
     const { data } = await this._apiAuthentication[httpMethod]("api/v2/apps.json", payload);
     console.log("data", data);
 
@@ -86,12 +85,11 @@ export default class CommonApp {
   ): Promise<{ app_id: string }> {
     //TODO: Verificar se o app_id está certo
     const installationResp = await this._apiAuthentication.get(`/api/support/apps/installations.json`);
-    console.log({app_id})
 
     const { installations } = installationResp.data;
-    console.log(JSON.stringify(installations, null, 2))
+    //console.log(JSON.stringify(installations, null, 2))
     const installation_id = installations.find((i: Installation) => String(i.app_id) === String(app_id))?.id;
-    console.log({ installation_id })
+    //console.log({ installation_id })
 
     const { data } = await this._apiAuthentication.put(`/api/support/apps/installations/${installation_id}.json`, {
       settings: { name: manifest.name, ...parameters },
