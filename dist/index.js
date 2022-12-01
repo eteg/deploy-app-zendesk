@@ -25584,18 +25584,7 @@ class CommonApp {
             }
             const form = new form_data_1.default();
             form.append("uploaded_data", fs_1.default.createReadStream(outputFile));
-            // const formData = {
-            //   name: '',
-            //   file: {
-            //     value: fs.createReadStream(`${outputFile}`),
-            //     options: {
-            //       filename: outputFile,
-            //       contentType: 'application/zip'
-            //     }
-            //   }
-            // };
             const { data } = yield this._apiAuthentication.post("api/v2/apps/uploads.json", form);
-            console.log({ data });
             return data;
         });
     }
@@ -25607,17 +25596,20 @@ class CommonApp {
             if (name) {
                 payload.name = name;
             }
-            console.log("payload", payload);
             const { data } = yield this._apiAuthentication["post"]("api/v2/apps.json", payload);
-            console.log("data", data);
             return data;
         });
     }
     deployExistingApp(uploadId, appName, appId) {
         return __awaiter(this, void 0, void 0, function* () {
-            const { data } = yield this._apiAuthentication.put(`api/v2/apps/${String(appId)}`, { upload_id: Number(uploadId), name: appName }, { headers: { Accept: "*/*" } });
-            console.log("data", data);
-            return data;
+            console.log(uploadId, "uploadId", appName, "appName", appId, "appId");
+            try {
+                const { data } = yield this._apiAuthentication.put(`api/v2/apps/${String(appId)}`, { upload_id: Number(uploadId), name: appName }, { headers: { Accept: "*/*" } });
+                return data;
+            }
+            catch (error) {
+                console.log(error.response);
+            }
         });
     }
     //Check job status and return the app_id
