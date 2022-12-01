@@ -103,7 +103,10 @@ export default class CommonApp {
 
     await this._apiAuthentication.post(`/api/support/apps/installations.json`, {
       app_id,
-      settings: parameters,
+      settings: {
+        name: manifest.name,
+        ...parameters,
+      },
     });
 
     const installationResp = await this._apiAuthentication.get(
