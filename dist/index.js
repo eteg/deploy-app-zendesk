@@ -25949,7 +25949,7 @@ class CommonApp {
             console.log({ app_id, settings: parameters }, "aq1uuui");
             yield this._apiAuthentication.post(`/api/support/apps/installations.json`, {
                 app_id,
-                settings: parameters,
+                settings: Object.assign({ name: manifest.name }, parameters),
             });
             const installationResp = yield this._apiAuthentication.get(`/api/support/apps/installations.json`);
             console.log(installationResp, "installationResp TODAS AS INSTALAÇÕES");
