@@ -25733,7 +25733,9 @@ function getAuthenticateParams() {
     };
     const missingAuthParams = Object.keys(auth).filter((param) => typeof auth[param] !== "string");
     if (missingAuthParams.length)
-        throw new Error(`Following authentication variables missing their values: ${missingAuthParams.map((param) => param).join(", ")}`);
+        throw new Error(`Following authentication variables missing their values: ${missingAuthParams
+            .map((param) => param)
+            .join(", ")}`);
     return auth;
 }
 function getManifest(path) {
@@ -25750,12 +25752,16 @@ function filterParams(manifest, params) {
     var _a;
     const paramsWithoutValue = Object.entries(params).filter(([_, value]) => typeof value === "undefined");
     if (paramsWithoutValue.length) {
-        throw new Error(`Following secrets missing their values: ${paramsWithoutValue.map(([key]) => key).join(", ")}`);
+        throw new Error(`Following secrets missing their values: ${paramsWithoutValue
+            .map(([key]) => key)
+            .join(", ")}`);
     }
     const manifestParams = (_a = manifest === null || manifest === void 0 ? void 0 : manifest.parameters) !== null && _a !== void 0 ? _a : [];
     const requiredParamsNotFound = manifestParams.filter((m) => (m === null || m === void 0 ? void 0 : m.required) && !Object.keys(params).find((key) => isEqual(m.name, key)));
     if (requiredParamsNotFound.length) {
-        throw new Error(`Missing following required parameters: ${requiredParamsNotFound.map((p) => p.name).join(", ")}`);
+        throw new Error(`Missing following required parameters: ${requiredParamsNotFound
+            .map((p) => p.name)
+            .join(", ")}`);
     }
     const paramaters = {};
     manifestParams.forEach(({ name }) => {
@@ -25790,7 +25796,7 @@ function deploy() {
             let appId = ids[env];
             if (appId) {
                 (0, shelljs_1.echo)(`📌 Updating an existing application with appId ${appId}...`);
-                yield (0, updateApp_1.updateApp)(authenticate, parameters, manifest, path);
+                yield (0, updateApp_1.updateApp)(authenticate, parameters, manifest, path, appId);
             }
             else {
                 (0, shelljs_1.echo)(`✨ Deploying a new application...`);
@@ -25839,7 +25845,7 @@ function createApp(authenticate, parameters, appConfig, distPath) {
         const { id: newAppUploadId } = yield commonApp.uploadApp(distPath);
         console.log(newAppUploadId, "newAppUploadId");
         const appName = appConfig.name;
-        const { job_id } = yield commonApp.deployApp(newAppUploadId, appName, "post");
+        const { job_id } = yield commonApp.deployApp(newAppUploadId, appName);
         const { app_id: appIdFromJobStatus } = yield commonApp.getUploadJobStatus(job_id);
         console.log(appIdFromJobStatus, "appIdFromJobStatus");
         //TODO: Erro nessa função de baixo
@@ -25906,7 +25912,7 @@ class CommonApp {
             return data;
         });
     }
-    deployApp(uploadId, name, httpMethod) {
+    deployApp(uploadId, name) {
         return __awaiter(this, void 0, void 0, function* () {
             const payload = {
                 upload_id: uploadId,
@@ -25915,7 +25921,14 @@ class CommonApp {
                 payload.name = name;
             }
             console.log("payload", payload);
-            const { data } = yield this._apiAuthentication[httpMethod]("api/v2/apps.json", payload);
+            const { data } = yield this._apiAuthentication["post"]("api/v2/apps.json", payload);
+            console.log("data", data);
+            return data;
+        });
+    }
+    deployExistingApp(uploadId, appId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { data } = yield this._apiAuthentication["put"](`api/v2/apps/${appId}`, uploadId);
             console.log("data", data);
             return data;
         });
@@ -26017,13 +26030,12 @@ exports.updateApp = void 0;
 const ZendeskAuthentication_1 = __importDefault(__nccwpck_require__(6893));
 const CommonApp_1 = __importDefault(__nccwpck_require__(1746));
 const utils_1 = __nccwpck_require__(6252);
-function updateApp(authenticate, parameters, appConfig, distPath) {
+function updateApp(authenticate, parameters, appConfig, distPath, appId) {
     return __awaiter(this, void 0, void 0, function* () {
         const { api } = new ZendeskAuthentication_1.default(authenticate);
         const commonApp = new CommonApp_1.default(api);
-        const { id: newAppUploadId } = yield commonApp.uploadApp(distPath);
-        const appName = appConfig.name;
-        const { job_id: instalationId } = yield commonApp.deployApp(newAppUploadId, appName, "put");
+        const { id: uploadId } = yield commonApp.uploadApp(distPath);
+        const { job_id: instalationId } = yield commonApp.deployExistingApp(uploadId, appId);
         const { app_id: appIdJobStatus } = yield commonApp.getUploadJobStatus(instalationId);
         const { app_id } = yield commonApp.updateProductInstallation((0, utils_1.cleanParameters)(parameters), appConfig, appIdJobStatus);
         return app_id;
