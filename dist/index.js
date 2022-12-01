@@ -25590,7 +25590,7 @@ class CommonApp {
                 return retorno.data;
             }
             catch (error) {
-                console.log(error.response);
+                console.log("TEM PARADA ERRADA AQUI IRMAO", error);
             }
         });
     }
