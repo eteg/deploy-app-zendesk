@@ -25584,11 +25584,14 @@ class CommonApp {
             }
             const form = new form_data_1.default();
             form.append("uploaded_data", fs_1.default.createReadStream(outputFile));
-            console.log("apendou");
-            const { data } = yield this._apiAuthentication.post("api/v2/apps/uploads.json", form);
-            console.log("data", data);
-            console.log("passou ==============================");
-            return data;
+            try {
+                const retorno = yield this._apiAuthentication.post("api/v2/apps/uploads.json", form);
+                console.log(retorno, "retorno");
+                return retorno.data;
+            }
+            catch (error) {
+                console.log(error.response);
+            }
         });
     }
     deployApp(uploadId, name) {
