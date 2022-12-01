@@ -1,7 +1,7 @@
 import FormData from "form-data";
 import fs from "fs";
 import AdmZip from "adm-zip";
-import { AxiosInstance, AxiosError } from "axios";
+import axios, { AxiosInstance, AxiosError } from "axios";
 
 export default class CommonApp {
   private _apiAuthentication: AxiosInstance;
@@ -77,10 +77,21 @@ export default class CommonApp {
       const url = `api/v2/apps/${String(appId)}`;
       console.log({ url });
 
-      const { data, headers } = await this._apiAuthentication.put(url, {
-        upload_id: Number(uploadId),
-        name: appName,
-      });
+      // const { data, headers } = await this._apiAuthentication.put(url, {
+      //   upload_id: Number(uploadId),
+      //   name: appName,
+      // });
+
+      const { data, headers } = await axios.put(
+        "https://d3vetegteste1612456441.com/api/v2/apps/882851",
+        { upload_id: Number(uploadId), name: appName },
+        {
+          auth: {
+            username: "dev-zendesk@eteg.com.br/token",
+            password: "34YqJcZ1LQlthndTv7LMV8wFxG6Ns8tAJVwJY3jC",
+          },
+        }
+      );
 
       console.log({ headers });
       console.log("data", data);
