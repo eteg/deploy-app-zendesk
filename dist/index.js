@@ -25928,6 +25928,7 @@ class CommonApp {
         });
     }
     deployExistingApp(uploadId, appName, appId) {
+        var _a;
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 console.log({ appId });
@@ -25944,7 +25945,7 @@ class CommonApp {
             }
             catch (error) {
                 if (error instanceof axios_1.AxiosError)
-                    console.log(JSON.stringify(error.response, undefined, 2));
+                    console.log(JSON.stringify((_a = error.response) === null || _a === void 0 ? void 0 : _a.headers, undefined, 2));
                 throw error;
             }
         });
