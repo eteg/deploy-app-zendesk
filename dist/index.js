@@ -25926,9 +25926,9 @@ class CommonApp {
             return data;
         });
     }
-    deployExistingApp(uploadId, appId) {
+    deployExistingApp(uploadId, appName, appId) {
         return __awaiter(this, void 0, void 0, function* () {
-            const { data } = yield this._apiAuthentication["put"](`api/v2/apps/${appId}`, uploadId);
+            const { data } = yield this._apiAuthentication["put"](`api/v2/apps/${String(appId)}`, { upload_id: uploadId, name: appName });
             console.log("data", data);
             return data;
         });
@@ -26035,7 +26035,8 @@ function updateApp(authenticate, parameters, appConfig, distPath, appId) {
         const { api } = new ZendeskAuthentication_1.default(authenticate);
         const commonApp = new CommonApp_1.default(api);
         const { id: uploadId } = yield commonApp.uploadApp(distPath);
-        const { job_id: instalationId } = yield commonApp.deployExistingApp(uploadId, appId);
+        const appName = appConfig.name;
+        const { job_id: instalationId } = yield commonApp.deployExistingApp(uploadId, appName, appId);
         const { app_id: appIdJobStatus } = yield commonApp.getUploadJobStatus(instalationId);
         const { app_id } = yield commonApp.updateProductInstallation((0, utils_1.cleanParameters)(parameters), appConfig, appIdJobStatus);
         return app_id;
