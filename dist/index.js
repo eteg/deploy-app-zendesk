@@ -25929,7 +25929,8 @@ class CommonApp {
     deployExistingApp(uploadId, appName, appId) {
         return __awaiter(this, void 0, void 0, function* () {
             console.log({ upload_id: Number(uploadId), name: appName });
-            const { data } = yield this._apiAuthentication["put"](`api/v2/apps/${String(appId)}`, { upload_id: Number(uploadId), name: appName });
+            const { data, headers } = yield this._apiAuthentication["put"](`api/v2/apps/${String(appId)}`, { upload_id: Number(uploadId), name: appName });
+            console.log({ headers });
             console.log("data", data);
             return data;
         });
