@@ -88,7 +88,7 @@ export default class CommonApp {
       return data;
     } catch (error) {
       if (error instanceof AxiosError)
-        console.log(JSON.stringify(error.response, undefined, 2));
+        console.log(JSON.stringify(error.response?.headers, undefined, 2));
       throw error;
     }
   }
