@@ -31,7 +31,7 @@ export default class CommonApp {
       console.log(retorno, "retorno");
       return retorno.data;
     } catch (error: any) {
-      console.log(error.response);
+      console.log("TEM PARADA ERRADA AQUI IRMAO", error);
     }
   }
 
