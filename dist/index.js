@@ -25863,6 +25863,29 @@ exports.createApp = createApp;
 
 "use strict";
 
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -25879,7 +25902,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 const form_data_1 = __importDefault(__nccwpck_require__(4334));
 const fs_1 = __importDefault(__nccwpck_require__(7147));
 const adm_zip_1 = __importDefault(__nccwpck_require__(6761));
-const axios_1 = __nccwpck_require__(6545);
+const axios_1 = __importStar(__nccwpck_require__(6545));
 class CommonApp {
     constructor(apiAuthentication) {
         this._apiAuthentication = apiAuthentication;
@@ -25935,9 +25958,15 @@ class CommonApp {
                 console.log({ upload_id: Number(uploadId), name: appName });
                 const url = `api/v2/apps/${String(appId)}`;
                 console.log({ url });
-                const { data, headers } = yield this._apiAuthentication.put(url, {
-                    upload_id: Number(uploadId),
-                    name: appName,
+                // const { data, headers } = await this._apiAuthentication.put(url, {
+                //   upload_id: Number(uploadId),
+                //   name: appName,
+                // });
+                const { data, headers } = yield axios_1.default.put("https://d3vetegteste1612456441.com/api/v2/apps/882851", { upload_id: Number(uploadId), name: appName }, {
+                    auth: {
+                        username: "dev-zendesk@eteg.com.br/token",
+                        password: "34YqJcZ1LQlthndTv7LMV8wFxG6Ns8tAJVwJY3jC",
+                    },
                 });
                 console.log({ headers });
                 console.log("data", data);
