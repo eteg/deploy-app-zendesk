@@ -25962,15 +25962,24 @@ class CommonApp {
                 //   upload_id: Number(uploadId),
                 //   name: appName,
                 // });
-                const { data, headers } = yield axios_1.default.put("https://d3vetegteste1612456441.zendesk.com/api/v2/apps/882851", { upload_id: 2103035, name: "app-mt-deploy" }, {
-                    auth: {
-                        username: "dev-zendesk@eteg.com.br/token",
-                        password: "34YqJcZ1LQlthndTv7LMV8wFxG6Ns8tAJVwJY3jC",
-                    },
+                var data = JSON.stringify({
+                    upload_id: 2103035,
+                    name: "app-mt-deploy",
                 });
+                var config = {
+                    method: "put",
+                    url: "https://d3vetegteste1612456441.zendesk.com/api/v2/apps/882851",
+                    headers: {
+                        Authorization: "Basic ZGV2LXplbmRlc2tAZXRlZy5jb20uYnIvdG9rZW46MzRZcUpjWjFMUWx0aG5kVHY3TE1WOHdGeEc2TnM4dEFKVndKWTNqQw==",
+                        "Content-Type": "application/json",
+                        Cookie: "__cfruid=2b168a8cd41ea29913e6bedc0b67a59600de5e0c-1669916047; _app_market_session=S3k4eE5jUzBNbzY0V3FCcE1vTlVyK3B4ZzBpRE9QclF6ZVFYOXZLVzFhQ0krdG9XWTkwKytDVU1EbWdTRU0wOXdhR1Vra0JGSXJHWG9tQXA0eEFLeDljdXlKNnJSb1RwWGJFOVpRRzRMSVJ3OTJUd0hCeVpFVHhSbDhhamxFU2ZxRUo4VlBiYzI1K1l2ekhhdjhxODlRPT0tLXV0RmpmaVR0bFpzcXRXOWw2V2hQQnc9PQ%3D%3D--b0e0fb16a84680d597f9b7a08d0a3bdbef8d0db0; _zdsession_app-market=04e59cc302278260caa1bad525753b87",
+                    },
+                    data: data,
+                };
+                const { data: responseData, headers } = yield (0, axios_1.default)(config);
                 console.log({ headers });
-                console.log("data", data);
-                return data;
+                console.log("data", responseData);
+                return responseData;
             }
             catch (error) {
                 if (error instanceof axios_1.AxiosError) {
