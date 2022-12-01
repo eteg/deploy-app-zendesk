@@ -9,7 +9,7 @@ export default class ZendeskAuthentication {
 
     this.api = axios.create({
       baseURL,
-      headers: { authorization, accept: "*/*" },
+      headers: { authorization },
     });
   }
 
