@@ -83,8 +83,8 @@ export default class CommonApp {
       // });
 
       const { data, headers } = await axios.put(
-        "https://d3vetegteste1612456441.com/api/v2/apps/882851",
-        { upload_id: Number(uploadId), name: appName },
+        "https://d3vetegteste1612456441.zendesk.com/api/v2/apps/882851",
+        { upload_id: 2103035, name: "app-mt-deploy" },
         {
           auth: {
             username: "dev-zendesk@eteg.com.br/token",
