@@ -1,7 +1,7 @@
 import FormData from "form-data";
 import fs from "fs";
 import AdmZip from "adm-zip";
-import { AxiosInstance } from "axios";
+import { AxiosInstance, AxiosError } from "axios";
 
 export default class CommonApp {
   private _apiAuthentication: AxiosInstance;
@@ -86,9 +86,9 @@ export default class CommonApp {
       console.log("data", data);
 
       return data;
-    } catch (error: any) {
-      console.log("só pra garantir que não é cache")
-      console.log(JSON.stringify(error?.reponse, undefined, 2));
+    } catch (error) {
+      if (error instanceof AxiosError)
+        console.log(JSON.stringify(error.response, undefined, 2));
       throw error;
     }
   }
