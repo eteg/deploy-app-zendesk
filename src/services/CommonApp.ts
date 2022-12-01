@@ -70,7 +70,7 @@ export default class CommonApp {
     appId: string
   ): Promise<{ job_id: string }> {
     const { data } = await this._apiAuthentication["put"](
-      `api/v2/apps/${appId}`,
+      `api/v2/apps/${String(appId)}`,
       uploadId
     );
     console.log("data", data);
