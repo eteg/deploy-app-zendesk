@@ -25879,6 +25879,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 const form_data_1 = __importDefault(__nccwpck_require__(4334));
 const fs_1 = __importDefault(__nccwpck_require__(7147));
 const adm_zip_1 = __importDefault(__nccwpck_require__(6761));
+const axios_1 = __nccwpck_require__(6545);
 class CommonApp {
     constructor(apiAuthentication) {
         this._apiAuthentication = apiAuthentication;
@@ -25942,8 +25943,8 @@ class CommonApp {
                 return data;
             }
             catch (error) {
-                console.log("só pra garantir que não é cache");
-                console.log(JSON.stringify(error === null || error === void 0 ? void 0 : error.reponse, undefined, 2));
+                if (error instanceof axios_1.AxiosError)
+                    console.log(JSON.stringify(error.response, undefined, 2));
                 throw error;
             }
         });
