@@ -26,23 +26,7 @@ export default class CommonApp {
 
     form.append("uploaded_data", fs.createReadStream(outputFile));
 
-    // const formData = {
-    //   name: '',
-    //   file: {
-    //     value: fs.createReadStream(`${outputFile}`),
-    //     options: {
-    //       filename: outputFile,
-    //       contentType: 'application/zip'
-    //     }
-    //   }
-    // };
-
-    const { data } = await this._apiAuthentication.post(
-      "api/v2/apps/uploads.json",
-      form
-    );
-
-    console.log({ data });
+    const { data } = await this._apiAuthentication.post("api/v2/apps/uploads.json", form);
 
     return data;
   }
@@ -54,39 +38,32 @@ export default class CommonApp {
     if (name) {
       payload.name = name;
     }
-    console.log("payload", payload);
 
-    const { data } = await this._apiAuthentication["post"](
-      "api/v2/apps.json",
-      payload
-    );
-    console.log("data", data);
+    const { data } = await this._apiAuthentication["post"]("api/v2/apps.json", payload);
 
     return data;
   }
 
-  async deployExistingApp(
-    uploadId: string,
-    appName: string,
-    appId: string
-  ): Promise<{ job_id: string }> {
-    const { data } = await this._apiAuthentication.put(
-      `api/v2/apps/${String(appId)}`,
-      { upload_id: Number(uploadId), name: appName },
-      { headers: { Accept: "*/*" } }
-    );
-    console.log("data", data);
+  async deployExistingApp(uploadId: string, appName: string, appId: string) {
+    console.log(uploadId, "uploadId", appName, "appName", appId, "appId");
 
-    return data;
+    try {
+      const { data } = await this._apiAuthentication.put(
+        `api/v2/apps/${String(appId)}`,
+        { upload_id: Number(uploadId), name: appName },
+        { headers: { Accept: "*/*" } }
+      );
+      return data;
+    } catch (error: any) {
+      console.log(error.response);
+    }
   }
 
   //Check job status and return the app_id
   async getUploadJobStatus(job_id: string, pollAfter = 1000): Promise<any> {
     return new Promise((resolve, reject) => {
       const polling = setInterval(async () => {
-        const { data } = await this._apiAuthentication.get(
-          `api/v2/apps/job_statuses/${job_id}`
-        );
+        const { data } = await this._apiAuthentication.get(`api/v2/apps/job_statuses/${job_id}`);
 
         if (data.status === "completed") {
           clearInterval(polling);
@@ -120,29 +97,18 @@ export default class CommonApp {
       },
     });
 
-    const installationResp = await this._apiAuthentication.get(
-      `/api/support/apps/installations.json`
-    );
+    const installationResp = await this._apiAuthentication.get(`/api/support/apps/installations.json`);
     console.log(installationResp, "installationResp TODAS AS INSTALAÇÕES");
 
     const { installations } = installationResp.data;
-    console.log(
-      "LINGUICETA",
-      JSON.stringify(installations, null, 2),
-      "LINGUICETA"
-    );
+    console.log("LINGUICETA", JSON.stringify(installations, null, 2), "LINGUICETA");
 
-    const installation_id = installations.find(
-      (i: Installation) => String(i.app_id) === String(app_id)
-    )?.id;
+    const installation_id = installations.find((i: Installation) => String(i.app_id) === String(app_id))?.id;
     console.log({ installation_id }, "achou algo?");
 
-    const { data } = await this._apiAuthentication.put(
-      `/api/support/apps/installations/${installation_id}.json`,
-      {
-        settings: { name: manifest.name, ...parameters },
-      }
-    );
+    const { data } = await this._apiAuthentication.put(`/api/support/apps/installations/${installation_id}.json`, {
+      settings: { name: manifest.name, ...parameters },
+    });
 
     return data;
   }
