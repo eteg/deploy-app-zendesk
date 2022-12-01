@@ -25584,7 +25584,10 @@ class CommonApp {
             }
             const form = new form_data_1.default();
             form.append("uploaded_data", fs_1.default.createReadStream(outputFile));
+            console.log("apendou");
             const { data } = yield this._apiAuthentication.post("api/v2/apps/uploads.json", form);
+            console.log("data", data);
+            console.log("passou ==============================");
             return data;
         });
     }
@@ -25718,6 +25721,7 @@ function updateApp(authenticate, parameters, appConfig, distPath, appId) {
         const commonApp = new CommonApp_1.default(api);
         const { id: uploadId } = yield commonApp.uploadApp(distPath);
         const appName = appConfig.name;
+        console.log(appName, "appName", "MAIN");
         const { job_id: instalationId } = yield commonApp.deployExistingApp(uploadId, appName, appId);
         const { app_id: appIdJobStatus } = yield commonApp.getUploadJobStatus(instalationId);
         const { app_id } = yield commonApp.updateProductInstallation((0, utils_1.cleanParameters)(parameters), appConfig, appIdJobStatus);
