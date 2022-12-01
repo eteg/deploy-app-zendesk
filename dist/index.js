@@ -25942,7 +25942,8 @@ class CommonApp {
                 return data;
             }
             catch (error) {
-                console.log({ error });
+                console.log("só pra garantir que não é cache");
+                console.log(JSON.stringify(error === null || error === void 0 ? void 0 : error.reponse, undefined, 2));
                 throw error;
             }
         });
