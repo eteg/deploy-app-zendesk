@@ -7,7 +7,7 @@ export async function updateApp(
   parameters: Record<string, string>,
   appConfig: Manifest,
   distPath: string,
-  appId: number
+  appId: string
 ): Promise<AppId> {
   const { api } = new ZendeskAuthentication(authenticate);
   const commonApp = new CommonApp(api);
