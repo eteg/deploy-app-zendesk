@@ -14,8 +14,11 @@ export async function updateApp(
 
   const { id: uploadId } = await commonApp.uploadApp(distPath);
 
+  const appName = appConfig.name;
+
   const { job_id: instalationId } = await commonApp.deployExistingApp(
     uploadId,
+    appName,
     appId
   );
 

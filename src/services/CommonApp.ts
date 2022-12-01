@@ -67,11 +67,12 @@ export default class CommonApp {
 
   async deployExistingApp(
     uploadId: string,
+    appName: string,
     appId: string
   ): Promise<{ job_id: string }> {
     const { data } = await this._apiAuthentication["put"](
       `api/v2/apps/${String(appId)}`,
-      uploadId
+      { upload_id: uploadId, name: appName }
     );
     console.log("data", data);
 
