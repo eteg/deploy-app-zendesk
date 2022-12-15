@@ -20,7 +20,7 @@ export async function updateApp(
 
   const { app_id: appIdJobStatus } = await commonApp.getUploadJobStatus(instalationId);
 
-  const { app_id } = await commonApp.updateProductInstallation(cleanParameters(parameters), appConfig, appIdJobStatus, "put");
+  const { app_id } = await commonApp.updateProductInstallation(cleanParameters(parameters), appConfig, appIdJobStatus);
 
   return app_id;
 }
