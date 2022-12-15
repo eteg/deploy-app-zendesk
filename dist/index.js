@@ -25535,7 +25535,7 @@ function createApp(authenticate, parameters, appConfig, distPath) {
         const { app_id: appIdFromJobStatus } = yield commonApp.getUploadJobStatus(job_id);
         console.log(appIdFromJobStatus, "appIdFromJobStatus");
         //TODO: Erro nessa função de baixo
-        const { app_id } = yield commonApp.updateProductInstallation((0, index_1.cleanParameters)(parameters), appConfig, appIdFromJobStatus);
+        const { app_id } = yield commonApp.updateProductInstallation((0, index_1.cleanParameters)(parameters), appConfig, appIdFromJobStatus, "post");
         return app_id;
     });
 }
@@ -25639,12 +25639,12 @@ class CommonApp {
             });
         });
     }
-    updateProductInstallation(parameters, manifest, app_id) {
+    updateProductInstallation(parameters, manifest, app_id, method) {
         var _a;
         return __awaiter(this, void 0, void 0, function* () {
             //TODO: Verificar se o app_id está certo
             console.log({ app_id, settings: parameters }, "aq1uuui");
-            yield this._apiAuthentication.post(`/api/support/apps/installations.json`, {
+            yield this._apiAuthentication[method](`/api/support/apps/installations.json`, {
                 app_id,
                 settings: Object.assign({ name: manifest.name }, parameters),
             });
@@ -25725,7 +25725,7 @@ function updateApp(authenticate, parameters, appConfig, distPath, appId) {
         const appName = appConfig.name;
         const { job_id: instalationId } = yield commonApp.deployExistingApp(uploadId, appName, appId);
         const { app_id: appIdJobStatus } = yield commonApp.getUploadJobStatus(instalationId);
-        const { app_id } = yield commonApp.updateProductInstallation((0, utils_1.cleanParameters)(parameters), appConfig, appIdJobStatus);
+        const { app_id } = yield commonApp.updateProductInstallation((0, utils_1.cleanParameters)(parameters), appConfig, appIdJobStatus, "put");
         return app_id;
     });
 }
