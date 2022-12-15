@@ -26,17 +26,13 @@ export default class CommonApp {
 
     form.append("uploaded_data", fs.createReadStream(outputFile));
 
-    try {
-      console.log(this._apiAuthentication)
+    const retorno = await this._apiAuthentication.post("api/v2/apps/uploads.json", form, { 
+      headers: {
+        "Content-type": "application/zip"
+      }
+    });
 
-      console.log(form)
-
-      const retorno = await this._apiAuthentication.post("api/v2/apps/uploads.json", form);
-      console.log(retorno, "retorno");
-      return retorno.data;
-    } catch (error: any) {
-      console.log("TEM PARADA ERRADA AQUI IRMAO", error);
-    }
+    return retorno.data;
   }
 
   async deployApp(uploadId: string, name: string): Promise<{ job_id: string }> {
