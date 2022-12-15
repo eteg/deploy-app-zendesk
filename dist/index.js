@@ -25621,16 +25621,10 @@ class CommonApp {
             console.log("getUploadJobStatus");
             return new Promise((resolve, reject) => {
                 const polling = setInterval(() => __awaiter(this, void 0, void 0, function* () {
-                    console.log(typeof job_id);
                     const { data } = yield this._apiAuthentication.get(`api/v2/apps/job_statuses/${job_id}`);
-                    console.log('ali');
+                    console.log(data);
                     if (data.status === "completed") {
                         clearInterval(polling);
-                        console.log({
-                            status: data.status,
-                            message: data.message,
-                            app_id: data.app_id,
-                        });
                         resolve({
                             status: data.status,
                             message: data.message,
