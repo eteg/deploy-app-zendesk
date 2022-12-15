@@ -70,20 +70,12 @@ export default class CommonApp {
     return new Promise((resolve, reject) => {
       const polling = setInterval(async () => {
 
-        console.log(typeof job_id)
-
         const { data } = await this._apiAuthentication.get(`api/v2/apps/job_statuses/${job_id}`);
 
-        console.log('ali')
+        console.log(data)
 
         if (data.status === "completed") {
           clearInterval(polling);
-
-          console.log({
-            status: data.status,
-            message: data.message,
-            app_id: data.app_id,
-          })
 
           resolve({
             status: data.status,
