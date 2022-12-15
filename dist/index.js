@@ -25530,7 +25530,6 @@ function createApp(authenticate, parameters, appConfig, distPath) {
         const { api } = new ZendeskAuthentication_1.default(authenticate);
         const commonApp = new CommonApp_1.default(api);
         const { id: newAppUploadId } = yield commonApp.uploadApp(distPath);
-        console.log(newAppUploadId, "newAppUploadId");
         const appName = appConfig.name;
         const { job_id } = yield commonApp.deployApp(newAppUploadId, appName);
         const { app_id: appIdFromJobStatus } = yield commonApp.getUploadJobStatus(job_id);
@@ -25600,7 +25599,7 @@ class CommonApp {
             if (name) {
                 payload.name = name;
             }
-            const { data } = yield this._apiAuthentication["post"]("api/v2/apps.json", payload);
+            const { data } = yield this._apiAuthentication.post("api/v2/apps.json", payload);
             return data;
         });
     }
@@ -25622,9 +25621,16 @@ class CommonApp {
             console.log("getUploadJobStatus");
             return new Promise((resolve, reject) => {
                 const polling = setInterval(() => __awaiter(this, void 0, void 0, function* () {
+                    console.log(typeof job_id);
                     const { data } = yield this._apiAuthentication.get(`api/v2/apps/job_statuses/${job_id}`);
+                    console.log('ali');
                     if (data.status === "completed") {
                         clearInterval(polling);
+                        console.log({
+                            status: data.status,
+                            message: data.message,
+                            app_id: data.app_id,
+                        });
                         resolve({
                             status: data.status,
                             message: data.message,
@@ -25723,7 +25729,6 @@ function updateApp(authenticate, parameters, appConfig, distPath, appId) {
         const commonApp = new CommonApp_1.default(api);
         const { id: uploadId } = yield commonApp.uploadApp(distPath);
         const appName = appConfig.name;
-        console.log(appName, "appName", "MAIN");
         const { job_id: instalationId } = yield commonApp.deployExistingApp(uploadId, appName, appId);
         const { app_id: appIdJobStatus } = yield commonApp.getUploadJobStatus(instalationId);
         const { app_id } = yield commonApp.updateProductInstallation((0, utils_1.cleanParameters)(parameters), appConfig, appIdJobStatus);
