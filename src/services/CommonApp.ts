@@ -40,9 +40,14 @@ export default class CommonApp {
       upload_id: uploadId,
     };
 
+    console.log(name)
+
+
     if (name) {
       payload.name = name;
     }
+
+    console.log({payload})
 
     const { data } = await this._apiAuthentication.post("api/v2/apps.json", payload);
 
