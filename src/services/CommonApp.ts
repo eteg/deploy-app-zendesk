@@ -65,6 +65,7 @@ export default class CommonApp {
 
   //Check job status and return the app_id
   async getUploadJobStatus(job_id: string, pollAfter = 1000): Promise<any> {
+    console.log("getUploadJobStatus")
     return new Promise((resolve, reject) => {
       const polling = setInterval(async () => {
         const { data } = await this._apiAuthentication.get(`api/v2/apps/job_statuses/${job_id}`);
