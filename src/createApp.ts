@@ -23,7 +23,8 @@ export async function createApp(
   const { app_id } = await commonApp.updateProductInstallation(
     cleanParameters(parameters),
     appConfig,
-    appIdFromJobStatus
+    appIdFromJobStatus,
+    true
   );
   return app_id;
 }
