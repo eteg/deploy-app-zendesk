@@ -25535,7 +25535,7 @@ function createApp(authenticate, parameters, appConfig, distPath) {
         const { app_id: appIdFromJobStatus } = yield commonApp.getUploadJobStatus(job_id);
         console.log(appIdFromJobStatus, "appIdFromJobStatus");
         //TODO: Erro nessa função de baixo
-        const { app_id } = yield commonApp.updateProductInstallation((0, index_1.cleanParameters)(parameters), appConfig, appIdFromJobStatus);
+        const { app_id } = yield commonApp.updateProductInstallation((0, index_1.cleanParameters)(parameters), appConfig, appIdFromJobStatus, true);
         return app_id;
     });
 }
