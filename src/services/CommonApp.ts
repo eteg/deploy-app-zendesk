@@ -39,11 +39,12 @@ export default class CommonApp {
     const payload: { upload_id: string; name?: string } = {
       upload_id: uploadId,
     };
+
     if (name) {
       payload.name = name;
     }
 
-    const { data } = await this._apiAuthentication["post"]("api/v2/apps.json", payload);
+    const { data } = await this._apiAuthentication.post("api/v2/apps.json", payload);
 
     return data;
   }
@@ -68,10 +69,22 @@ export default class CommonApp {
     console.log("getUploadJobStatus")
     return new Promise((resolve, reject) => {
       const polling = setInterval(async () => {
+
+        console.log(typeof job_id)
+
         const { data } = await this._apiAuthentication.get(`api/v2/apps/job_statuses/${job_id}`);
+
+        console.log('ali')
 
         if (data.status === "completed") {
           clearInterval(polling);
+
+          console.log({
+            status: data.status,
+            message: data.message,
+            app_id: data.app_id,
+          })
+
           resolve({
             status: data.status,
             message: data.message,
