@@ -28,7 +28,7 @@ export default class CommonApp {
 
     const retorno = await this._apiAuthentication.post("api/v2/apps/uploads.json", form, { 
       headers: {
-        "Content-type": "application/zip"
+        ...form.getHeaders()
       }
     });
 
