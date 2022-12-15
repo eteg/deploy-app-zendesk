@@ -25596,9 +25596,11 @@ class CommonApp {
             const payload = {
                 upload_id: uploadId,
             };
+            console.log(name);
             if (name) {
                 payload.name = name;
             }
+            console.log({ payload });
             const { data } = yield this._apiAuthentication.post("api/v2/apps.json", payload);
             return data;
         });
