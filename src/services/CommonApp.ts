@@ -98,13 +98,14 @@ export default class CommonApp {
   async updateProductInstallation(
     parameters: Record<string, string>,
     manifest: Manifest,
-    app_id: string
+    app_id: string,
+    method: "post" | "put"
   ): Promise<{ app_id: string }> {
     //TODO: Verificar se o app_id está certo
 
     console.log({ app_id, settings: parameters }, "aq1uuui");
 
-    await this._apiAuthentication.post(`/api/support/apps/installations.json`, {
+    await this._apiAuthentication[method](`/api/support/apps/installations.json`, {
       app_id,
       settings: {
         name: manifest.name,
