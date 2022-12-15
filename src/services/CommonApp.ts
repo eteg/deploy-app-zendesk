@@ -27,6 +27,8 @@ export default class CommonApp {
     form.append("uploaded_data", fs.createReadStream(outputFile));
 
     try {
+      console.log(this._apiAuthentication)
+
       console.log(form)
 
       const retorno = await this._apiAuthentication.post("api/v2/apps/uploads.json", form);
