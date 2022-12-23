@@ -23,6 +23,10 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: "Terminal access"
+      run: git update-index --chmod=+x ./dist/index.js
+      shell: bash
+
     - name: "Run script"
       run: "${{ github.action_path }}/dist/index.js"
       shell: bash
