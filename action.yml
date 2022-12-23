@@ -25,7 +25,7 @@ runs:
   steps:
     - name: "Set Node Version"
       run: "${{ github.action_path }}/dist/index.js"
-      uses: "node16"
+      shell: bash
 
     - name: "Run auto-commit"
       uses: stefanzweifel/git-auto-commit-action@v4.16.0
