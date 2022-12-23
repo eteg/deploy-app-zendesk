@@ -25420,9 +25420,7 @@ function getAuthenticateParams() {
     };
     const missingAuthParams = Object.keys(auth).filter((param) => typeof auth[param] !== "string");
     if (missingAuthParams.length)
-        throw new Error(`Following authentication variables missing their values: ${missingAuthParams
-            .map((param) => param)
-            .join(", ")}`);
+        throw new Error(`Following authentication variables missing their values: ${missingAuthParams.map((param) => param).join(", ")}`);
     return auth;
 }
 function getManifest(path) {
@@ -25439,16 +25437,12 @@ function filterParams(manifest, params) {
     var _a;
     const paramsWithoutValue = Object.entries(params).filter(([_, value]) => typeof value === "undefined");
     if (paramsWithoutValue.length) {
-        throw new Error(`Following secrets missing their values: ${paramsWithoutValue
-            .map(([key]) => key)
-            .join(", ")}`);
+        throw new Error(`Following secrets missing their values: ${paramsWithoutValue.map(([key]) => key).join(", ")}`);
     }
     const manifestParams = (_a = manifest === null || manifest === void 0 ? void 0 : manifest.parameters) !== null && _a !== void 0 ? _a : [];
     const requiredParamsNotFound = manifestParams.filter((m) => (m === null || m === void 0 ? void 0 : m.required) && !Object.keys(params).find((key) => isEqual(m.name, key)));
     if (requiredParamsNotFound.length) {
-        throw new Error(`Missing following required parameters: ${requiredParamsNotFound
-            .map((p) => p.name)
-            .join(", ")}`);
+        throw new Error(`Missing following required parameters: ${requiredParamsNotFound.map((p) => p.name).join(", ")}`);
     }
     const paramaters = {};
     manifestParams.forEach(({ name }) => {
@@ -25491,7 +25485,7 @@ function deploy() {
                 zendeskConfig.ids = Object.assign(Object.assign({}, ids), { [env]: appId });
                 jsonToFile(zendeskConfigPath, zendeskConfig);
             }
-            (0, shelljs_1.echo)(`🚀 App ${manifest.name} with appId ${appId} Deployed!`);
+            (0, shelljs_1.echo)(`🚀 App ${manifest.name} with appId ${appId} deployed successfully!`);
         }
         catch (error) {
             (0, core_1.setFailed)(error);
