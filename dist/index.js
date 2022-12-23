@@ -25461,7 +25461,7 @@ function deploy() {
             const path = (0, core_1.getInput)("path", { required: true }).replace(/(\/)$/g, "");
             const params = JSON.parse((0, core_1.getInput)("params", { required: false }) || "{}"); // O default será {}
             (0, shelljs_1.echo)(`💡 Job started at ${dateTime}`);
-            (0, shelljs_1.echo)(`🎉 The job was automatically triggered by a ${eventName} event.`);
+            (0, shelljs_1.echo)(`🎉 This job was automatically triggered by a ${eventName} event.`);
             (0, shelljs_1.echo)(`🔎 The name of your branch is ${((_a = ref.split("/")) === null || _a === void 0 ? void 0 : _a[2]) || "unknown"} and your repository is ${(repository === null || repository === void 0 ? void 0 : repository.name) || "unknown"}.`);
             (0, shelljs_1.echo)(`🔐 
     checking if all credentials for authentications are here.`);
