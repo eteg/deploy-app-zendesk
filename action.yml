@@ -23,8 +23,11 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: "Set Node Version"
-      run: "git update-index --chmod=+x ${{ github.action_path }}/dist/index.js"
+    - name: "Terminal access"
+      run: git update-index --chmod=+x ${{ github.action_path }}/dist/index.js
+
+    - name: "Run script"
+      run: "${{ github.action_path }}/dist/index.js"
       shell: bash
 
     - name: "Run auto-commit"
