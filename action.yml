@@ -24,8 +24,8 @@ runs:
   using: "composite"
   steps:
     - name: "Set Node Version"
-      using: "node16"
-      main: "dist/index.js"
+      uses: "node16"
+      run: "dist/index.js"
 
     - name: "Run auto-commit"
       uses: stefanzweifel/git-auto-commit-action@v4.16.0
