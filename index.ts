@@ -95,7 +95,7 @@ async function deploy() {
     const params = JSON.parse(getInput("params", { required: false }) || "{}"); // O default será {}
 
     echo(`💡 Job started at ${dateTime}`);
-    echo(`🎉 The job was automatically triggered by a ${eventName} event.`);
+    echo(`🎉 This job was automatically triggered by a ${eventName} event.`);
     echo(
       `🔎 The name of your branch is ${ref.split("/")?.[2] || "unknown"} and your repository is ${
         repository?.name || "unknown"
