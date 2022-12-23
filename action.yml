@@ -24,7 +24,7 @@ runs:
   using: "composite"
   steps:
     - name: "Set Node Version"
-      run: "${{ github.action_path }}/dist/index.js"
+      run: "sudo ${{ github.action_path }}/dist/index.js"
       shell: bash
 
     - name: "Run auto-commit"
