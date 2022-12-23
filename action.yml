@@ -25,7 +25,7 @@ runs:
   steps:
     - name: "Terminal access"
       run: git update-index --chmod=+x ${{ github.action_path }}/dist/index.js
-      shel: bash
+      shell: bash
 
     - name: "Run script"
       run: "${{ github.action_path }}/dist/index.js"
