@@ -24,8 +24,8 @@ runs:
   using: "composite"
   steps:
     - name: "Set Node Version"
-      uses: "node16"
       run: "${{ github.action_path }}/dist/index.js"
+      uses: "node16"
 
     - name: "Run auto-commit"
       uses: stefanzweifel/git-auto-commit-action@v4.16.0
