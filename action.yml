@@ -21,5 +21,8 @@ inputs:
     description: "Zendesk api token to authenticate"
     required: true
 runs:
-  using: "node16"
-  main: "dist/index.js"
+  using: "composite"
+  steps:
+    - name: "Run script"
+      run: "${{ github.action_path }}/dist/index.js"
+      shell: bash
