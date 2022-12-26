@@ -25,3 +25,4 @@ runs:
   steps:
     - name: "Run script"
       run: "${{ github.action_path }}/dist/index.js"
+      shell: bash
