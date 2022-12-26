@@ -24,5 +24,4 @@ runs:
   using: "composite"
   steps:
     - name: "Run script"
-      run: "${{ github.action_path }}/distooo/index.js"
-      shell: bash
+      run: "${{ github.action_path }}/dist/index.js"
