@@ -112,6 +112,8 @@ async function deploy() {
 
     echo(`🗄️ looking for existing applications`);
     const zendeskConfigPath = `${path}/zendesk.apps.config.json`;
+    echo(zendeskConfigPath)
+    
     const zendeskConfig: ZendeskAppsConfig = fileToJSON(zendeskConfigPath);
     const ids = zendeskConfig?.ids || {};
     let appId: AppId | undefined = ids[env];
@@ -125,6 +127,7 @@ async function deploy() {
       appId = await createApp(authenticate, parameters, manifest, path);
 
       zendeskConfig.ids = { ...ids, [env]: appId };
+      echo(JSON.stringify(zendeskConfig))
       jsonToFile(zendeskConfigPath, zendeskConfig);
     }
 
