@@ -25787,8 +25787,7 @@ function deploy() {
             (0, shelljs_1.echo)(`🔎 Validating parameters.`);
             const parameters = filterParams(manifest, params);
             (0, shelljs_1.echo)(`🗄️ looking for existing applications`);
-            const zendeskConfigPath = `./zendesk.apps.config.json`;
-            (0, shelljs_1.echo)(zendeskConfigPath);
+            const zendeskConfigPath = `zendesk.apps.config.json`;
             const zendeskConfig = fileToJSON(zendeskConfigPath);
             const ids = (zendeskConfig === null || zendeskConfig === void 0 ? void 0 : zendeskConfig.ids) || {};
             let appId = ids[env];
