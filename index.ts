@@ -118,7 +118,7 @@ async function deploy() {
 
     if (appId) {
       echo(`📌 Updating an existing application with appId ${appId}...`);
-      await updateApp(authenticate, parameters, manifest, path);
+      await updateApp(authenticate, parameters, manifest, path, appId);
     } else {
       echo(`✨ Deploying a new application...`);
 

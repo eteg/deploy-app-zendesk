@@ -6,20 +6,26 @@ export async function updateApp(
   authenticate: AuthenticateZendesk,
   parameters: Record<string, string>,
   appConfig: Manifest,
-  distPath: string
+  distPath: string,
+  appId: string
 ): Promise<AppId> {
   const { api } = new ZendeskAuthentication(authenticate);
+
   const commonApp = new CommonApp(api);
 
-  const { id: newAppUploadId } = await commonApp.uploadApp(distPath);
+  const { id: uploadId } = await commonApp.uploadApp(distPath);
+  
+  const { job_id } = await commonApp.deployExistingApp(uploadId, appConfig.name, appId);
 
-  const appName = appConfig.name;
+  const { app_id: appIdJobStatus } = await commonApp.getUploadJobStatus(job_id);
 
-  const { job_id: instalationId } = await commonApp.deployApp(newAppUploadId, appName, "put");
+  const {installations} = await commonApp.getInstallations();
 
-  const { app_id: appIdJobStatus } = await commonApp.getUploadJobStatus(instalationId);
+  const installation = installations.find(item => item.app_id === Number(appIdJobStatus))
 
-  const { app_id } = await commonApp.updateProductInstallation(cleanParameters(parameters), appConfig, appIdJobStatus);
+  if (!installation) throw new Error('Installation not found')
 
-  return app_id;
+  const { app_id } = await commonApp.updateInstallation(cleanParameters(parameters),appConfig, appId, installation.id);
+
+  return String(app_id);
 }
