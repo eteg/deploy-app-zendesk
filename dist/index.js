@@ -25787,8 +25787,9 @@ function deploy() {
             (0, shelljs_1.echo)(`🔎 Validating parameters.`);
             const parameters = filterParams(manifest, params);
             (0, shelljs_1.echo)(`🗄️ looking for existing applications`);
-            const zendeskConfigPath = `zendesk.apps.config.json`;
+            const zendeskConfigPath = `./zendesk.apps.config.json`;
             const zendeskConfig = fileToJSON(zendeskConfigPath);
+            (0, shelljs_1.echo)(JSON.stringify(zendeskConfig));
             const ids = (zendeskConfig === null || zendeskConfig === void 0 ? void 0 : zendeskConfig.ids) || {};
             let appId = ids[env];
             if (appId) {
@@ -25799,7 +25800,6 @@ function deploy() {
                 (0, shelljs_1.echo)(`✨ Deploying a new application...`);
                 appId = yield (0, createApp_1.createApp)(authenticate, parameters, manifest, path);
                 zendeskConfig.ids = Object.assign(Object.assign({}, ids), { [env]: appId });
-                (0, shelljs_1.echo)(JSON.stringify(zendeskConfig));
                 jsonToFile(zendeskConfigPath, zendeskConfig);
             }
             (0, shelljs_1.echo)(`🚀 App ${manifest.name} with appId ${appId} Deployed!`);
