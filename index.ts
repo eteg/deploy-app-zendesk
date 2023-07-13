@@ -5,6 +5,7 @@ import { echo } from "shelljs";
 import { createApp } from "./src/createApp";
 import { updateApp } from "./src/updateApp";
 import * as github from "@actions/github";
+import * as relativePath from "path";
 
 const {
   ref,
@@ -94,9 +95,10 @@ async function deploy() {
     const params = JSON.parse(getInput("params", { required: false }) || "{}"); // O default será {}
 
     echo(`💡 Job started at ${dateTime}`);
-    echo(`🎉 The job was automatically triggered by a ${eventName} event.`);
+    echo(`🎉 This job was automatically triggered by a ${eventName} event.`);
     echo(
-      `🔎 The name of your branch is ${ref.split("/")?.[2] || "unknown"} and your repository is ${repository?.name || "unknown"
+      `🔎 The name of your branch is ${ref.split("/")?.[2] || "unknown"} and your repository is ${
+        repository?.name || "unknown"
       }.`
     );
 
@@ -130,7 +132,7 @@ async function deploy() {
       jsonToFile(zendeskConfigPath, zendeskConfig);
     }
 
-    echo(`🚀 App ${manifest.name} with appId ${appId} Deployed!`);
+    echo(`🚀 App ${manifest.name} with appId ${appId} deployed successfully!`);
   } catch (error: any) {
     setFailed(error);
   }

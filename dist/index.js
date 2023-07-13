@@ -25777,7 +25777,7 @@ function deploy() {
             const path = (0, core_1.getInput)("path", { required: true }).replace(/(\/)$/g, "");
             const params = JSON.parse((0, core_1.getInput)("params", { required: false }) || "{}"); // O default será {}
             (0, shelljs_1.echo)(`💡 Job started at ${dateTime}`);
-            (0, shelljs_1.echo)(`🎉 The job was automatically triggered by a ${eventName} event.`);
+            (0, shelljs_1.echo)(`🎉 This job was automatically triggered by a ${eventName} event.`);
             (0, shelljs_1.echo)(`🔎 The name of your branch is ${((_a = ref.split("/")) === null || _a === void 0 ? void 0 : _a[2]) || "unknown"} and your repository is ${(repository === null || repository === void 0 ? void 0 : repository.name) || "unknown"}.`);
             (0, shelljs_1.echo)(`🔐 
     checking if all credentials for authentications are here.`);
@@ -25789,7 +25789,6 @@ function deploy() {
             (0, shelljs_1.echo)(`🗄️ looking for existing applications`);
             const zendeskConfigPath = `./zendesk.apps.config.json`;
             const zendeskConfig = fileToJSON(zendeskConfigPath);
-            (0, shelljs_1.echo)(JSON.stringify(zendeskConfig));
             const ids = (zendeskConfig === null || zendeskConfig === void 0 ? void 0 : zendeskConfig.ids) || {};
             let appId = ids[env];
             if (appId) {
@@ -25802,7 +25801,7 @@ function deploy() {
                 zendeskConfig.ids = Object.assign(Object.assign({}, ids), { [env]: appId });
                 jsonToFile(zendeskConfigPath, zendeskConfig);
             }
-            (0, shelljs_1.echo)(`🚀 App ${manifest.name} with appId ${appId} Deployed!`);
+            (0, shelljs_1.echo)(`🚀 App ${manifest.name} with appId ${appId} deployed successfully!`);
         }
         catch (error) {
             (0, core_1.setFailed)(error);
@@ -25884,7 +25883,6 @@ class CommonApp {
             try {
                 compress.addLocalFolder(appPath);
                 compress.writeZip(outputFile);
-                console.log(`Created ${outputFile} successfully`);
             }
             catch (error) {
                 throw new Error(`Some error: ${error}`);
@@ -25911,7 +25909,6 @@ class CommonApp {
     }
     deployExistingApp(uploadId, appName, appId) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log(uploadId, "uploadId", appName, "appName", appId, "appId");
             try {
                 const { data } = yield this._apiAuthentication.put(`api/v2/apps/${String(appId)}`, { upload_id: Number(uploadId), name: appName }, { headers: { Accept: "*/*" } });
                 return data;
@@ -25950,13 +25947,6 @@ class CommonApp {
     }
     createInstallation(parameters, manifest, app_id) {
         return __awaiter(this, void 0, void 0, function* () {
-            /*
-              TODO: Quebrou tudo aqui
-                [X] Remover lógica atual
-                [x] Realizar um POST na rota de instalação
-                [x] Atualizar o app com os parametros
-                [x] Entender o motivo desse firstInstallation
-            */
             const { data } = yield this._apiAuthentication.post("api/v2/apps/installations", {
                 app_id,
                 settings: Object.assign({ name: manifest.name }, parameters)
@@ -25999,7 +25989,10 @@ class ZendeskAuthentication {
     constructor({ apiToken, email, subdomain }) {
         const authorization = this._createBasicAuthToken(email, apiToken);
         const baseURL = `https://${subdomain}.zendesk.com`;
-        this.api = axios_1.default.create({ baseURL, headers: { authorization } });
+        this.api = axios_1.default.create({
+            baseURL,
+            headers: { authorization },
+        });
     }
     _createBasicAuthToken(email, apiToken) {
         const plainToken = Buffer.from(`${email}/token:${apiToken}`);
