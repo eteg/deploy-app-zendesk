@@ -25,8 +25,7 @@
     "@actions/github": "^5.1.1",
     "@zendesk/zcli": "^1.0.0-beta.16",
     "adm-zip": "^0.5.10",
-    "axios": "^1.4.0",
-    "jszip": "^3.10.1",
+    "axios": "^1.4.0"
     "shelljs": "^0.8.5"
   },
   "devDependencies": {
