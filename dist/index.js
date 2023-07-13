@@ -25789,7 +25789,6 @@ function deploy() {
             (0, shelljs_1.echo)(`🗄️ looking for existing applications`);
             const zendeskConfigPath = `./zendesk.apps.config.json`;
             const zendeskConfig = fileToJSON(zendeskConfigPath);
-            (0, shelljs_1.echo)(JSON.stringify(zendeskConfig));
             const ids = (zendeskConfig === null || zendeskConfig === void 0 ? void 0 : zendeskConfig.ids) || {};
             let appId = ids[env];
             if (appId) {
@@ -25884,7 +25883,6 @@ class CommonApp {
             try {
                 compress.addLocalFolder(appPath);
                 compress.writeZip(outputFile);
-                console.log(`Created ${outputFile} successfully`);
             }
             catch (error) {
                 throw new Error(`Some error: ${error}`);
@@ -25911,7 +25909,6 @@ class CommonApp {
     }
     deployExistingApp(uploadId, appName, appId) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log(uploadId, "uploadId", appName, "appName", appId, "appId");
             try {
                 const { data } = yield this._apiAuthentication.put(`api/v2/apps/${String(appId)}`, { upload_id: Number(uploadId), name: appName }, { headers: { Accept: "*/*" } });
                 return data;
@@ -25950,13 +25947,6 @@ class CommonApp {
     }
     createInstallation(parameters, manifest, app_id) {
         return __awaiter(this, void 0, void 0, function* () {
-            /*
-              TODO: Quebrou tudo aqui
-                [X] Remover lógica atual
-                [x] Realizar um POST na rota de instalação
-                [x] Atualizar o app com os parametros
-                [x] Entender o motivo desse firstInstallation
-            */
             const { data } = yield this._apiAuthentication.post("api/v2/apps/installations", {
                 app_id,
                 settings: Object.assign({ name: manifest.name }, parameters)
