@@ -17,7 +17,6 @@ export default class CommonApp {
     try {
       compress.addLocalFolder(appPath);
       compress.writeZip(outputFile);
-      console.log(`Created ${outputFile} successfully`);
     } catch (error) {
       throw new Error(`Some error: ${error}`);
     }
@@ -50,7 +49,6 @@ export default class CommonApp {
   }
 
   async deployExistingApp(uploadId: string, appName: string, appId: string) {
-    console.log(uploadId, "uploadId", appName, "appName", appId, "appId");
 
     try {
       const { data } = await this._apiAuthentication.put(
@@ -98,14 +96,6 @@ export default class CommonApp {
     manifest: Manifest,
     app_id: string,
   ): Promise<Installation> {
-    /* 
-      TODO: Quebrou tudo aqui 
-        [X] Remover lógica atual
-        [x] Realizar um POST na rota de instalação
-        [x] Atualizar o app com os parametros
-        [x] Entender o motivo desse firstInstallation 
-    */
-
     const { data } = await this._apiAuthentication.post<Installation>("api/v2/apps/installations", {
       app_id,
       settings: {
