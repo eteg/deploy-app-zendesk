@@ -5,7 +5,6 @@ import { echo } from "shelljs";
 import { createApp } from "./src/createApp";
 import { updateApp } from "./src/updateApp";
 import * as github from "@actions/github";
-import * as relativePath from "path";
 
 const {
   ref,
@@ -113,7 +112,7 @@ async function deploy() {
     const parameters = filterParams(manifest, params);
 
     echo(`🗄️ looking for existing applications`);
-    const zendeskConfigPath = relativePath.normalize(`${path}/../zendesk.apps.config.json`);
+    const zendeskConfigPath = `./zendesk.apps.config.json`;
     
     const zendeskConfig: ZendeskAppsConfig = fileToJSON(zendeskConfigPath);
 
