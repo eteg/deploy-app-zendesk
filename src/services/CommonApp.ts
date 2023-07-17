@@ -17,7 +17,6 @@ export default class CommonApp {
     try {
       compress.addLocalFolder(appPath);
       compress.writeZip(outputFile);
-      console.log(`Created ${outputFile} successfully`);
     } catch (error) {
       throw new Error(`Some error: ${error}`);
     }
@@ -26,13 +25,13 @@ export default class CommonApp {
 
     form.append("uploaded_data", fs.createReadStream(outputFile));
 
-    const retorno = await this._apiAuthentication.post("api/v2/apps/uploads.json", form, { 
+    const { data } = await this._apiAuthentication.post("api/v2/apps/uploads.json", form, { 
       headers: {
         ...form.getHeaders()
       }
     });
 
-    return retorno.data;
+    return data;
   }
 
   async deployApp(uploadId: string, name: string): Promise<{ job_id: string }> {
@@ -40,14 +39,9 @@ export default class CommonApp {
       upload_id: uploadId,
     };
 
-    console.log(name)
-
-
     if (name) {
       payload.name = name;
     }
-
-    console.log({payload})
 
     const { data } = await this._apiAuthentication.post("api/v2/apps.json", payload);
 
@@ -55,7 +49,6 @@ export default class CommonApp {
   }
 
   async deployExistingApp(uploadId: string, appName: string, appId: string) {
-    console.log(uploadId, "uploadId", appName, "appName", appId, "appId");
 
     try {
       const { data } = await this._apiAuthentication.put(
@@ -63,21 +56,18 @@ export default class CommonApp {
         { upload_id: Number(uploadId), name: appName },
         { headers: { Accept: "*/*" } }
       );
+      
       return data;
     } catch (error: any) {
       console.log(error.response);
     }
   }
 
-  //Check job status and return the app_id
   async getUploadJobStatus(job_id: string, pollAfter = 1000): Promise<any> {
-    console.log("getUploadJobStatus")
     return new Promise((resolve, reject) => {
       const polling = setInterval(async () => {
 
         const { data } = await this._apiAuthentication.get(`api/v2/apps/job_statuses/${job_id}`);
-
-        console.log(data)
 
         if (data.status === "completed") {
           clearInterval(polling);
@@ -95,39 +85,46 @@ export default class CommonApp {
     });
   }
 
-  async updateProductInstallation(
+  async updateApp(app_id: number, name: string, uploaded_id: number) {
+    const { data } = await this._apiAuthentication.put(`api/v2/apps/${app_id}`, { name, uploaded_id });
+
+    return data;
+  }
+
+  async createInstallation(
     parameters: Record<string, string>,
     manifest: Manifest,
     app_id: string,
-    firstInstallation?: boolean,
-  ): Promise<{ app_id: string }> {
-    //TODO: Verificar se o app_id está certo
+  ): Promise<Installation> {
+    const { data } = await this._apiAuthentication.post<Installation>("api/v2/apps/installations", {
+      app_id,
+      settings: {
+        name: manifest.name,
+        ...parameters
+      }
+    });
 
-    console.log({ app_id, settings: parameters }, "aq1uuui");
+    return data;
+  }
 
-    if (firstInstallation) {
-      await this._apiAuthentication.post(`/api/support/apps/installations.json`, {
-        app_id,
-        settings: {
-          name: manifest.name,
-          ...parameters,
-        },
-      });
+  async getInstallations(): Promise<{installations: Installation[]}> {
+    const { data } = await this._apiAuthentication.get<{installations: Installation[]}>('api/v2/apps/installations.json');
 
-    }
+    return data;
+  }
 
-
-    const installationResp = await this._apiAuthentication.get(`/api/support/apps/installations.json`);
-    console.log(installationResp, "installationResp TODAS AS INSTALAÇÕES");
-
-    const { installations } = installationResp.data;
-    console.log("LINGUICETA", JSON.stringify(installations, null, 2), "LINGUICETA");
-
-    const installation_id = installations.find((i: Installation) => String(i.app_id) === String(app_id))?.id;
-    console.log({ installation_id }, "achou algo?");
-
-    const { data } = await this._apiAuthentication.put(`/api/support/apps/installations/${installation_id}.json`, {
-      settings: { name: manifest.name, ...parameters },
+  async updateInstallation(
+    parameters: Record<string, string>,
+    manifest: Manifest,
+    app_id: string,
+    installation_id: number
+  ): Promise<Installation> {
+    const { data } = await this._apiAuthentication.put<Installation>(`api/v2/apps/installations/${installation_id}`, {
+      app_id,
+      settings: {
+        name: manifest.name,
+        ...parameters
+      }
     });
 
     return data;

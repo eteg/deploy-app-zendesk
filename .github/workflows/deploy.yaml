@@ -2,7 +2,9 @@ name: deploy-app
 
 on:
   push:
-    branches: ["*"]
+    branches:
+      - main
+      - 'releases/*'
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -20,8 +22,8 @@ jobs:
 
       - name: Build Action
         run: yarn build
-
-      - name: Run auto-commit
-        uses: stefanzweifel/git-auto-commit-action@v4
-        with:
-          commit_message: build script with git-auto-commit
+  params:
+      needs: build
+      uses: eteg/deploy-app-zendesk/.github/workflows/params.yaml@main
+  test:
+      uses: eteg/deploy-app-zendesk/.github/workflows/test.yaml@main

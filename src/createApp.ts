@@ -13,18 +13,18 @@ export async function createApp(
   const commonApp = new CommonApp(api);
 
   const { id: newAppUploadId } = await commonApp.uploadApp(distPath);
-  const appName = appConfig.name;
-  const { job_id } = await commonApp.deployApp(newAppUploadId, appName);
+
+  const { job_id } = await commonApp.deployApp(newAppUploadId, appConfig.name);
+
   const { app_id: appIdFromJobStatus } = await commonApp.getUploadJobStatus(
     job_id
   );
-  console.log(appIdFromJobStatus, "appIdFromJobStatus");
-  //TODO: Erro nessa função de baixo
-  const { app_id } = await commonApp.updateProductInstallation(
+  
+  const { app_id } = await commonApp.createInstallation(
     cleanParameters(parameters),
     appConfig,
     appIdFromJobStatus,
-    true
   );
-  return app_id;
+
+  return String(app_id);
 }

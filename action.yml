@@ -21,9 +21,5 @@ inputs:
     description: "Zendesk api token to authenticate"
     required: true
 runs:
-  using: "composite"
-  steps:
-    - name: "Run auto-commit"
-      uses: stefanzweifel/git-auto-commit-action@v4.16.0
-      with:
-        commit_message: build script with git-auto-commit
+  using: "node16"
+  main: "dist/index.js"

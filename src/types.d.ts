@@ -42,11 +42,11 @@ type AppPayload = {
 }
 
 type Installation = {
-  app_id: string;
+  app_id: number;
   name?: string;
   collapsible: boolean;
   enabled: boolean;
-  id: string;
+  id: number;
   plan?: string;
   requirements: Array<Record<string, any>>;
   settings: Array<Record<string, any>>;
