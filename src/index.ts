@@ -45,7 +45,7 @@ async function deploy() {
 
     const env = getInput("env", { required: true });
 
-    const appPath = getInput("path").replace(/(\/)$/g, "") || "dist";
+    const appPath = getInput("path").replace(/(\/)$/g, "");
     const appPackage = getInput("package").replace(/(\/)$/g, "");
     const zendeskAppsConfigPath = getInput("zendesk_apps_config_path").replace(/(\/)$/g, "") || "";
 
@@ -58,7 +58,7 @@ async function deploy() {
     }
 
     const appLocation: AppLocation = {
-      path: appPath || appPackage,
+      path: appPath || appPackage || "dist",
       type: appPath ? 'dir' : 'zip'
     }
 
