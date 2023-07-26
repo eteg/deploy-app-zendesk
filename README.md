@@ -35,7 +35,7 @@ with:
   # Opcional. Caminho do diretório raiz do app. Default: './'
   path: ${{ matrix.working-directory }}
 
-  # Opcional. Caminho do app enpacotado em .zip. Não pode ser definido em conjunto com 'path' Default: '/'
+  # Opcional. Caminho do app enpacotado em .zip. Não pode ser definido em conjunto com 'path'
   package: ${{ matrix.working-directory }}/app.zip
 
   # Opcional. Caminho do diretório que contém o arquivo zendesk.apps.config.json. Default: '/'
