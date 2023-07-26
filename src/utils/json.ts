@@ -1,9 +1,5 @@
-import * as path from 'path'
-import * as fs from 'fs'
-import core from "@actions/core"
 import { echo } from "shelljs";
 import { readFileSync, writeFileSync } from "fs";
-
 
 
 export const fileToJSON = (filePath: string) => {
