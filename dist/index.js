@@ -23097,6 +23097,7 @@ function deploy() {
                 zendeskConfig.ids = Object.assign(Object.assign({}, ids), { [input.env]: app.id });
                 (0, json_1.jsonToFile)(zendeskConfigPath, zendeskConfig);
             }
+            (0, shelljs_1.echo)(`🚀 App deployed successfully!`);
         }
         catch (error) {
             (0, core_1.setFailed)(error);
