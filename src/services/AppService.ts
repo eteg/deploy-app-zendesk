@@ -1,6 +1,7 @@
 import ZendeskAPI from "../providers/ZendeskAPI";
 import { fileToJSON } from "../utils/json";
 import { isEqual } from "../utils/string";
+import { echo } from "shelljs";
 import AdmZip from "adm-zip";
 
 
@@ -34,6 +35,8 @@ export default class AppService {
         const { type, path } = appLocation;
         const appPath = type === 'dir' ? this.packageApp(path).outputFile : path;
 
+        echo(`appPath: ${appPath}`);
+
         const { id: uploadId } = await this.zendeskApi.uploadApp(appPath);
         const { job_id } = await this.zendeskApi.deployExistingApp(uploadId, appConfig.name, appId);
         const { app_id } = await this.zendeskApi.getUploadJobStatus(job_id);
@@ -54,7 +57,7 @@ export default class AppService {
 
     packageApp(appDirPath: string) {
         const zip = new AdmZip()
-        const outputFile = 'package/app.zip';
+        const outputFile = `${appDirPath}/app.zip`;
 
         zip.addLocalFolder(appDirPath);
         zip.writeZip(outputFile);
@@ -63,6 +66,7 @@ export default class AppService {
     }
 
     getManifest(appLocation: AppLocation) {
+        echo(`Getting manifest`);
         const { path, type } = appLocation;
 
         if (type === 'zip') {
@@ -73,6 +77,8 @@ export default class AppService {
         const appPath = type === 'zip' ? 'package' : path
 
         const manifestPath = `${appPath}/manifest.json`;
+
+        echo(`Manifest path: ${manifestPath}`);
 
         const manifest: Manifest = fileToJSON(manifestPath);
 
