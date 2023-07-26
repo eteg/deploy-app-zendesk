@@ -23038,47 +23038,49 @@ const ZendeskAPI_1 = __importDefault(__nccwpck_require__(237));
 const AppService_1 = __importDefault(__nccwpck_require__(9660));
 const { ref, eventName, payload: { repository }, } = github.context;
 function getAuthenticateParams() {
-    const subdomain = (0, core_1.getInput)("zendesk_subdomain", { required: true });
-    const email = (0, core_1.getInput)("zendesk_email", { required: true });
-    const apiToken = (0, core_1.getInput)("zendesk_api_token", { required: true });
+    const subdomain = (0, core_1.getInput)('zendesk_subdomain', { required: true });
+    const email = (0, core_1.getInput)('zendesk_email', { required: true });
+    const apiToken = (0, core_1.getInput)('zendesk_api_token', { required: true });
     const auth = {
         subdomain,
         email,
         apiToken,
     };
-    const missingAuthParams = Object.keys(auth).filter((param) => typeof auth[param] !== "string");
+    const missingAuthParams = Object.keys(auth).filter((param) => typeof auth[param] !== 'string');
     if (missingAuthParams.length)
-        throw new Error(`Following authentication variables missing their values: ${missingAuthParams.map((param) => param).join(", ")}`);
+        throw new Error(`Following authentication variables missing their values: ${missingAuthParams
+            .map((param) => param)
+            .join(', ')}`);
     return auth;
 }
 function getAppInput() {
-    const env = (0, core_1.getInput)("environment", { required: true });
-    const appPath = (0, core_1.getInput)("path").replace(/(\/)$/g, "");
-    const appPackage = (0, core_1.getInput)("package").replace(/(\/)$/g, "");
-    const zendeskAppsConfigPath = (0, core_1.getInput)("zendesk_apps_config_path").replace(/(\/)$/g, "") || "";
+    const env = (0, core_1.getInput)('environment', { required: true });
+    const appPath = (0, core_1.getInput)('path').replace(/(\/)$/g, '');
+    const appPackage = (0, core_1.getInput)('package').replace(/(\/)$/g, '');
+    const zendeskAppsConfigPath = (0, core_1.getInput)('zendesk_apps_config_path').replace(/(\/)$/g, '') || '';
     if (appPath && appPackage) {
         throw new Error("Parameters validation: You can't fill both 'path' and 'package' parameters.");
     }
     if (appPackage && !(0, file_1.isZipFile)(appPackage)) {
         throw new Error("Parameters validation: 'package' parameter must to be a .zip file.");
     }
-    const params = JSON.parse((0, core_1.getInput)("params", { required: false })) || {};
+    const params = JSON.parse((0, core_1.getInput)('params', { required: false })) || {};
     return { env, appPath, appPackage, zendeskAppsConfigPath, params };
 }
 function deploy() {
     var _a;
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const dateTime = new Date().toLocaleString("pt-BR");
+            const dateTime = new Date().toLocaleString('pt-BR');
             (0, shelljs_1.echo)(`💡 Job started at ${dateTime}`);
             (0, shelljs_1.echo)(`🎉 This job was automatically triggered by a ${eventName} event.`);
-            (0, shelljs_1.echo)(`🔎 The name of your branch is ${((_a = ref.split("/")) === null || _a === void 0 ? void 0 : _a[2]) || "unknown"} and your repository is ${(repository === null || repository === void 0 ? void 0 : repository.name) || "unknown"}.`);
+            (0, shelljs_1.echo)(`🔎 The name of your branch is ${((_a = ref.split('/')) === null || _a === void 0 ? void 0 : _a[2]) || 'unknown'} and your repository is ${(repository === null || repository === void 0 ? void 0 : repository.name) || 'unknown'}.`);
             (0, shelljs_1.echo)(`🔐 Checking if all credentials for authentications and required inputs are here.`);
             const authenticate = getAuthenticateParams();
             const input = getAppInput();
             const appLocation = {
-                path: input.appPath || input.appPackage || "",
-                type: input.appPath ? 'dir' : 'zip'
+                path: input.appPath || input.appPackage || '',
+                type: input.appPath ? 'dir' : 'zip',
             };
             (0, shelljs_1.echo)(`🗄️ Looking for existing applications`);
             const zendeskConfigPath = (0, path_1.normalize)(`${input.zendeskAppsConfigPath}/zendesk.apps.config.json`);
@@ -23136,16 +23138,16 @@ class ZendeskAPI {
             baseURL: `https://${subdomain}.zendesk.com/api/v2`,
             auth: {
                 username: `${email}/token`,
-                password: apiToken
-            }
+                password: apiToken,
+            },
         });
     }
     uploadApp(appFilePath) {
         return __awaiter(this, void 0, void 0, function* () {
             const form = new form_data_1.default();
-            form.append("uploaded_data", fs_1.default.createReadStream(appFilePath));
-            const { data } = yield this.api.post("/apps/uploads.json", form, {
-                headers: Object.assign({}, form.getHeaders())
+            form.append('uploaded_data', fs_1.default.createReadStream(appFilePath));
+            const { data } = yield this.api.post('/apps/uploads.json', form, {
+                headers: Object.assign({}, form.getHeaders()),
             });
             return data;
         });
@@ -23158,14 +23160,14 @@ class ZendeskAPI {
             if (name) {
                 payload.name = name;
             }
-            const { data } = yield this.api.post("/apps.json", payload);
+            const { data } = yield this.api.post('/apps.json', payload);
             return data;
         });
     }
     deployExistingApp(uploadId, appName, appId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const { data } = yield this.api.put(`/apps/${String(appId)}`, { upload_id: Number(uploadId), name: appName }, { headers: { Accept: "*/*" } });
+                const { data } = yield this.api.put(`/apps/${String(appId)}`, { upload_id: Number(uploadId), name: appName }, { headers: { Accept: '*/*' } });
                 return data;
             }
             catch (error) {
@@ -23178,7 +23180,7 @@ class ZendeskAPI {
             return new Promise((resolve, reject) => {
                 const polling = setInterval(() => __awaiter(this, void 0, void 0, function* () {
                     const { data } = yield this.api.get(`/apps/job_statuses/${job_id}`);
-                    if (data.status === "completed") {
+                    if (data.status === 'completed') {
                         clearInterval(polling);
                         resolve({
                             status: data.status,
@@ -23186,7 +23188,7 @@ class ZendeskAPI {
                             app_id: data.app_id,
                         });
                     }
-                    else if (data.status === "failed") {
+                    else if (data.status === 'failed') {
                         clearInterval(polling);
                         reject(data.message);
                     }
@@ -23196,15 +23198,18 @@ class ZendeskAPI {
     }
     updateApp(app_id, name, uploaded_id) {
         return __awaiter(this, void 0, void 0, function* () {
-            const { data } = yield this.api.put(`/apps/${app_id}`, { name, uploaded_id });
+            const { data } = yield this.api.put(`/apps/${app_id}`, {
+                name,
+                uploaded_id,
+            });
             return data;
         });
     }
     createInstallation(parameters, manifest, app_id) {
         return __awaiter(this, void 0, void 0, function* () {
-            const { data } = yield this.api.post("/apps/installations", {
+            const { data } = yield this.api.post('/apps/installations', {
                 app_id,
-                settings: Object.assign({ name: manifest.name }, parameters)
+                settings: Object.assign({ name: manifest.name }, parameters),
             });
             return data;
         });
@@ -23219,7 +23224,7 @@ class ZendeskAPI {
         return __awaiter(this, void 0, void 0, function* () {
             const { data } = yield this.api.put(`/apps/installations/${installation_id}`, {
                 app_id,
-                settings: Object.assign({ name: manifest.name }, parameters)
+                settings: Object.assign({ name: manifest.name }, parameters),
             });
             return data;
         });
@@ -23261,10 +23266,10 @@ class AppService {
             const { type, path } = appLocation;
             const appPath = type === 'dir' ? this.packageApp(path).outputFile : path;
             const { id } = yield this.zendeskApi.uploadApp(appPath);
-            const { job_id } = yield this.zendeskApi.deployApp(id, appConfig.name);
-            const { app_id } = yield this.zendeskApi.getUploadJobStatus(job_id);
+            const { job_id: jobId } = yield this.zendeskApi.deployApp(id, appConfig.name);
+            const { app_id: appId } = yield this.zendeskApi.getUploadJobStatus(jobId);
             const params = this.filterParameters(appConfig, parameters);
-            const installation = yield this.zendeskApi.createInstallation(this.cleanParameters(params), appConfig, app_id);
+            const installation = yield this.zendeskApi.createInstallation(this.cleanParameters(params), appConfig, appId);
             return { id: String(installation.app_id) };
         });
     }
@@ -23274,10 +23279,10 @@ class AppService {
             const { type, path } = appLocation;
             const appPath = type === 'dir' ? this.packageApp(path).outputFile : path;
             const { id: uploadId } = yield this.zendeskApi.uploadApp(appPath);
-            const { job_id } = yield this.zendeskApi.deployExistingApp(uploadId, appConfig.name, appId);
-            const { app_id } = yield this.zendeskApi.getUploadJobStatus(job_id);
+            const { job_id: jobId } = yield this.zendeskApi.deployExistingApp(uploadId, appConfig.name, appId);
+            const { app_id: uploadedAppId } = yield this.zendeskApi.getUploadJobStatus(jobId);
             const { installations } = yield this.zendeskApi.getInstallations();
-            const installation = installations.find(item => item.app_id === Number(app_id));
+            const installation = installations.find((item) => item.app_id === Number(uploadedAppId));
             if (!installation)
                 throw new Error('Installation not found');
             const params = this.filterParameters(appConfig, parameters);
@@ -23307,14 +23312,18 @@ class AppService {
     }
     filterParameters(manifest, params) {
         var _a;
-        const paramsWithoutValue = Object.entries(params).filter(([_, value]) => typeof value === "undefined");
+        const paramsWithoutValue = Object.entries(params).filter(([_, value]) => typeof value === 'undefined');
         if (paramsWithoutValue.length) {
-            throw new Error(`Following secrets missing their values: ${paramsWithoutValue.map(([key]) => key).join(", ")}`);
+            throw new Error(`Following secrets missing their values: ${paramsWithoutValue
+                .map(([key]) => key)
+                .join(', ')}`);
         }
         const manifestParams = (_a = manifest === null || manifest === void 0 ? void 0 : manifest.parameters) !== null && _a !== void 0 ? _a : [];
         const requiredParamsNotFound = manifestParams.filter((m) => (m === null || m === void 0 ? void 0 : m.required) && !Object.keys(params).find((key) => (0, string_1.isEqual)(m.name, key)));
         if (requiredParamsNotFound.length) {
-            throw new Error(`Missing following required parameters: ${requiredParamsNotFound.map((p) => p.name).join(", ")}`);
+            throw new Error(`Missing following required parameters: ${requiredParamsNotFound
+                .map((p) => p.name)
+                .join(', ')}`);
         }
         const paramaters = {};
         manifestParams.forEach(({ name }) => {
@@ -23326,7 +23335,10 @@ class AppService {
     }
     cleanParameters(parameters) {
         const entries = Object.entries(parameters);
-        return Object.fromEntries(entries.map(([key, value]) => ([key.replace('PARAMS_', '').toLowerCase(), value])));
+        return Object.fromEntries(entries.map(([key, value]) => [
+            key.replace('PARAMS_', '').toLowerCase(),
+            value,
+        ]));
     }
 }
 exports["default"] = AppService;
@@ -23342,8 +23354,8 @@ exports["default"] = AppService;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.isZipFile = void 0;
 const isZipFile = (filePath) => {
-    const extension = filePath.substring(filePath.lastIndexOf("."));
-    return extension === ".zip";
+    const extension = filePath.substring(filePath.lastIndexOf('.'));
+    return extension === '.zip';
 };
 exports.isZipFile = isZipFile;
 
@@ -23361,7 +23373,7 @@ const shelljs_1 = __nccwpck_require__(3516);
 const fs_1 = __nccwpck_require__(7147);
 const fileToJSON = (filePath) => {
     try {
-        return JSON.parse((0, fs_1.readFileSync)(filePath, "utf-8"));
+        return JSON.parse((0, fs_1.readFileSync)(filePath, 'utf-8'));
     }
     catch (error) {
         (0, shelljs_1.echo)(`🔎 No file found in path ${filePath}`);
