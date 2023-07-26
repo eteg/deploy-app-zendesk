@@ -45,13 +45,9 @@ async function deploy() {
 
     const env = getInput("env", { required: true });
 
-    const appPath = getInput("path").replace(/(\/)$/g, "");
+    const appPath = getInput("path").replace(/(\/)$/g, "") || "dist";
     const appPackage = getInput("package").replace(/(\/)$/g, "");
-    const zendeskAppsConfigPath = getInput("zendesk_apps_config_path").replace(/(\/)$/g, "");
-
-    if (!appPath && !appPackage) {
-      throw new Error("Parameters validation: 'path' or 'package' parameter need to be filled.")
-    }
+    const zendeskAppsConfigPath = getInput("zendesk_apps_config_path").replace(/(\/)$/g, "") || "";
 
     if (appPath && appPackage) {
       throw new Error("Parameters validation: You can't fill both 'path' and 'package' parameters.")

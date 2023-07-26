@@ -9,8 +9,14 @@ inputs:
     description: "Manifest params"
     required: false
   path:
-    description: "Directory path"
-    required: true
+    description: "Directory path. Default to 'dist'"
+    required: false
+  package:
+    description: "App zip. Cannot be filled if 'path' parameter is filled"
+    required: false
+  zendesk_apps_config_path:
+    description: "Path of file 'zendesk.apps.config.json'. Default to '/'"
+    required: false
   zendesk_subdomain:
     description: "Zendesk subdomain where the app will be deployed"
     required: true
