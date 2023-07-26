@@ -101,6 +101,7 @@ async function deploy() {
       zendeskConfig.ids = { ...ids, [input.env]: app.id };
       jsonToFile(zendeskConfigPath, zendeskConfig);
     }
+    echo(`🚀 App deployed successfully!`);
   } catch (error: any) {
     setFailed(error);
   }
