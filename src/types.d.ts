@@ -61,3 +61,8 @@ type ManifestParameter = {
 }
 
 type AppId = string;
+
+type AppLocation = {
+  path: string;
+  type: 'dir' | 'zip'
+}
