@@ -1,7 +1,6 @@
-import FormData from "form-data";
-import fs from "fs";
-import axios, { AxiosInstance } from "axios";
-
+import FormData from 'form-data';
+import fs from 'fs';
+import axios, { AxiosInstance } from 'axios';
 
 export default class ZendeskAPI {
   private api: AxiosInstance;
@@ -11,20 +10,20 @@ export default class ZendeskAPI {
       baseURL: `https://${subdomain}.zendesk.com/api/v2`,
       auth: {
         username: `${email}/token`,
-        password: apiToken
-      }
+        password: apiToken,
+      },
     });
   }
 
   async uploadApp(appFilePath: string) {
     const form = new FormData();
 
-    form.append("uploaded_data", fs.createReadStream(appFilePath));
+    form.append('uploaded_data', fs.createReadStream(appFilePath));
 
-    const { data } = await this.api.post("/apps/uploads.json", form, { 
+    const { data } = await this.api.post('/apps/uploads.json', form, {
       headers: {
-        ...form.getHeaders()
-      }
+        ...form.getHeaders(),
+      },
     });
 
     return data;
@@ -39,20 +38,19 @@ export default class ZendeskAPI {
       payload.name = name;
     }
 
-    const { data } = await this.api.post("/apps.json", payload);
+    const { data } = await this.api.post('/apps.json', payload);
 
     return data;
   }
 
   async deployExistingApp(uploadId: string, appName: string, appId: string) {
-
     try {
       const { data } = await this.api.put(
         `/apps/${String(appId)}`,
         { upload_id: Number(uploadId), name: appName },
-        { headers: { Accept: "*/*" } }
+        { headers: { Accept: '*/*' } }
       );
-      
+
       return data;
     } catch (error: any) {
       console.log(error.response);
@@ -62,10 +60,9 @@ export default class ZendeskAPI {
   async getUploadJobStatus(job_id: string, pollAfter = 1000): Promise<any> {
     return new Promise((resolve, reject) => {
       const polling = setInterval(async () => {
-
         const { data } = await this.api.get(`/apps/job_statuses/${job_id}`);
 
-        if (data.status === "completed") {
+        if (data.status === 'completed') {
           clearInterval(polling);
 
           resolve({
@@ -73,7 +70,7 @@ export default class ZendeskAPI {
             message: data.message,
             app_id: data.app_id,
           });
-        } else if (data.status === "failed") {
+        } else if (data.status === 'failed') {
           clearInterval(polling);
           reject(data.message);
         }
@@ -82,7 +79,10 @@ export default class ZendeskAPI {
   }
 
   async updateApp(app_id: number, name: string, uploaded_id: number) {
-    const { data } = await this.api.put(`/apps/${app_id}`, { name, uploaded_id });
+    const { data } = await this.api.put(`/apps/${app_id}`, {
+      name,
+      uploaded_id,
+    });
 
     return data;
   }
@@ -90,21 +90,23 @@ export default class ZendeskAPI {
   async createInstallation(
     parameters: Record<string, string>,
     manifest: Manifest,
-    app_id: string,
+    app_id: string
   ): Promise<Installation> {
-    const { data } = await this.api.post<Installation>("/apps/installations", {
+    const { data } = await this.api.post<Installation>('/apps/installations', {
       app_id,
       settings: {
         name: manifest.name,
-        ...parameters
-      }
+        ...parameters,
+      },
     });
 
     return data;
   }
 
-  async getInstallations(): Promise<{installations: Installation[]}> {
-    const { data } = await this.api.get<{installations: Installation[]}>('/apps/installations.json');
+  async getInstallations(): Promise<{ installations: Installation[] }> {
+    const { data } = await this.api.get<{ installations: Installation[] }>(
+      '/apps/installations.json'
+    );
 
     return data;
   }
@@ -115,13 +117,16 @@ export default class ZendeskAPI {
     app_id: string,
     installation_id: number
   ): Promise<Installation> {
-    const { data } = await this.api.put<Installation>(`/apps/installations/${installation_id}`, {
-      app_id,
-      settings: {
-        name: manifest.name,
-        ...parameters
+    const { data } = await this.api.put<Installation>(
+      `/apps/installations/${installation_id}`,
+      {
+        app_id,
+        settings: {
+          name: manifest.name,
+          ...parameters,
+        },
       }
-    });
+    );
 
     return data;
   }

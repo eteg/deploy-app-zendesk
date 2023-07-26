@@ -1,5 +1,5 @@
 export const isZipFile = (filePath: string) => {
-    const extension = filePath.substring(filePath.lastIndexOf("."))
+  const extension = filePath.substring(filePath.lastIndexOf('.'));
 
-    return extension === ".zip"
-}
+  return extension === '.zip';
+};
