@@ -18,22 +18,28 @@ Dentro desse step deve ser passado os seguintes parâmetros:
 ```yaml
 with:
   # Subdomínio do ambiente zendesk
-  ZENDESK_SUBDOMAIN: ${{  SUBDOMAIN  }}
+  zendesk_subdomain: ${{  SUBDOMAIN  }}
 
   # Email para acesso do ambiente zendesk
-  ZENDESK_EMAIL: ${{  EMAIL  }}
+  zendesk_email: ${{  EMAIL  }}
 
   # API_TOKEN gerado no ambiente zendesk
-  ZENDESK_API_TOKEN: ${{  API_TOKEN  }}
+  zendesk_api_token: ${{  API_TOKEN  }}
 
   # Ambiente onde será realizado o deploy
-  ENV: "develop"
+  environment: "develop"
 
   # Parâmetros do manifest
-  PARAMS: "{}"
+  params: "{}"
 
-  # Opcional. Caminho do diretório raiz do app. Default: '/'
-  PATH: ${{ matrix.working-directory }}
+  # Opcional. Caminho do diretório raiz do app. Default: './'
+  path: ${{ matrix.working-directory }}
+
+  # Opcional. Caminho do app enpacotado em .zip. Não pode ser definido em conjunto com 'path' Default: '/'
+  package: ${{ matrix.working-directory }}/app.zip
+
+  # Opcional. Caminho do diretório que contém o arquivo zendesk.apps.config.json. Default: '/'
+  zendesk_apps_config_path: ${{ matrix.working-directory }}
 ```
 
 Após a execução da action, será criado o arquivo “zendesk.apps.config.json” na raiz do projeto. Nele, estão registradas os IDs dos apps e em quais ambientes cada um deles foi implantado. Ex:
@@ -47,7 +53,7 @@ Após a execução da action, será criado o arquivo “zendesk.apps.config.json
 }
 ```
 
-**Obs: Um app sofre atualizações caso o ENV inserido esteja registrado no arquivo a cima, caso contrário, um novo app será criado. Para se ter um app em um ambiente zendesk diferente, é preciso que não só o ENV como também os inputs ZENDESK_SUBDOMAIN, ZENDESK_EMAIL e ZENDESK_API_TOKEN sejam diferentes.**
+**Obs: Um app sofre atualizações caso o `environment` inserido esteja registrado no arquivo a cima, caso contrário, um novo app será criado. Para se ter um app em um ambiente zendesk diferente, é preciso que não só o `environment` como também os inputs `zendesk_subdomain`, `zendesk_email` e `zendesk_api_token` sejam diferentes.**
 
 ## Exemplo de uso
 
@@ -97,10 +103,11 @@ jobs:
       - name: Deploy Zendesk App
         uses: eteg/deploy-app-zendesk@v1
         with:
-          ENV: ${{ github.ref_name }}
-          PARAMS: '{ "pou": "POU", "zelda": "fadinha" }'
-          PATH: ${{ matrix.working-directory }}
-          ZENDESK_SUBDOMAIN: ${{  secrets.SUBDOMAIN  }}
-          ZENDESK_EMAIL: ${{  secrets.EMAIL  }}
-          ZENDESK_API_TOKEN: ${{  secrets.API_TOKEN  }}
+          environment: ${{ github.ref_name }}
+          params: '{ "pou": "POU", "zelda": "fadinha" }'
+          path: '${{ matrix.working-directory }}/dist'
+          zendesk_apps_config_path: ${{ matrix.working-directory }}
+          zendesk_subdomain: ${{  secrets.SUBDOMAIN  }}
+          zendesk_email: ${{  secrets.EMAIL  }}
+          zendesk_api_token: ${{  secrets.API_TOKEN  }}
 ```

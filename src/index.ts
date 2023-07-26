@@ -39,13 +39,10 @@ function getAuthenticateParams(): AuthenticateZendesk {
   return auth;
 }
 
-async function deploy() {
-  try {
-    const dateTime = new Date().toLocaleString("pt-BR");
+function getAppInput() {
+    const env = getInput("environment", { required: true });
 
-    const env = getInput("env", { required: true });
-
-    const appPath = getInput("path").replace(/(\/)$/g, "") || "dist";
+    const appPath = getInput("path").replace(/(\/)$/g, "");
     const appPackage = getInput("package").replace(/(\/)$/g, "");
     const zendeskAppsConfigPath = getInput("zendesk_apps_config_path").replace(/(\/)$/g, "") || "";
 
@@ -57,13 +54,14 @@ async function deploy() {
       throw new Error("Parameters validation: 'package' parameter must to be a .zip file.")
     }
 
-    const appLocation: AppLocation = {
-      path: appPath || appPackage,
-      type: appPath ? 'dir' : 'zip'
-    }
+    const params = JSON.parse(getInput("params", { required: false })) || {};
 
-    const params = JSON.parse(getInput("params", { required: false }) || "{}"); // O default será {}
+    return {env, appPath, appPackage,  zendeskAppsConfigPath, params}
+}
 
+async function deploy() {
+  try {
+    const dateTime = new Date().toLocaleString("pt-BR");
     echo(`💡 Job started at ${dateTime}`);
     echo(`🎉 This job was automatically triggered by a ${eventName} event.`);
     echo(
@@ -72,30 +70,35 @@ async function deploy() {
       }.`
     );
 
-    echo(`🔐 
-    checking if all credentials for authentications are here.`);
+    echo(`🔐 Checking if all credentials for authentications and required inputs are here.`);
     const authenticate = getAuthenticateParams();
+    const input = getAppInput()
 
-    echo(`🗄️ looking for existing applications`);
-    const zendeskConfigPath = normalize(`${zendeskAppsConfigPath}/zendesk.apps.config.json`);
+    const appLocation: AppLocation = {
+      path: input.appPath || input.appPackage || "",
+      type: input.appPath ? 'dir' : 'zip'
+    }    
+
+    echo(`🗄️ Looking for existing applications`);
+    const zendeskConfigPath = normalize(`${input.zendeskAppsConfigPath}/zendesk.apps.config.json`);
     
     const zendeskConfig: ZendeskAppsConfig = fileToJSON(zendeskConfigPath);
 
     const ids = zendeskConfig?.ids || {};
-    const appId: AppId | undefined = ids[env];
+    const appId: AppId | undefined = ids[input.env];
 
     const zendeskAPI = new ZendeskAPI(authenticate)
     const appService = new AppService(zendeskAPI)
 
     if (appId) {
       echo(`📌 Updating an existing application with appId ${appId}...`);
-      await appService.updateApp(appId, appLocation, params);
+      await appService.updateApp(appId, appLocation, input.params);
     } else {
       echo(`✨ Deploying a new application...`);
 
-      const app = await appService.createApp(appLocation, params);
+      const app = await appService.createApp(appLocation, input.params);
 
-      zendeskConfig.ids = { ...ids, [env]: app.id };
+      zendeskConfig.ids = { ...ids, [input.env]: app.id };
       jsonToFile(zendeskConfigPath, zendeskConfig);
     }
   } catch (error: any) {

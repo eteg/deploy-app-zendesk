@@ -1,7 +1,7 @@
 name: "Deploy App Zendesk"
 description: "Adds pull request file changes as a comment to a newly opened PR"
 inputs:
-  env:
+  environment:
     description: "Environment"
     required: true
     default: "develop"
@@ -9,13 +9,13 @@ inputs:
     description: "Manifest params"
     required: false
   path:
-    description: "Directory path. Default to 'dist'"
+    description: "Directory path. Default to './'"
     required: false
   package:
     description: "App zip. Cannot be filled if 'path' parameter is filled"
     required: false
   zendesk_apps_config_path:
-    description: "Path of file 'zendesk.apps.config.json'. Default to '/'"
+    description: "Path of file 'zendesk.apps.config.json'. Default to './'"
     required: false
   zendesk_subdomain:
     description: "Zendesk subdomain where the app will be deployed"
