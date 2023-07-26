@@ -54,7 +54,7 @@ export default class AppService {
 
     packageApp(appDirPath: string) {
         const zip = new AdmZip()
-        const outputFile = 'package/app.zip';
+        const outputFile = `${appDirPath}/app.zip`;
 
         zip.addLocalFolder(appDirPath);
         zip.writeZip(outputFile);
