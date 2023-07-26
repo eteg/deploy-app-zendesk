@@ -1,31 +1,27 @@
 import FormData from "form-data";
 import fs from "fs";
-import AdmZip from "adm-zip";
-import { AxiosInstance } from "axios";
+import axios, { AxiosInstance } from "axios";
 
-export default class CommonApp {
-  private _apiAuthentication: AxiosInstance;
 
-  constructor(apiAuthentication: AxiosInstance) {
-    this._apiAuthentication = apiAuthentication;
+export default class ZendeskAPI {
+  private api: AxiosInstance;
+
+  constructor({ apiToken, email, subdomain }: AuthenticateZendesk) {
+    this.api = axios.create({
+      baseURL: `https://${subdomain}.zendesk.com/api/v2`,
+      auth: {
+        username: `${email}/token`,
+        password: apiToken
+      }
+    });
   }
 
-  async uploadApp(appPath: string) {
-    const compress = new AdmZip();
-    const outputFile = `${appPath}/app.zip`;
-
-    try {
-      compress.addLocalFolder(appPath);
-      compress.writeZip(outputFile);
-    } catch (error) {
-      throw new Error(`Some error: ${error}`);
-    }
-
+  async uploadApp(appFilePath: string) {
     const form = new FormData();
 
-    form.append("uploaded_data", fs.createReadStream(outputFile));
+    form.append("uploaded_data", fs.createReadStream(appFilePath));
 
-    const { data } = await this._apiAuthentication.post("api/v2/apps/uploads.json", form, { 
+    const { data } = await this.api.post("/apps/uploads.json", form, { 
       headers: {
         ...form.getHeaders()
       }
@@ -43,7 +39,7 @@ export default class CommonApp {
       payload.name = name;
     }
 
-    const { data } = await this._apiAuthentication.post("api/v2/apps.json", payload);
+    const { data } = await this.api.post("/apps.json", payload);
 
     return data;
   }
@@ -51,8 +47,8 @@ export default class CommonApp {
   async deployExistingApp(uploadId: string, appName: string, appId: string) {
 
     try {
-      const { data } = await this._apiAuthentication.put(
-        `api/v2/apps/${String(appId)}`,
+      const { data } = await this.api.put(
+        `/apps/${String(appId)}`,
         { upload_id: Number(uploadId), name: appName },
         { headers: { Accept: "*/*" } }
       );
@@ -67,7 +63,7 @@ export default class CommonApp {
     return new Promise((resolve, reject) => {
       const polling = setInterval(async () => {
 
-        const { data } = await this._apiAuthentication.get(`api/v2/apps/job_statuses/${job_id}`);
+        const { data } = await this.api.get(`/apps/job_statuses/${job_id}`);
 
         if (data.status === "completed") {
           clearInterval(polling);
@@ -86,7 +82,7 @@ export default class CommonApp {
   }
 
   async updateApp(app_id: number, name: string, uploaded_id: number) {
-    const { data } = await this._apiAuthentication.put(`api/v2/apps/${app_id}`, { name, uploaded_id });
+    const { data } = await this.api.put(`/apps/${app_id}`, { name, uploaded_id });
 
     return data;
   }
@@ -96,7 +92,7 @@ export default class CommonApp {
     manifest: Manifest,
     app_id: string,
   ): Promise<Installation> {
-    const { data } = await this._apiAuthentication.post<Installation>("api/v2/apps/installations", {
+    const { data } = await this.api.post<Installation>("/apps/installations", {
       app_id,
       settings: {
         name: manifest.name,
@@ -108,7 +104,7 @@ export default class CommonApp {
   }
 
   async getInstallations(): Promise<{installations: Installation[]}> {
-    const { data } = await this._apiAuthentication.get<{installations: Installation[]}>('api/v2/apps/installations.json');
+    const { data } = await this.api.get<{installations: Installation[]}>('/apps/installations.json');
 
     return data;
   }
@@ -119,7 +115,7 @@ export default class CommonApp {
     app_id: string,
     installation_id: number
   ): Promise<Installation> {
-    const { data } = await this._apiAuthentication.put<Installation>(`api/v2/apps/installations/${installation_id}`, {
+    const { data } = await this.api.put<Installation>(`/apps/installations/${installation_id}`, {
       app_id,
       settings: {
         name: manifest.name,
