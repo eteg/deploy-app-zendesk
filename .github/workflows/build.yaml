@@ -2,10 +2,13 @@ name: deploy-app
 
 on:
   push:
-    branches: ["*"]
+    branches: 
+      - '**'
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+    
     strategy:
       matrix:
         node-version: [16.15.1]

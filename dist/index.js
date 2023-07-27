@@ -15873,7 +15873,7 @@ function __ncc_wildcard$0 (arg) {
   else if (arg === "mkdir.js" || arg === "mkdir") return __nccwpck_require__(2695);
   else if (arg === "mv.js" || arg === "mv") return __nccwpck_require__(9849);
   else if (arg === "popd.js" || arg === "popd") return __nccwpck_require__(227);
-  else if (arg === "pushd.js" || arg === "pushd") return __nccwpck_require__(3424);
+  else if (arg === "pushd.js" || arg === "pushd") return __nccwpck_require__(4177);
   else if (arg === "pwd.js" || arg === "pwd") return __nccwpck_require__(8553);
   else if (arg === "rm.js" || arg === "rm") return __nccwpck_require__(2830);
   else if (arg === "sed.js" || arg === "sed") return __nccwpck_require__(5899);
@@ -18500,7 +18500,7 @@ module.exports = _mv;
 
 /***/ }),
 
-/***/ 3424:
+/***/ 4177:
 /***/ (() => {
 
 // see dirs.js
@@ -22987,7 +22987,7 @@ function wrappy (fn, cb) {
 
 /***/ }),
 
-/***/ 4177:
+/***/ 6144:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -23024,104 +23024,82 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const fs_1 = __nccwpck_require__(7147);
 const core_1 = __nccwpck_require__(2186);
 const shelljs_1 = __nccwpck_require__(3516);
-const createApp_1 = __nccwpck_require__(2679);
-const updateApp_1 = __nccwpck_require__(6887);
 const github = __importStar(__nccwpck_require__(5438));
 const path_1 = __nccwpck_require__(1017);
+const file_1 = __nccwpck_require__(456);
+const json_1 = __nccwpck_require__(3810);
+const ZendeskAPI_1 = __importDefault(__nccwpck_require__(237));
+const AppService_1 = __importDefault(__nccwpck_require__(9660));
 const { ref, eventName, payload: { repository }, } = github.context;
-const fileToJSON = (filePath) => {
-    try {
-        return JSON.parse((0, fs_1.readFileSync)(filePath, "utf-8"));
-    }
-    catch (error) {
-        (0, shelljs_1.echo)(`🔎 No file found in path ${filePath}`);
-        return {};
-    }
-};
-const jsonToFile = (filePath, json) => {
-    (0, fs_1.writeFileSync)(filePath, JSON.stringify(json));
-};
 function getAuthenticateParams() {
-    const subdomain = (0, core_1.getInput)("zendesk_subdomain", { required: true });
-    const email = (0, core_1.getInput)("zendesk_email", { required: true });
-    const apiToken = (0, core_1.getInput)("zendesk_api_token", { required: true });
+    const subdomain = (0, core_1.getInput)('zendesk_subdomain', { required: true });
+    const email = (0, core_1.getInput)('zendesk_email', { required: true });
+    const apiToken = (0, core_1.getInput)('zendesk_api_token', { required: true });
     const auth = {
         subdomain,
         email,
         apiToken,
     };
-    const missingAuthParams = Object.keys(auth).filter((param) => typeof auth[param] !== "string");
+    const missingAuthParams = Object.keys(auth).filter((param) => typeof auth[param] !== 'string');
     if (missingAuthParams.length)
-        throw new Error(`Following authentication variables missing their values: ${missingAuthParams.map((param) => param).join(", ")}`);
+        throw new Error(`Following authentication variables missing their values: ${missingAuthParams
+            .map((param) => param)
+            .join(', ')}`);
     return auth;
 }
-function getManifest(path) {
-    const manifestPath = `${path}/manifest.json`;
-    const manifest = fileToJSON(manifestPath);
-    if (!Object.keys(manifest).length)
-        throw new Error(`Missing manifest file on ${manifestPath}`);
-    return manifest;
-}
-function isEqual(a, b) {
-    return a.toLowerCase() === b.toLowerCase();
-}
-function filterParams(manifest, params) {
-    var _a;
-    const paramsWithoutValue = Object.entries(params).filter(([_, value]) => typeof value === "undefined");
-    if (paramsWithoutValue.length) {
-        throw new Error(`Following secrets missing their values: ${paramsWithoutValue.map(([key]) => key).join(", ")}`);
+function getAppInput() {
+    const env = (0, core_1.getInput)('environment', { required: true });
+    const appPath = (0, core_1.getInput)('path').replace(/(\/)$/g, '');
+    const appPackage = (0, core_1.getInput)('package').replace(/(\/)$/g, '');
+    const zendeskAppsConfigPath = (0, core_1.getInput)('zendesk_apps_config_path').replace(/(\/)$/g, '') || '';
+    if (appPath && appPackage) {
+        throw new Error("Parameters validation: You can't fill both 'path' and 'package' parameters.");
     }
-    const manifestParams = (_a = manifest === null || manifest === void 0 ? void 0 : manifest.parameters) !== null && _a !== void 0 ? _a : [];
-    const requiredParamsNotFound = manifestParams.filter((m) => (m === null || m === void 0 ? void 0 : m.required) && !Object.keys(params).find((key) => isEqual(m.name, key)));
-    if (requiredParamsNotFound.length) {
-        throw new Error(`Missing following required parameters: ${requiredParamsNotFound.map((p) => p.name).join(", ")}`);
+    if (appPackage && !(0, file_1.isZipFile)(appPackage)) {
+        throw new Error("Parameters validation: 'package' parameter must to be a .zip file.");
     }
-    const paramaters = {};
-    manifestParams.forEach(({ name }) => {
-        const param = Object.entries(params).find(([key]) => isEqual(name, key));
-        if (param)
-            Object.assign(paramaters, { [name]: param[1] });
-    });
-    return paramaters;
+    const params = JSON.parse((0, core_1.getInput)('params', { required: false })) || {};
+    return { env, appPath, appPackage, zendeskAppsConfigPath, params };
 }
 function deploy() {
     var _a;
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const dateTime = new Date().toLocaleString("pt-BR");
-            const env = (0, core_1.getInput)("env", { required: true });
-            const path = (0, core_1.getInput)("path", { required: true }).replace(/(\/)$/g, "");
-            const params = JSON.parse((0, core_1.getInput)("params", { required: false }) || "{}"); // O default será {}
+            const dateTime = new Date().toLocaleString('pt-BR');
             (0, shelljs_1.echo)(`💡 Job started at ${dateTime}`);
             (0, shelljs_1.echo)(`🎉 This job was automatically triggered by a ${eventName} event.`);
-            (0, shelljs_1.echo)(`🔎 The name of your branch is ${((_a = ref.split("/")) === null || _a === void 0 ? void 0 : _a[2]) || "unknown"} and your repository is ${(repository === null || repository === void 0 ? void 0 : repository.name) || "unknown"}.`);
-            (0, shelljs_1.echo)(`🔐 
-    checking if all credentials for authentications are here.`);
+            (0, shelljs_1.echo)(`🔎 The name of your branch is ${((_a = ref.split('/')) === null || _a === void 0 ? void 0 : _a[2]) || 'unknown'} and your repository is ${(repository === null || repository === void 0 ? void 0 : repository.name) || 'unknown'}.`);
+            (0, shelljs_1.echo)(`🔐 Checking if all credentials for authentications and required inputs are here.`);
             const authenticate = getAuthenticateParams();
-            (0, shelljs_1.echo)(`📖 looking for manifest file.`);
-            const manifest = getManifest(path);
-            (0, shelljs_1.echo)(`🔎 Validating parameters.`);
-            const parameters = filterParams(manifest, params);
-            (0, shelljs_1.echo)(`🗄️ looking for existing applications`);
-            const zendeskConfigPath = (0, path_1.normalize)(`${path}/../zendesk.apps.config.json`);
-            const zendeskConfig = fileToJSON(zendeskConfigPath);
+            const input = getAppInput();
+            const appLocation = {
+                path: input.appPath || input.appPackage || '',
+                type: input.appPath ? 'dir' : 'zip',
+            };
+            (0, shelljs_1.echo)(`🗄️ Looking for existing applications`);
+            const zendeskConfigPath = (0, path_1.normalize)(`${input.zendeskAppsConfigPath}/zendesk.apps.config.json`);
+            const zendeskConfig = (0, json_1.fileToJSON)(zendeskConfigPath);
             const ids = (zendeskConfig === null || zendeskConfig === void 0 ? void 0 : zendeskConfig.ids) || {};
-            let appId = ids[env];
+            const appId = ids[input.env];
+            const zendeskAPI = new ZendeskAPI_1.default(authenticate);
+            const appService = new AppService_1.default(zendeskAPI);
             if (appId) {
                 (0, shelljs_1.echo)(`📌 Updating an existing application with appId ${appId}...`);
-                yield (0, updateApp_1.updateApp)(authenticate, parameters, manifest, path, appId);
+                yield appService.updateApp(appId, appLocation, input.params);
             }
             else {
                 (0, shelljs_1.echo)(`✨ Deploying a new application...`);
-                appId = yield (0, createApp_1.createApp)(authenticate, parameters, manifest, path);
-                zendeskConfig.ids = Object.assign(Object.assign({}, ids), { [env]: appId });
-                jsonToFile(zendeskConfigPath, zendeskConfig);
+                const app = yield appService.createApp(appLocation, input.params);
+                zendeskConfig.ids = Object.assign(Object.assign({}, ids), { [input.env]: app.id });
+                (0, json_1.jsonToFile)(zendeskConfigPath, zendeskConfig);
             }
-            (0, shelljs_1.echo)(`🚀 App ${manifest.name} with appId ${appId} deployed successfully!`);
+            (0, shelljs_1.echo)(`🚀 App deployed successfully!`);
         }
         catch (error) {
             (0, core_1.setFailed)(error);
@@ -23133,45 +23111,7 @@ deploy();
 
 /***/ }),
 
-/***/ 2679:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
-
-"use strict";
-
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.createApp = void 0;
-const CommonApp_1 = __importDefault(__nccwpck_require__(1746));
-const ZendeskAuthentication_1 = __importDefault(__nccwpck_require__(6893));
-const index_1 = __nccwpck_require__(6252);
-function createApp(authenticate, parameters, appConfig, distPath) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const { api } = new ZendeskAuthentication_1.default(authenticate);
-        const commonApp = new CommonApp_1.default(api);
-        const { id: newAppUploadId } = yield commonApp.uploadApp(distPath);
-        const { job_id } = yield commonApp.deployApp(newAppUploadId, appConfig.name);
-        const { app_id: appIdFromJobStatus } = yield commonApp.getUploadJobStatus(job_id);
-        const { app_id } = yield commonApp.createInstallation((0, index_1.cleanParameters)(parameters), appConfig, appIdFromJobStatus);
-        return String(app_id);
-    });
-}
-exports.createApp = createApp;
-
-
-/***/ }),
-
-/***/ 1746:
+/***/ 237:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
@@ -23191,26 +23131,23 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const form_data_1 = __importDefault(__nccwpck_require__(4334));
 const fs_1 = __importDefault(__nccwpck_require__(7147));
-const adm_zip_1 = __importDefault(__nccwpck_require__(6761));
-class CommonApp {
-    constructor(apiAuthentication) {
-        this._apiAuthentication = apiAuthentication;
+const axios_1 = __importDefault(__nccwpck_require__(8757));
+class ZendeskAPI {
+    constructor({ apiToken, email, subdomain }) {
+        this.api = axios_1.default.create({
+            baseURL: `https://${subdomain}.zendesk.com/api/v2`,
+            auth: {
+                username: `${email}/token`,
+                password: apiToken,
+            },
+        });
     }
-    uploadApp(appPath) {
+    uploadApp(appFilePath) {
         return __awaiter(this, void 0, void 0, function* () {
-            const compress = new adm_zip_1.default();
-            const outputFile = `${appPath}/app.zip`;
-            try {
-                compress.addLocalFolder(appPath);
-                compress.writeZip(outputFile);
-            }
-            catch (error) {
-                throw new Error(`Some error: ${error}`);
-            }
             const form = new form_data_1.default();
-            form.append("uploaded_data", fs_1.default.createReadStream(outputFile));
-            const { data } = yield this._apiAuthentication.post("api/v2/apps/uploads.json", form, {
-                headers: Object.assign({}, form.getHeaders())
+            form.append('uploaded_data', fs_1.default.createReadStream(appFilePath));
+            const { data } = yield this.api.post('/apps/uploads.json', form, {
+                headers: Object.assign({}, form.getHeaders()),
             });
             return data;
         });
@@ -23223,14 +23160,14 @@ class CommonApp {
             if (name) {
                 payload.name = name;
             }
-            const { data } = yield this._apiAuthentication.post("api/v2/apps.json", payload);
+            const { data } = yield this.api.post('/apps.json', payload);
             return data;
         });
     }
     deployExistingApp(uploadId, appName, appId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const { data } = yield this._apiAuthentication.put(`api/v2/apps/${String(appId)}`, { upload_id: Number(uploadId), name: appName }, { headers: { Accept: "*/*" } });
+                const { data } = yield this.api.put(`/apps/${String(appId)}`, { upload_id: Number(uploadId), name: appName }, { headers: { Accept: '*/*' } });
                 return data;
             }
             catch (error) {
@@ -23242,8 +23179,8 @@ class CommonApp {
         return __awaiter(this, void 0, void 0, function* () {
             return new Promise((resolve, reject) => {
                 const polling = setInterval(() => __awaiter(this, void 0, void 0, function* () {
-                    const { data } = yield this._apiAuthentication.get(`api/v2/apps/job_statuses/${job_id}`);
-                    if (data.status === "completed") {
+                    const { data } = yield this.api.get(`/apps/job_statuses/${job_id}`);
+                    if (data.status === 'completed') {
                         clearInterval(polling);
                         resolve({
                             status: data.status,
@@ -23251,7 +23188,7 @@ class CommonApp {
                             app_id: data.app_id,
                         });
                     }
-                    else if (data.status === "failed") {
+                    else if (data.status === 'failed') {
                         clearInterval(polling);
                         reject(data.message);
                     }
@@ -23261,185 +23198,213 @@ class CommonApp {
     }
     updateApp(app_id, name, uploaded_id) {
         return __awaiter(this, void 0, void 0, function* () {
-            const { data } = yield this._apiAuthentication.put(`api/v2/apps/${app_id}`, { name, uploaded_id });
+            const { data } = yield this.api.put(`/apps/${app_id}`, {
+                name,
+                uploaded_id,
+            });
             return data;
         });
     }
     createInstallation(parameters, manifest, app_id) {
         return __awaiter(this, void 0, void 0, function* () {
-            const { data } = yield this._apiAuthentication.post("api/v2/apps/installations", {
+            const { data } = yield this.api.post('/apps/installations', {
                 app_id,
-                settings: Object.assign({ name: manifest.name }, parameters)
+                settings: Object.assign({ name: manifest.name }, parameters),
             });
             return data;
         });
     }
     getInstallations() {
         return __awaiter(this, void 0, void 0, function* () {
-            const { data } = yield this._apiAuthentication.get('api/v2/apps/installations.json');
+            const { data } = yield this.api.get('/apps/installations.json');
             return data;
         });
     }
     updateInstallation(parameters, manifest, app_id, installation_id) {
         return __awaiter(this, void 0, void 0, function* () {
-            const { data } = yield this._apiAuthentication.put(`api/v2/apps/installations/${installation_id}`, {
+            const { data } = yield this.api.put(`/apps/installations/${installation_id}`, {
                 app_id,
-                settings: Object.assign({ name: manifest.name }, parameters)
+                settings: Object.assign({ name: manifest.name }, parameters),
             });
             return data;
         });
     }
 }
-exports["default"] = CommonApp;
+exports["default"] = ZendeskAPI;
 
 
 /***/ }),
 
-/***/ 6893:
+/***/ 9660:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
 
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-const axios_1 = __importDefault(__nccwpck_require__(8757));
-class ZendeskAuthentication {
-    constructor({ apiToken, email, subdomain }) {
-        const authorization = this._createBasicAuthToken(email, apiToken);
-        const baseURL = `https://${subdomain}.zendesk.com`;
-        this.api = axios_1.default.create({
-            baseURL,
-            headers: { authorization },
+const json_1 = __nccwpck_require__(3810);
+const string_1 = __nccwpck_require__(1380);
+const adm_zip_1 = __importDefault(__nccwpck_require__(6761));
+class AppService {
+    constructor(zendeskApi) {
+        this.zendeskApi = zendeskApi;
+    }
+    createApp(appLocation, parameters) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const appConfig = this.getManifest(appLocation);
+            const { type, path } = appLocation;
+            const appPath = type === 'dir' ? this.packageApp(path).outputFile : path;
+            const { id } = yield this.zendeskApi.uploadApp(appPath);
+            const { job_id: jobId } = yield this.zendeskApi.deployApp(id, appConfig.name);
+            const { app_id: appId } = yield this.zendeskApi.getUploadJobStatus(jobId);
+            const params = this.filterParameters(appConfig, parameters);
+            const installation = yield this.zendeskApi.createInstallation(this.cleanParameters(params), appConfig, appId);
+            return { id: String(installation.app_id) };
         });
     }
-    _createBasicAuthToken(email, apiToken) {
-        const plainToken = Buffer.from(`${email}/token:${apiToken}`);
-        return `Basic ${plainToken.toString("base64")}`;
+    updateApp(appId, appLocation, parameters) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const appConfig = this.getManifest(appLocation);
+            const { type, path } = appLocation;
+            const appPath = type === 'dir' ? this.packageApp(path).outputFile : path;
+            const { id: uploadId } = yield this.zendeskApi.uploadApp(appPath);
+            const { job_id: jobId } = yield this.zendeskApi.deployExistingApp(uploadId, appConfig.name, appId);
+            const { app_id: uploadedAppId } = yield this.zendeskApi.getUploadJobStatus(jobId);
+            const { installations } = yield this.zendeskApi.getInstallations();
+            const installation = installations.find((item) => item.app_id === Number(uploadedAppId));
+            if (!installation)
+                throw new Error('Installation not found');
+            const params = this.filterParameters(appConfig, parameters);
+            const updatedInstallation = yield this.zendeskApi.updateInstallation(this.cleanParameters(params), appConfig, appId, installation.id);
+            return { id: String(updatedInstallation.app_id) };
+        });
+    }
+    packageApp(appDirPath) {
+        const zip = new adm_zip_1.default();
+        const outputFile = `${appDirPath}/app.zip`;
+        zip.addLocalFolder(appDirPath);
+        zip.writeZip(outputFile);
+        return { outputFile };
+    }
+    getManifest(appLocation) {
+        const { path, type } = appLocation;
+        if (type === 'zip') {
+            try {
+                const zip = new adm_zip_1.default(path);
+                zip.extractEntryTo('manifest.json', 'package', false, true);
+            }
+            catch (error) {
+                throw new Error(`Cannot extract manifest.json from .zip file`);
+            }
+        }
+        const appPath = type === 'zip' ? 'package' : path;
+        const manifestPath = `${appPath}/manifest.json`;
+        const manifest = (0, json_1.fileToJSON)(manifestPath);
+        if (!Object.keys(manifest).length)
+            throw new Error(`Missing manifest file on ${manifestPath}`);
+        return manifest;
+    }
+    filterParameters(manifest, params) {
+        var _a;
+        const paramsWithoutValue = Object.entries(params).filter(([_, value]) => typeof value === 'undefined');
+        if (paramsWithoutValue.length) {
+            throw new Error(`Following secrets missing their values: ${paramsWithoutValue
+                .map(([key]) => key)
+                .join(', ')}`);
+        }
+        const manifestParams = (_a = manifest === null || manifest === void 0 ? void 0 : manifest.parameters) !== null && _a !== void 0 ? _a : [];
+        const requiredParamsNotFound = manifestParams.filter((m) => (m === null || m === void 0 ? void 0 : m.required) && !Object.keys(params).find((key) => (0, string_1.isEqual)(m.name, key)));
+        if (requiredParamsNotFound.length) {
+            throw new Error(`Missing following required parameters: ${requiredParamsNotFound
+                .map((p) => p.name)
+                .join(', ')}`);
+        }
+        const paramaters = {};
+        manifestParams.forEach(({ name }) => {
+            const param = Object.entries(params).find(([key]) => (0, string_1.isEqual)(name, key));
+            if (param)
+                Object.assign(paramaters, { [name]: param[1] });
+        });
+        return paramaters;
+    }
+    cleanParameters(parameters) {
+        const entries = Object.entries(parameters);
+        return Object.fromEntries(entries.map(([key, value]) => [
+            key.replace('PARAMS_', '').toLowerCase(),
+            value,
+        ]));
     }
 }
-exports["default"] = ZendeskAuthentication;
+exports["default"] = AppService;
 
 
 /***/ }),
 
-/***/ 6887:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+/***/ 456:
+/***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
 
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.updateApp = void 0;
-const ZendeskAuthentication_1 = __importDefault(__nccwpck_require__(6893));
-const CommonApp_1 = __importDefault(__nccwpck_require__(1746));
-const utils_1 = __nccwpck_require__(6252);
-function updateApp(authenticate, parameters, appConfig, distPath, appId) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const { api } = new ZendeskAuthentication_1.default(authenticate);
-        const commonApp = new CommonApp_1.default(api);
-        const { id: uploadId } = yield commonApp.uploadApp(distPath);
-        const { job_id } = yield commonApp.deployExistingApp(uploadId, appConfig.name, appId);
-        const { app_id: appIdJobStatus } = yield commonApp.getUploadJobStatus(job_id);
-        const { installations } = yield commonApp.getInstallations();
-        const installation = installations.find(item => item.app_id === Number(appIdJobStatus));
-        if (!installation)
-            throw new Error('Installation not found');
-        const { app_id } = yield commonApp.updateInstallation((0, utils_1.cleanParameters)(parameters), appConfig, appId, installation.id);
-        return String(app_id);
-    });
-}
-exports.updateApp = updateApp;
+exports.isZipFile = void 0;
+const isZipFile = (filePath) => {
+    const extension = filePath.substring(filePath.lastIndexOf('.'));
+    return extension === '.zip';
+};
+exports.isZipFile = isZipFile;
 
 
 /***/ }),
 
-/***/ 6252:
-/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+/***/ 3810:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.cleanParameters = exports.getManifestAppName = exports.getManifestFile = exports.setConfig = void 0;
-const path = __importStar(__nccwpck_require__(1017));
-const fs = __importStar(__nccwpck_require__(7147));
-const core_1 = __importDefault(__nccwpck_require__(2186));
-const setConfig = (json, appPath) => __awaiter(void 0, void 0, void 0, function* () {
-    fs.writeFileSync(`${appPath}/apps_id.json`, JSON.stringify(json));
-});
-exports.setConfig = setConfig;
-const validatePath = (path) => {
-    if (!fs.existsSync(path)) {
-        core_1.default.error(`Invalid path: ${path}`);
+exports.jsonToFile = exports.fileToJSON = void 0;
+const shelljs_1 = __nccwpck_require__(3516);
+const fs_1 = __nccwpck_require__(7147);
+const fileToJSON = (filePath) => {
+    try {
+        return JSON.parse((0, fs_1.readFileSync)(filePath, 'utf-8'));
+    }
+    catch (error) {
+        (0, shelljs_1.echo)(`🔎 No file found in path ${filePath}`);
+        return {};
     }
 };
-const getManifestFile = (appPath) => {
-    const manifestFilePath = path.join(appPath, 'manifest.json');
-    validatePath(manifestFilePath);
-    const manifest = fs.readFileSync(manifestFilePath, 'utf8');
-    return JSON.parse(manifest);
+exports.fileToJSON = fileToJSON;
+const jsonToFile = (filePath, json) => {
+    (0, fs_1.writeFileSync)(filePath, JSON.stringify(json));
 };
-exports.getManifestFile = getManifestFile;
-const getManifestAppName = (appPath) => {
-    return (0, exports.getManifestFile)(appPath).name;
+exports.jsonToFile = jsonToFile;
+
+
+/***/ }),
+
+/***/ 1380:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.isEqual = void 0;
+const isEqual = (a, b) => {
+    return a.toLowerCase() === b.toLowerCase();
 };
-exports.getManifestAppName = getManifestAppName;
-const cleanParameters = (environment) => {
-    const keysEnv = Object.keys(environment);
-    const parameters = {};
-    keysEnv.forEach((item) => {
-        parameters[item.replace('PARAMS_', '').toLowerCase()] = environment[item];
-    });
-    return parameters;
-};
-exports.cleanParameters = cleanParameters;
+exports.isEqual = isEqual;
 
 
 /***/ }),
@@ -27911,7 +27876,7 @@ module.exports = JSON.parse('[[[0,44],"disallowed_STD3_valid"],[[45,46],"valid"]
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
 /******/ 	// This entry module is referenced by other modules so it can't be inlined
-/******/ 	var __webpack_exports__ = __nccwpck_require__(4177);
+/******/ 	var __webpack_exports__ = __nccwpck_require__(6144);
 /******/ 	module.exports = __webpack_exports__;
 /******/ 	
 /******/ })()
