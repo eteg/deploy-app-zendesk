@@ -23300,8 +23300,13 @@ class AppService {
     getManifest(appLocation) {
         const { path, type } = appLocation;
         if (type === 'zip') {
-            const zip = new adm_zip_1.default(path);
-            zip.extractEntryTo('manifest.json', 'package', false, true);
+            try {
+                const zip = new adm_zip_1.default(path);
+                zip.extractEntryTo('manifest.json', 'package', false, true);
+            }
+            catch (error) {
+                throw new Error(`Cannot extract manifest.json from .zip file`);
+            }
         }
         const appPath = type === 'zip' ? 'package' : path;
         const manifestPath = `${appPath}/manifest.json`;
