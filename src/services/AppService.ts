@@ -86,8 +86,13 @@ export default class AppService {
     const { path, type } = appLocation;
 
     if (type === 'zip') {
-      const zip = new AdmZip(path);
-      zip.extractEntryTo('manifest.json', 'package', false, true);
+      try {
+        const zip = new AdmZip(path);
+        zip.extractEntryTo('manifest.json', 'package', false, true);
+      } catch(error) {
+        throw new Error(`Cannot extract manifest.json from .zip file`);
+      }
+
     }
 
     const appPath = type === 'zip' ? 'package' : path;
