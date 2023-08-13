@@ -23102,6 +23102,7 @@ function deploy() {
             (0, shelljs_1.echo)(`🚀 App deployed successfully!`);
         }
         catch (error) {
+            console.log(error);
             (0, core_1.setFailed)(error);
         }
     });

@@ -111,6 +111,7 @@ async function deploy() {
     }
     echo(`🚀 App deployed successfully!`);
   } catch (error: any) {
+    console.log(error);
     setFailed(error);
   }
 }
