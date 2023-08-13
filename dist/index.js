@@ -23103,8 +23103,11 @@ function deploy() {
         }
         catch (error) {
             console.log(error);
-            (0, core_1.setFailed)(error);
+            console.log('DEU ERRO');
+            throw new Error(error);
+            // setFailed(error);
         }
+        console.log('PASSOU AQUI');
     });
 }
 deploy();

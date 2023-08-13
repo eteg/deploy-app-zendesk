@@ -111,9 +111,15 @@ async function deploy() {
     }
     echo(`🚀 App deployed successfully!`);
   } catch (error: any) {
+
     console.log(error);
-    setFailed(error);
+    console.log('DEU ERRO')
+
+    throw new Error(error)
+    // setFailed(error);
   }
+
+  console.log('PASSOU AQUI');
 }
 
 deploy();
