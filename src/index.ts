@@ -115,8 +115,8 @@ async function deploy() {
     console.log(error);
     console.log('DEU ERRO')
 
-    throw new Error(error)
-    // setFailed(error);
+    // throw new Error(error)
+    setFailed(error);
   }
 
   console.log('PASSOU AQUI');

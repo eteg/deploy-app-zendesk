@@ -23104,8 +23104,8 @@ function deploy() {
         catch (error) {
             console.log(error);
             console.log('DEU ERRO');
-            throw new Error(error);
-            // setFailed(error);
+            // throw new Error(error)
+            (0, core_1.setFailed)(error);
         }
         console.log('PASSOU AQUI');
     });
