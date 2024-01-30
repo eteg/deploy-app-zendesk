@@ -45,6 +45,8 @@ function getAppInput() {
   const appPackage = getInput('package').replace(/(\/)$/g, '');
   const zendeskAppsConfigPath =
     getInput('zendesk_apps_config_path').replace(/(\/)$/g, '') || '';
+  const appId = getInput('app_id');
+  const allowMultipleApps = getInput('allow_multiple_apps');
 
   if (appPath && appPackage) {
     throw new Error(
@@ -60,7 +62,15 @@ function getAppInput() {
 
   const params = JSON.parse(getInput('params', { required: false })) || {};
 
-  return { env, appPath, appPackage, zendeskAppsConfigPath, params };
+  return {
+    env,
+    appPath,
+    appPackage,
+    zendeskAppsConfigPath,
+    params,
+    appId,
+    allowMultipleApps,
+  };
 }
 
 async function deploy() {
