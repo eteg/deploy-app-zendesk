@@ -25,14 +25,14 @@ function getAuthenticateParams(): AuthenticateZendesk {
   };
 
   const missingAuthParams = Object.keys(auth).filter(
-    (param) => typeof auth[param as keyof AuthenticateZendesk] !== 'string'
+    (param) => typeof auth[param as keyof AuthenticateZendesk] !== 'string',
   );
 
   if (missingAuthParams.length)
     throw new Error(
       `Following authentication variables missing their values: ${missingAuthParams
         .map((param) => param)
-        .join(', ')}`
+        .join(', ')}`,
     );
 
   return auth;
@@ -48,13 +48,13 @@ function getAppInput() {
 
   if (appPath && appPackage) {
     throw new Error(
-      "Parameters validation: You can't fill both 'path' and 'package' parameters."
+      "Parameters validation: You can't fill both 'path' and 'package' parameters.",
     );
   }
 
   if (appPackage && !isZipFile(appPackage)) {
     throw new Error(
-      "Parameters validation: 'package' parameter must to be a .zip file."
+      "Parameters validation: 'package' parameter must to be a .zip file.",
     );
   }
 
@@ -71,11 +71,11 @@ async function deploy() {
     echo(
       `🔎 The name of your branch is ${
         ref.split('/')?.[2] || 'unknown'
-      } and your repository is ${repository?.name || 'unknown'}.`
+      } and your repository is ${repository?.name || 'unknown'}.`,
     );
 
     echo(
-      `🔐 Checking if all credentials for authentications and required inputs are here.`
+      `🔐 Checking if all credentials for authentications and required inputs are here.`,
     );
     const authenticate = getAuthenticateParams();
     const input = getAppInput();
@@ -87,7 +87,7 @@ async function deploy() {
 
     echo(`🗄️ Looking for existing applications`);
     const zendeskConfigPath = normalize(
-      `${input.zendeskAppsConfigPath}/zendesk.apps.config.json`
+      `${input.zendeskAppsConfigPath}/zendesk.apps.config.json`,
     );
 
     const zendeskConfig: ZendeskAppsConfig = fileToJSON(zendeskConfigPath);
@@ -110,8 +110,8 @@ async function deploy() {
       jsonToFile(zendeskConfigPath, zendeskConfig);
     }
     echo(`🚀 App deployed successfully!`);
-  } catch (error: any) {
-    setFailed(error);
+  } catch (error: unknown) {
+    setFailed(error as Error);
   }
 }
 
