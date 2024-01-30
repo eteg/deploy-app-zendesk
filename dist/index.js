@@ -23058,6 +23058,8 @@ function getAppInput() {
     const appPath = (0, core_1.getInput)('path').replace(/(\/)$/g, '');
     const appPackage = (0, core_1.getInput)('package').replace(/(\/)$/g, '');
     const zendeskAppsConfigPath = (0, core_1.getInput)('zendesk_apps_config_path').replace(/(\/)$/g, '') || '';
+    const appId = (0, core_1.getInput)('app_id');
+    const allowMultipleApps = (0, core_1.getInput)('allow_multiple_apps');
     if (appPath && appPackage) {
         throw new Error("Parameters validation: You can't fill both 'path' and 'package' parameters.");
     }
@@ -23065,7 +23067,15 @@ function getAppInput() {
         throw new Error("Parameters validation: 'package' parameter must to be a .zip file.");
     }
     const params = JSON.parse((0, core_1.getInput)('params', { required: false })) || {};
-    return { env, appPath, appPackage, zendeskAppsConfigPath, params };
+    return {
+        env,
+        appPath,
+        appPackage,
+        zendeskAppsConfigPath,
+        params,
+        appId,
+        allowMultipleApps,
+    };
 }
 function deploy() {
     var _a;
