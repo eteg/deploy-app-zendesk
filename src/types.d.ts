@@ -11,7 +11,7 @@ type AuthenticateZendesk = {
 };
 
 type ZendeskAppsConfig = {
-  ids?: Record<string, AppId>;
+  ids: Record<string, AppId>;
 };
 
 type Manifest = {
@@ -60,7 +60,7 @@ type ManifestParameter = {
   secure?: boolean;
 };
 
-type AppId = string;
+type AppId = string | string[];
 
 type AppLocation = {
   path: string;
