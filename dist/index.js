@@ -23059,7 +23059,7 @@ function getAppInput() {
     const appPackage = (0, core_1.getInput)('package').replace(/(\/)$/g, '');
     const zendeskAppsConfigPath = (0, core_1.getInput)('zendesk_apps_config_path').replace(/(\/)$/g, '') || '';
     const appId = (0, core_1.getInput)('app_id');
-    const allowMultipleApps = (0, core_1.getInput)('allow_multiple_apps');
+    const allowMultipleApps = (0, core_1.getInput)('allow_multiple_apps') || false;
     if (appPath && appPackage) {
         throw new Error("Parameters validation: You can't fill both 'path' and 'package' parameters.");
     }
@@ -23086,8 +23086,7 @@ function deploy(ids, inputs, authenticate) {
             path: appPath || appPackage || '',
             type: appPath ? 'dir' : 'zip',
         };
-        const isDefinedAndIsNotArray = ids[env] && !Array.isArray(ids[env]);
-        if (appId || (isDefinedAndIsNotArray && !allowMultipleApps)) {
+        if (appId || ((0, json_1.isDefinedAndIsNotArray)(ids[env]) && !allowMultipleApps)) {
             const id = appId || ids[env];
             (0, shelljs_1.echo)(`📌 Updating an existing application with appId ${id}...`);
             return appService.updateApp(id, appLocation, params);
@@ -23120,9 +23119,14 @@ function run() {
             const app = yield deploy(ids, inputs, authenticate);
             if (!allowMultipleApps && !ids[inputs.env])
                 zendeskConfig.ids = Object.assign(Object.assign({}, ids), { [inputs.env]: app.id });
-            if (!Array.isArray(zendeskConfig.ids[inputs.env]))
+            else if (allowMultipleApps &&
+                (0, json_1.isDefinedAndIsNotArray)(zendeskConfig.ids[inputs.env]))
                 Object.assign(zendeskConfig.ids, {
                     [inputs.env]: [ids[inputs.env], app.id],
+                });
+            else if (allowMultipleApps && !zendeskConfig.ids[inputs.env])
+                Object.assign(zendeskConfig.ids, {
+                    [inputs.env]: [app.id],
                 });
             else if (!zendeskConfig.ids[inputs.env].includes(app.id))
                 zendeskConfig.ids[inputs.env].push(app.id);
@@ -23401,7 +23405,7 @@ exports.isZipFile = isZipFile;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.jsonToFile = exports.fileToJSON = void 0;
+exports.isDefinedAndIsNotArray = exports.jsonToFile = exports.fileToJSON = void 0;
 const shelljs_1 = __nccwpck_require__(3516);
 const fs_1 = __nccwpck_require__(7147);
 const fileToJSON = (filePath) => {
@@ -23418,6 +23422,8 @@ const jsonToFile = (filePath, json) => {
     (0, fs_1.writeFileSync)(filePath, JSON.stringify(json));
 };
 exports.jsonToFile = jsonToFile;
+const isDefinedAndIsNotArray = (value) => Boolean(value && !Array.isArray(value));
+exports.isDefinedAndIsNotArray = isDefinedAndIsNotArray;
 
 
 /***/ }),

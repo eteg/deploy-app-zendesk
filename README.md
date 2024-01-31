@@ -32,7 +32,7 @@ with:
   # Opcional. Serve para indicar o id do aplicativo que deseja atualizar.
   app_id: ${{ APP_ID }}
 
-  # Opcional, valor padrão é false. Serve para indicar que o environment escolhido pode ter múltiplas copias do mesmo aplicativo.
+  # Opcional, seu valor será boolean. Serve para indicar que o environment escolhido pode ter múltiplas copias do mesmo aplicativo. Padrão é false
   allow_multiple_apps: false
 
   # Parâmetros do manifest.

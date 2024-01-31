@@ -3,7 +3,7 @@ import { echo } from 'shelljs';
 import * as github from '@actions/github';
 import { normalize } from 'path';
 import { isZipFile } from './utils/file';
-import { fileToJSON, jsonToFile } from './utils/json';
+import { fileToJSON, isDefinedAndIsNotArray, jsonToFile } from './utils/json';
 import ZendeskAPI from './providers/ZendeskAPI';
 import AppService from './services/AppService';
 
@@ -46,7 +46,7 @@ function getAppInput() {
   const zendeskAppsConfigPath =
     getInput('zendesk_apps_config_path').replace(/(\/)$/g, '') || '';
   const appId = getInput('app_id');
-  const allowMultipleApps = getInput('allow_multiple_apps');
+  const allowMultipleApps = getInput('allow_multiple_apps') || false;
 
   if (appPath && appPackage) {
     throw new Error(
@@ -88,9 +88,7 @@ async function deploy(
     type: appPath ? 'dir' : 'zip',
   };
 
-  const isDefinedAndIsNotArray = ids[env] && !Array.isArray(ids[env]);
-
-  if (appId || (isDefinedAndIsNotArray && !allowMultipleApps)) {
+  if (appId || (isDefinedAndIsNotArray(ids[env]) && !allowMultipleApps)) {
     const id = appId || ids[env];
     echo(`📌 Updating an existing application with appId ${id}...`);
 
@@ -140,10 +138,16 @@ async function run() {
 
     if (!allowMultipleApps && !ids[inputs.env])
       zendeskConfig.ids = { ...ids, [inputs.env]: app.id };
-
-    if (!Array.isArray(zendeskConfig.ids[inputs.env]))
+    else if (
+      allowMultipleApps &&
+      isDefinedAndIsNotArray(zendeskConfig.ids[inputs.env])
+    )
       Object.assign(zendeskConfig.ids, {
         [inputs.env]: [ids[inputs.env], app.id],
+      });
+    else if (allowMultipleApps && !zendeskConfig.ids[inputs.env])
+      Object.assign(zendeskConfig.ids, {
+        [inputs.env]: [app.id],
       });
     else if (!(zendeskConfig.ids[inputs.env] as string[]).includes(app.id))
       (zendeskConfig.ids[inputs.env] as string[]).push(app.id);
