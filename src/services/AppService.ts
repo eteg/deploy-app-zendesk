@@ -8,7 +8,7 @@ export default class AppService {
 
   async createApp(
     appLocation: AppLocation,
-    parameters: Record<string, string>
+    parameters: Record<string, string>,
   ) {
     const appConfig = this.getManifest(appLocation);
 
@@ -18,7 +18,7 @@ export default class AppService {
     const { id } = await this.zendeskApi.uploadApp(appPath);
     const { job_id: jobId } = await this.zendeskApi.deployApp(
       id,
-      appConfig.name
+      appConfig.name,
     );
     const { app_id: appId } = await this.zendeskApi.getUploadJobStatus(jobId);
 
@@ -27,7 +27,7 @@ export default class AppService {
     const installation = await this.zendeskApi.createInstallation(
       this.cleanParameters(params),
       appConfig,
-      appId
+      appId,
     );
 
     return { id: String(installation.app_id) };
@@ -36,7 +36,7 @@ export default class AppService {
   async updateApp(
     appId: string,
     appLocation: AppLocation,
-    parameters: Record<string, string>
+    parameters: Record<string, string>,
   ) {
     const appConfig = this.getManifest(appLocation);
 
@@ -47,15 +47,14 @@ export default class AppService {
     const { job_id: jobId } = await this.zendeskApi.deployExistingApp(
       uploadId,
       appConfig.name,
-      appId
+      appId,
     );
-    const { app_id: uploadedAppId } = await this.zendeskApi.getUploadJobStatus(
-      jobId
-    );
+    const { app_id: uploadedAppId } =
+      await this.zendeskApi.getUploadJobStatus(jobId);
     const { installations } = await this.zendeskApi.getInstallations();
 
     const installation = installations.find(
-      (item) => item.app_id === Number(uploadedAppId)
+      (item) => item.app_id === Number(uploadedAppId),
     );
 
     if (!installation) throw new Error('Installation not found');
@@ -66,7 +65,7 @@ export default class AppService {
       this.cleanParameters(params),
       appConfig,
       appId,
-      installation.id
+      installation.id,
     );
 
     return { id: String(updatedInstallation.app_id) };
@@ -89,10 +88,9 @@ export default class AppService {
       try {
         const zip = new AdmZip(path);
         zip.extractEntryTo('manifest.json', 'package', false, true);
-      } catch(error) {
+      } catch (error) {
         throw new Error(`Cannot extract manifest.json from .zip file`);
       }
-
     }
 
     const appPath = type === 'zip' ? 'package' : path;
@@ -109,40 +107,40 @@ export default class AppService {
 
   private filterParameters(manifest: Manifest, params: Record<string, string>) {
     const paramsWithoutValue = Object.entries(params).filter(
-      ([_, value]) => typeof value === 'undefined'
+      ([_, value]) => typeof value === 'undefined',
     );
 
     if (paramsWithoutValue.length) {
       throw new Error(
         `Following secrets missing their values: ${paramsWithoutValue
           .map(([key]) => key)
-          .join(', ')}`
+          .join(', ')}`,
       );
     }
 
     const manifestParams = manifest?.parameters ?? [];
     const requiredParamsNotFound = manifestParams.filter(
       (m) =>
-        m?.required && !Object.keys(params).find((key) => isEqual(m.name, key))
+        m?.required && !Object.keys(params).find((key) => isEqual(m.name, key)),
     );
 
     if (requiredParamsNotFound.length) {
       throw new Error(
         `Missing following required parameters: ${requiredParamsNotFound
           .map((p) => p.name)
-          .join(', ')}`
+          .join(', ')}`,
       );
     }
 
-    const paramaters = {};
+    const parameters = {};
 
     manifestParams.forEach(({ name }) => {
       const param = Object.entries(params).find(([key]) => isEqual(name, key));
 
-      if (param) Object.assign(paramaters, { [name]: param[1] });
+      if (param) Object.assign(parameters, { [name]: param[1] });
     });
 
-    return paramaters;
+    return parameters;
   }
 
   private cleanParameters(parameters: Record<string, string>) {
@@ -152,7 +150,7 @@ export default class AppService {
       entries.map(([key, value]) => [
         key.replace('PARAMS_', '').toLowerCase(),
         value,
-      ])
+      ]),
     );
   }
 }
