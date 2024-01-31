@@ -138,14 +138,15 @@ async function run() {
 
     const app = await deploy(ids, inputs, authenticate);
 
-    if (!allowMultipleApps && app.id)
+    if (!allowMultipleApps && !ids[inputs.env])
       zendeskConfig.ids = { ...ids, [inputs.env]: app.id };
 
     if (!Array.isArray(zendeskConfig.ids[inputs.env]))
       Object.assign(zendeskConfig.ids, {
         [inputs.env]: [ids[inputs.env], app.id],
       });
-    else (zendeskConfig.ids[inputs.env] as string[]).push(app.id);
+    else if (!(zendeskConfig.ids[inputs.env] as string[]).includes(app.id))
+      (zendeskConfig.ids[inputs.env] as string[]).push(app.id);
 
     jsonToFile(zendeskConfigPath, zendeskConfig);
 
