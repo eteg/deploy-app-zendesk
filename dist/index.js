@@ -23119,7 +23119,8 @@ function run() {
             const app = yield deploy(ids, inputs, authenticate);
             if (!allowMultipleApps && !ids[inputs.env])
                 zendeskConfig.ids = Object.assign(Object.assign({}, ids), { [inputs.env]: app.id });
-            else if (allowMultipleApps &&
+            else if (!inputs.appId &&
+                allowMultipleApps &&
                 (0, json_1.isDefinedAndIsNotArray)(zendeskConfig.ids[inputs.env]))
                 Object.assign(zendeskConfig.ids, {
                     [inputs.env]: [ids[inputs.env], app.id],
@@ -23128,7 +23129,8 @@ function run() {
                 Object.assign(zendeskConfig.ids, {
                     [inputs.env]: [app.id],
                 });
-            else if (!zendeskConfig.ids[inputs.env].includes(app.id))
+            else if (Array.isArray(zendeskConfig.ids[inputs.env]) &&
+                !zendeskConfig.ids[inputs.env].includes(app.id))
                 zendeskConfig.ids[inputs.env].push(app.id);
             (0, json_1.jsonToFile)(zendeskConfigPath, zendeskConfig);
             (0, shelljs_1.echo)(`🚀 App deployed successfully!`);

@@ -139,6 +139,7 @@ async function run() {
     if (!allowMultipleApps && !ids[inputs.env])
       zendeskConfig.ids = { ...ids, [inputs.env]: app.id };
     else if (
+      !inputs.appId &&
       allowMultipleApps &&
       isDefinedAndIsNotArray(zendeskConfig.ids[inputs.env])
     )
@@ -149,7 +150,10 @@ async function run() {
       Object.assign(zendeskConfig.ids, {
         [inputs.env]: [app.id],
       });
-    else if (!(zendeskConfig.ids[inputs.env] as string[]).includes(app.id))
+    else if (
+      Array.isArray(zendeskConfig.ids[inputs.env]) &&
+      !(zendeskConfig.ids[inputs.env] as string[]).includes(app.id)
+    )
       (zendeskConfig.ids[inputs.env] as string[]).push(app.id);
 
     jsonToFile(zendeskConfigPath, zendeskConfig);
