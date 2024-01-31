@@ -1,6 +1,6 @@
 # deploy-app-zendesk
 
-Action do github que realiza o deploy de aplicatios zendesk.
+Action do github que realiza o deploy de applications Zendesk.
 
 ## Modo de uso
 
@@ -17,28 +17,34 @@ Dentro desse step deve ser passado os seguintes parâmetros:
 
 ```yaml
 with:
-  # Subdomínio do ambiente zendesk
+  # Subdomínio do ambiente zendesk.
   zendesk_subdomain: ${{  SUBDOMAIN  }}
 
-  # Email para acesso do ambiente zendesk
+  # Email para acesso do ambiente zendesk.
   zendesk_email: ${{  EMAIL  }}
 
-  # API_TOKEN gerado no ambiente zendesk
+  # API_TOKEN gerado no ambiente zendesk.
   zendesk_api_token: ${{  API_TOKEN  }}
 
-  # Ambiente onde será realizado o deploy
+  # Ambiente onde será realizado o deploy.
   environment: "develop"
 
-  # Parâmetros do manifest
+  # Opcional. Serve para indicar o id do aplicativo que deseja atualizar.
+  app_id: ${{ APP_ID }}
+
+  # Opcional, valor padrão é false. Serve para indicar que o environment escolhido pode ter múltiplas copias do mesmo aplicativo.
+  allow_multiple_apps: false
+
+  # Parâmetros do manifest.
   params: "{}"
 
-  # Opcional. Caminho do diretório raiz do app. Default: './'
+  # Opcional. Caminho do diretório raiz do app. Default: './'.
   path: ${{ matrix.working-directory }}
 
-  # Opcional. Caminho do app enpacotado em .zip. Não pode ser definido em conjunto com 'path'
+  # Opcional. Caminho do app enpacotado em .zip. Não pode ser definido em conjunto com 'path'.
   package: ${{ matrix.working-directory }}/app.zip
 
-  # Opcional. Caminho do diretório que contém o arquivo zendesk.apps.config.json. Default: '/'
+  # Opcional. Caminho do diretório que contém o arquivo zendesk.apps.config.json. Default: '/'.
   zendesk_apps_config_path: ${{ matrix.working-directory }}
 ```
 
@@ -47,19 +53,19 @@ Após a execução da action, será criado o arquivo “zendesk.apps.config.json
 ```json
 {
   "ids": {
-    "dev": 12345,
-    "prod": 98765
+    "develop": 12345,
+    "production": 98765
   }
 }
 ```
 
-**Obs: Um app sofre atualizações caso o `environment` inserido esteja registrado no arquivo a cima, caso contrário, um novo app será criado. Para se ter um app em um ambiente zendesk diferente, é preciso que não só o `environment` como também os inputs `zendesk_subdomain`, `zendesk_email` e `zendesk_api_token` sejam diferentes.**
+**Obs: Um app sofre atualizações caso o `environment` inserido esteja registrado no arquivo a cima, caso contrário, um novo app será criado. Para instalar um app em um ambiente zendesk diferente, é preciso que não só o `environment` como também os inputs `zendesk_subdomain`, `zendesk_email` e `zendesk_api_token` sejam diferentes.**
 
 ## Exemplo de uso
 
 ---
 
-No exemplo a seguir usamos os environments e as secrets do github para salvar e gerenciar as nossas secrets. Utilizamos também os nomes das branchs para ditar em qual environment será realizado o deploy.
+No exemplo a seguir usamos os environments e as secrets do github para salvar e gerenciar as nossas secrets. Utilizamos também os nomes das branches para ditar em qual environment será realizado o deploy.
 
 ```yaml
 name: app-deploy
