@@ -73,7 +73,42 @@ function getAppInput() {
   };
 }
 
-async function deploy() {
+async function deploy(
+  ids: Record<string, any>,
+  inputs: ReturnType<typeof getAppInput>,
+  authenticate: AuthenticateZendesk,
+) {
+  const { env, allowMultipleApps, appId, appPath, appPackage, params } = inputs;
+
+  const zendeskAPI = new ZendeskAPI(authenticate);
+  const appService = new AppService(zendeskAPI);
+
+  const appLocation: AppLocation = {
+    path: appPath || appPackage || '',
+    type: appPath ? 'dir' : 'zip',
+  };
+
+  const isDefinedAndIsNotArray = ids[env] && !Array.isArray(ids[env]);
+
+  if (appId || (isDefinedAndIsNotArray && !allowMultipleApps)) {
+    const id = appId || ids[env];
+    echo(`📌 Updating an existing application with appId ${id}...`);
+
+    return appService.updateApp(id, appLocation, params);
+  }
+
+  if (allowMultipleApps || !ids[env]) {
+    echo(`✨ Deploying a new application...`);
+
+    return appService.createApp(appLocation, params);
+  }
+
+  throw new Error(
+    'There is already an app for this environment. Enable "allow_multiple_apps" to create a new one.',
+  );
+}
+
+async function run() {
   try {
     const dateTime = new Date().toLocaleString('pt-BR');
     echo(`💡 Job started at ${dateTime}`);
@@ -88,41 +123,36 @@ async function deploy() {
       `🔐 Checking if all credentials for authentications and required inputs are here.`,
     );
     const authenticate = getAuthenticateParams();
-    const input = getAppInput();
-
-    const appLocation: AppLocation = {
-      path: input.appPath || input.appPackage || '',
-      type: input.appPath ? 'dir' : 'zip',
-    };
+    const inputs = getAppInput();
+    const { zendeskAppsConfigPath, allowMultipleApps } = inputs;
 
     echo(`🗄️ Looking for existing applications`);
     const zendeskConfigPath = normalize(
-      `${input.zendeskAppsConfigPath}/zendesk.apps.config.json`,
+      `${zendeskAppsConfigPath}/zendesk.apps.config.json`,
     );
 
     const zendeskConfig: ZendeskAppsConfig = fileToJSON(zendeskConfigPath);
+    if (!zendeskConfig?.ids) Object.assign(zendeskConfig, { ids: {} });
 
-    const ids = zendeskConfig?.ids || {};
-    const appId: AppId | undefined = ids[input.env];
+    const ids = zendeskConfig.ids;
 
-    const zendeskAPI = new ZendeskAPI(authenticate);
-    const appService = new AppService(zendeskAPI);
+    const app = await deploy(ids, inputs, authenticate);
 
-    if (appId) {
-      echo(`📌 Updating an existing application with appId ${appId}...`);
-      await appService.updateApp(appId, appLocation, input.params);
-    } else {
-      echo(`✨ Deploying a new application...`);
+    if (!allowMultipleApps && app.id)
+      zendeskConfig.ids = { ...ids, [inputs.env]: app.id };
 
-      const app = await appService.createApp(appLocation, input.params);
+    if (!Array.isArray(zendeskConfig.ids[inputs.env]))
+      Object.assign(zendeskConfig.ids, {
+        [inputs.env]: [ids[inputs.env], app.id],
+      });
+    else (zendeskConfig.ids[inputs.env] as string[]).push(app.id);
 
-      zendeskConfig.ids = { ...ids, [input.env]: app.id };
-      jsonToFile(zendeskConfigPath, zendeskConfig);
-    }
+    jsonToFile(zendeskConfigPath, zendeskConfig);
+
     echo(`🚀 App deployed successfully!`);
   } catch (error: unknown) {
     setFailed(error as Error);
   }
 }
 
-deploy();
+run();
