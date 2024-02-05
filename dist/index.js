@@ -23059,7 +23059,7 @@ function getAppInput() {
     const appPackage = (0, core_1.getInput)('package').replace(/(\/)$/g, '');
     const zendeskAppsConfigPath = (0, core_1.getInput)('zendesk_apps_config_path').replace(/(\/)$/g, '') || '';
     const appId = (0, core_1.getInput)('app_id');
-    const allowMultipleApps = (0, core_1.getInput)('allow_multiple_apps') || false;
+    const allowMultipleApps = (0, core_1.getInput)('allow_multiple_apps') === 'true';
     if (appPath && appPackage) {
         throw new Error("Parameters validation: You can't fill both 'path' and 'package' parameters.");
     }
@@ -23077,27 +23077,6 @@ function getAppInput() {
         allowMultipleApps,
     };
 }
-function deploy(ids, inputs, authenticate) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const { env, allowMultipleApps, appId, appPath, appPackage, params } = inputs;
-        const zendeskAPI = new ZendeskAPI_1.default(authenticate);
-        const appService = new AppService_1.default(zendeskAPI);
-        const appLocation = {
-            path: appPath || appPackage || '',
-            type: appPath ? 'dir' : 'zip',
-        };
-        if (appId || ((0, json_1.isDefinedAndIsNotArray)(ids[env]) && !allowMultipleApps)) {
-            const id = appId || ids[env];
-            (0, shelljs_1.echo)(`📌 Updating an existing application with appId ${id}...`);
-            return appService.updateApp(id, appLocation, params);
-        }
-        if (allowMultipleApps || !ids[env]) {
-            (0, shelljs_1.echo)(`✨ Deploying a new application...`);
-            return appService.createApp(appLocation, params);
-        }
-        throw new Error('There is already an app for this environment. Enable "allow_multiple_apps" to create a new one.');
-    });
-}
 function run() {
     var _a;
     return __awaiter(this, void 0, void 0, function* () {
@@ -23109,29 +23088,31 @@ function run() {
             (0, shelljs_1.echo)(`🔐 Checking if all credentials for authentications and required inputs are here.`);
             const authenticate = getAuthenticateParams();
             const inputs = getAppInput();
-            const { zendeskAppsConfigPath, allowMultipleApps } = inputs;
+            const { zendeskAppsConfigPath, appPath, appPackage, params, env, appId } = inputs;
             (0, shelljs_1.echo)(`🗄️ Looking for existing applications`);
             const zendeskConfigPath = (0, path_1.normalize)(`${zendeskAppsConfigPath}/zendesk.apps.config.json`);
             const zendeskConfig = (0, json_1.fileToJSON)(zendeskConfigPath);
             if (!(zendeskConfig === null || zendeskConfig === void 0 ? void 0 : zendeskConfig.ids))
                 Object.assign(zendeskConfig, { ids: {} });
             const ids = zendeskConfig.ids;
-            const app = yield deploy(ids, inputs, authenticate);
-            if (!allowMultipleApps && !ids[inputs.env])
-                zendeskConfig.ids = Object.assign(Object.assign({}, ids), { [inputs.env]: app.id });
-            else if (!inputs.appId &&
-                allowMultipleApps &&
-                (0, json_1.isDefinedAndIsNotArray)(zendeskConfig.ids[inputs.env]))
-                Object.assign(zendeskConfig.ids, {
-                    [inputs.env]: [ids[inputs.env], app.id],
-                });
-            else if (allowMultipleApps && !zendeskConfig.ids[inputs.env])
-                Object.assign(zendeskConfig.ids, {
-                    [inputs.env]: [app.id],
-                });
-            else if (Array.isArray(zendeskConfig.ids[inputs.env]) &&
-                !zendeskConfig.ids[inputs.env].includes(app.id))
-                zendeskConfig.ids[inputs.env].push(app.id);
+            const zendeskAPI = new ZendeskAPI_1.default(authenticate);
+            const appService = new AppService_1.default(zendeskAPI, inputs);
+            const appLocation = {
+                path: appPath || appPackage || '',
+                type: appPath ? 'dir' : 'zip',
+            };
+            if (appService.defineToCreateOrUpdateApp(zendeskConfig) === 'UPDATE') {
+                const id = appId || ids[env];
+                (0, shelljs_1.echo)(`📌 Updating an existing application with appId ${id}...`);
+                yield appService.updateApp(id, appLocation, params);
+            }
+            else if (appService.defineToCreateOrUpdateApp(zendeskConfig) === 'CREATE') {
+                (0, shelljs_1.echo)(`✨ Deploying a new application...`);
+                yield appService.createApp(appLocation, params);
+            }
+            else
+                throw new Error('There is already an app for this environment. Enable "allow_multiple_apps" to create a new one.');
+            appService.incrementAppIdToConfig(zendeskConfig);
             (0, json_1.jsonToFile)(zendeskConfigPath, zendeskConfig);
             (0, shelljs_1.echo)(`🚀 App deployed successfully!`);
         }
@@ -23291,8 +23272,10 @@ const json_1 = __nccwpck_require__(3810);
 const string_1 = __nccwpck_require__(1380);
 const adm_zip_1 = __importDefault(__nccwpck_require__(6761));
 class AppService {
-    constructor(zendeskApi) {
+    constructor(zendeskApi, inputs) {
         this.zendeskApi = zendeskApi;
+        this.inputs = inputs;
+        this.appIdUploaded = null;
     }
     createApp(appLocation, parameters) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -23304,6 +23287,7 @@ class AppService {
             const { app_id: appId } = yield this.zendeskApi.getUploadJobStatus(jobId);
             const params = this.filterParameters(appConfig, parameters);
             const installation = yield this.zendeskApi.createInstallation(this.cleanParameters(params), appConfig, appId);
+            this.appIdUploaded = String(installation.app_id);
             return { id: String(installation.app_id) };
         });
     }
@@ -23321,6 +23305,7 @@ class AppService {
                 throw new Error('Installation not found');
             const params = this.filterParameters(appConfig, parameters);
             const updatedInstallation = yield this.zendeskApi.updateInstallation(this.cleanParameters(params), appConfig, appId, installation.id);
+            this.appIdUploaded = String(updatedInstallation.app_id);
             return { id: String(updatedInstallation.app_id) };
         });
     }
@@ -23378,6 +23363,34 @@ class AppService {
             key.replace('PARAMS_', '').toLowerCase(),
             value,
         ]));
+    }
+    defineToCreateOrUpdateApp(zendeskAppConfig) {
+        const { appId, env, allowMultipleApps } = this.inputs;
+        const { ids } = zendeskAppConfig;
+        if (appId || ((0, json_1.isDefinedAndIsNotArray)(ids[env]) && !allowMultipleApps))
+            return 'UPDATE';
+        if (allowMultipleApps || !ids[env])
+            return 'CREATE';
+    }
+    incrementAppIdToConfig(zendeskAppConfig) {
+        const { appId, env, allowMultipleApps } = this.inputs;
+        if (!this.appIdUploaded)
+            throw new Error("Application wasn't uploaded yet.");
+        if (!allowMultipleApps && !zendeskAppConfig.ids[env])
+            zendeskAppConfig.ids = Object.assign(Object.assign({}, zendeskAppConfig.ids), { [env]: this.appIdUploaded });
+        else if (!appId &&
+            allowMultipleApps &&
+            (0, json_1.isDefinedAndIsNotArray)(zendeskAppConfig.ids[env]))
+            Object.assign(zendeskAppConfig.ids, {
+                [env]: [zendeskAppConfig.ids[env], this.appIdUploaded],
+            });
+        else if (allowMultipleApps && !zendeskAppConfig.ids[env])
+            Object.assign(zendeskAppConfig.ids, {
+                [env]: [this.appIdUploaded],
+            });
+        else if (Array.isArray(zendeskAppConfig.ids[env]) &&
+            !zendeskAppConfig.ids[env].includes(this.appIdUploaded))
+            zendeskAppConfig.ids[env].push(this.appIdUploaded);
     }
 }
 exports["default"] = AppService;
