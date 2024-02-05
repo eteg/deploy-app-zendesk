@@ -1,10 +1,15 @@
 import ZendeskAPI from '../providers/ZendeskAPI';
-import { fileToJSON } from '../utils/json';
+import { fileToJSON, isDefinedAndIsNotArray } from '../utils/json';
 import { isEqual } from '../utils/string';
 import AdmZip from 'adm-zip';
 
 export default class AppService {
-  constructor(private zendeskApi: ZendeskAPI) {}
+  constructor(
+    private zendeskApi: ZendeskAPI,
+    private inputs: AppInputs,
+  ) {}
+
+  private appIdUploaded: string | null = null;
 
   async createApp(
     appLocation: AppLocation,
@@ -29,6 +34,8 @@ export default class AppService {
       appConfig,
       appId,
     );
+
+    this.appIdUploaded = String(installation.app_id);
 
     return { id: String(installation.app_id) };
   }
@@ -67,6 +74,8 @@ export default class AppService {
       appId,
       installation.id,
     );
+
+    this.appIdUploaded = String(updatedInstallation.app_id);
 
     return { id: String(updatedInstallation.app_id) };
   }
@@ -152,5 +161,45 @@ export default class AppService {
         value,
       ]),
     );
+  }
+
+  public defineToCreateOrUpdateApp(zendeskAppConfig: ZendeskAppsConfig) {
+    const { appId, env, allowMultipleApps } = this.inputs;
+    const { ids } = zendeskAppConfig;
+
+    if (appId || (isDefinedAndIsNotArray(ids[env]) && !allowMultipleApps))
+      return 'UPDATE';
+
+    if (allowMultipleApps || !ids[env]) return 'CREATE';
+  }
+
+  public incrementAppIdToConfig(zendeskAppConfig: ZendeskAppsConfig) {
+    const { appId, env, allowMultipleApps } = this.inputs;
+
+    if (!this.appIdUploaded)
+      throw new Error("Application wasn't uploaded yet.");
+
+    if (!allowMultipleApps && !zendeskAppConfig.ids[env])
+      zendeskAppConfig.ids = {
+        ...zendeskAppConfig.ids,
+        [env]: this.appIdUploaded,
+      };
+    else if (
+      !appId &&
+      allowMultipleApps &&
+      isDefinedAndIsNotArray(zendeskAppConfig.ids[env])
+    )
+      Object.assign(zendeskAppConfig.ids, {
+        [env]: [zendeskAppConfig.ids[env], this.appIdUploaded],
+      });
+    else if (allowMultipleApps && !zendeskAppConfig.ids[env])
+      Object.assign(zendeskAppConfig.ids, {
+        [env]: [this.appIdUploaded],
+      });
+    else if (
+      Array.isArray(zendeskAppConfig.ids[env]) &&
+      !(zendeskAppConfig.ids[env] as string[]).includes(this.appIdUploaded)
+    )
+      (zendeskAppConfig.ids[env] as string[]).push(this.appIdUploaded);
   }
 }

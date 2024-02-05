@@ -66,3 +66,13 @@ type AppLocation = {
   path: string;
   type: 'dir' | 'zip';
 };
+
+type AppInputs = {
+  env: string;
+  appPath: string;
+  appPackage: string;
+  zendeskAppsConfigPath: string;
+  params: Record<string, string>;
+  appId: string;
+  allowMultipleApps: boolean;
+};
