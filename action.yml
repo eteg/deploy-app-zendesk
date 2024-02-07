@@ -14,6 +14,12 @@ inputs:
   package:
     description: "App zip. Cannot be filled if 'path' parameter is filled"
     required: false
+  app_id:
+    description: "Zendesk Support App ID"
+    required: false
+  allow_multiple_apps:
+    required: false
+    description: "Allow the integration of multiple applications within the same environment"
   zendesk_apps_config_path:
     description: "Path of file 'zendesk.apps.config.json'. Default to './'"
     required: false

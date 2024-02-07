@@ -13,3 +13,6 @@ export const fileToJSON = (filePath: string) => {
 export const jsonToFile = (filePath: string, json: any) => {
   writeFileSync(filePath, JSON.stringify(json));
 };
+
+export const isDefinedAndIsNotArray = (value?: string | string[]) =>
+  Boolean(value && !Array.isArray(value));

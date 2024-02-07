@@ -48,7 +48,7 @@ export default class ZendeskAPI {
       const { data } = await this.api.put(
         `/apps/${String(appId)}`,
         { upload_id: Number(uploadId), name: appName },
-        { headers: { Accept: '*/*' } }
+        { headers: { Accept: '*/*' } },
       );
 
       return data;
@@ -90,7 +90,7 @@ export default class ZendeskAPI {
   async createInstallation(
     parameters: Record<string, string>,
     manifest: Manifest,
-    app_id: string
+    app_id: string,
   ): Promise<Installation> {
     const { data } = await this.api.post<Installation>('/apps/installations', {
       app_id,
@@ -105,7 +105,7 @@ export default class ZendeskAPI {
 
   async getInstallations(): Promise<{ installations: Installation[] }> {
     const { data } = await this.api.get<{ installations: Installation[] }>(
-      '/apps/installations.json'
+      '/apps/installations.json',
     );
 
     return data;
@@ -115,7 +115,7 @@ export default class ZendeskAPI {
     parameters: Record<string, string>,
     manifest: Manifest,
     app_id: string,
-    installation_id: number
+    installation_id: number,
   ): Promise<Installation> {
     const { data } = await this.api.put<Installation>(
       `/apps/installations/${installation_id}`,
@@ -125,7 +125,7 @@ export default class ZendeskAPI {
           name: manifest.name,
           ...parameters,
         },
-      }
+      },
     );
 
     return data;
