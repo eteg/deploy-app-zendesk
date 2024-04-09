@@ -123,7 +123,12 @@ async function run() {
         throw new Error(`Invalid appId. Expected a integer but got: ${id}`);
 
       echo(`📌 Updating an existing application with appId ${id}...`);
-      await appService.updateApp(id, appLocation, params);
+      await appService.updateApp(
+        id,
+        appLocation,
+        params,
+        inputs.roleRestrictions,
+      );
     } else if (
       appService.defineToCreateOrUpdateApp(zendeskConfig) === 'CREATE'
     ) {
