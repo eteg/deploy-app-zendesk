@@ -23299,7 +23299,7 @@ class AppService {
             return { id: String(installation.app_id) };
         });
     }
-    updateApp(appId, appLocation, parameters) {
+    updateApp(appId, appLocation, parameters, roleRestrictions) {
         return __awaiter(this, void 0, void 0, function* () {
             const appConfig = this.getManifest(appLocation);
             const { type, path } = appLocation;
@@ -23315,7 +23315,7 @@ class AppService {
             const updatedInstallation = yield this.zendeskApi.updateInstallation({
                 installationId: installation.id,
                 appId,
-                settings: Object.assign({ name: appConfig.name, role_restrictions: [] }, this.cleanParameters(params)),
+                settings: Object.assign({ name: appConfig.name, role_restrictions: roleRestrictions }, this.cleanParameters(params)),
             });
             this.appIdUploaded = String(updatedInstallation.app_id);
             return { id: String(updatedInstallation.app_id) };

@@ -48,6 +48,7 @@ export default class AppService {
     appId: number,
     appLocation: AppLocation,
     parameters: InstallationParameters,
+    roleRestrictions?: RoleRestrictions,
   ) {
     const appConfig = this.getManifest(appLocation);
 
@@ -77,7 +78,7 @@ export default class AppService {
       appId,
       settings: {
         name: appConfig.name,
-        role_restrictions: [],
+        role_restrictions: roleRestrictions,
         ...this.cleanParameters(params),
       },
     });
