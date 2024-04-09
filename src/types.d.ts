@@ -43,11 +43,11 @@ type AppPayload = {
 
 type RoleRestrictions = number[];
 
-interface InstallationParameters extends Record<string, any> {}
+interface InstallationParameters
+  extends Record<string, string | number | boolean | null> {}
 
 interface InstallationSettings extends InstallationParameters {
   name: string;
-  role_restrictions?: RoleRestrictions;
 }
 
 interface Installation {
@@ -66,6 +66,7 @@ interface Installation {
 interface CreateInstallation {
   appId: number;
   settings: InstallationSettings;
+  role_restrictions?: RoleRestrictions;
 }
 
 interface UpdateInstallation extends CreateInstallation {
@@ -104,5 +105,5 @@ type AppInputs = {
   params: Record<string, string>;
   appId: string;
   allowMultipleApps: boolean;
-  roleRestrictions: RoleRestrictions;
+  roleRestrictions?: RoleRestrictions;
 };

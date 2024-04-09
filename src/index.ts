@@ -49,10 +49,10 @@ function getAppInput(): AppInputs {
   const appId = getInput('app_id');
   const allowMultipleApps = getInput('allow_multiple_apps') === 'true';
 
-  const roleRestrictions = stringToArrayOfIds(
-    getInput('zendesk_role_restrictions') || '',
-  );
-
+  const roleRestrictionsInput = getInput('zendesk_role_restrictions');
+  const roleRestrictions = roleRestrictionsInput
+    ? stringToArrayOfIds(roleRestrictionsInput)
+    : undefined;
   console.log({ roleRestrictions });
 
   if (appPath && appPackage) {

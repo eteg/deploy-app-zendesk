@@ -23061,7 +23061,10 @@ function getAppInput() {
     const zendeskAppsConfigPath = (0, core_1.getInput)('zendesk_apps_config_path').replace(/(\/)$/g, '') || '';
     const appId = (0, core_1.getInput)('app_id');
     const allowMultipleApps = (0, core_1.getInput)('allow_multiple_apps') === 'true';
-    const roleRestrictions = (0, string_1.stringToArrayOfIds)((0, core_1.getInput)('zendesk_role_restrictions') || '');
+    const roleRestrictionsInput = (0, core_1.getInput)('zendesk_role_restrictions');
+    const roleRestrictions = roleRestrictionsInput
+        ? (0, string_1.stringToArrayOfIds)(roleRestrictionsInput)
+        : undefined;
     console.log({ roleRestrictions });
     if (appPath && appPackage) {
         throw new Error("Parameters validation: You can't fill both 'path' and 'package' parameters.");
@@ -23235,10 +23238,11 @@ class ZendeskAPI {
             return data;
         });
     }
-    createInstallation({ appId, settings, }) {
+    createInstallation({ appId, settings, role_restrictions, }) {
         return __awaiter(this, void 0, void 0, function* () {
             const { data } = yield this.api.post('/apps/installations', {
                 app_id: appId,
+                role_restrictions,
                 settings,
             });
             return data;
@@ -23250,11 +23254,11 @@ class ZendeskAPI {
             return data;
         });
     }
-    updateInstallation({ installationId, appId, settings, }) {
+    updateInstallation({ installationId, appId, settings, role_restrictions, }) {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log({ installationId, appId, settings });
             const { data } = yield this.api.put(`/apps/installations/${installationId}`, {
                 app_id: appId,
+                role_restrictions,
                 settings,
             });
             return data;
@@ -23304,7 +23308,8 @@ class AppService {
             const params = this.filterParameters(appConfig, parameters);
             const installation = yield this.zendeskApi.createInstallation({
                 appId,
-                settings: Object.assign({ name: appConfig.name, role_restrictions: roleRestrictions }, this.cleanParameters(params)),
+                role_restrictions: roleRestrictions,
+                settings: Object.assign({ name: appConfig.name }, this.cleanParameters(params)),
             });
             this.appIdUploaded = String(installation.app_id);
             return { id: String(installation.app_id) };
@@ -23326,7 +23331,8 @@ class AppService {
             const updatedInstallation = yield this.zendeskApi.updateInstallation({
                 installationId: installation.id,
                 appId,
-                settings: Object.assign({ name: appConfig.name, role_restrictions: roleRestrictions }, this.cleanParameters(params)),
+                role_restrictions: roleRestrictions,
+                settings: Object.assign({ name: appConfig.name }, this.cleanParameters(params)),
             });
             this.appIdUploaded = String(updatedInstallation.app_id);
             return { id: String(updatedInstallation.app_id) };
@@ -23480,7 +23486,6 @@ exports.isEqual = isEqual;
 const stringToArrayOfIds = (value) => {
     const arrayString = value.split(',').filter((id) => id);
     const wrongFormatArray = arrayString.filter((id) => isNaN(Number(id)));
-    console.log({ value, arrayString, wrongFormatArray });
     if (wrongFormatArray.length)
         `The following role IDs are not numbers: ${wrongFormatArray.join(', ')}.`;
     return arrayString.map((id) => Number(id));

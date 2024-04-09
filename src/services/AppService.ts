@@ -28,9 +28,9 @@ export default class AppService {
 
     const installation = await this.zendeskApi.createInstallation({
       appId,
+      role_restrictions: roleRestrictions,
       settings: {
         name: appConfig.name,
-        role_restrictions: roleRestrictions,
         ...this.cleanParameters(params),
       },
     });
@@ -72,9 +72,9 @@ export default class AppService {
     const updatedInstallation = await this.zendeskApi.updateInstallation({
       installationId: installation.id,
       appId,
+      role_restrictions: roleRestrictions,
       settings: {
         name: appConfig.name,
-        role_restrictions: roleRestrictions,
         ...this.cleanParameters(params),
       },
     });
