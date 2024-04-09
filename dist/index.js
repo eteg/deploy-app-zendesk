@@ -23062,6 +23062,7 @@ function getAppInput() {
     const appId = (0, core_1.getInput)('app_id');
     const allowMultipleApps = (0, core_1.getInput)('allow_multiple_apps') === 'true';
     const roleRestrictions = (0, string_1.stringToArrayOfIds)((0, core_1.getInput)('zendesk_role_restrictions') || '');
+    console.log({ roleRestrictions });
     if (appPath && appPackage) {
         throw new Error("Parameters validation: You can't fill both 'path' and 'package' parameters.");
     }
@@ -23109,11 +23110,20 @@ function run() {
                 if (!Number.isInteger(id))
                     throw new Error(`Invalid appId. Expected a integer but got: ${id}`);
                 (0, shelljs_1.echo)(`📌 Updating an existing application with appId ${id}...`);
-                yield appService.updateApp(id, appLocation, params);
+                yield appService.updateApp({
+                    appId: id,
+                    appLocation,
+                    parameters: params,
+                    roleRestrictions: inputs.roleRestrictions,
+                });
             }
             else if (appService.defineToCreateOrUpdateApp(zendeskConfig) === 'CREATE') {
                 (0, shelljs_1.echo)(`✨ Deploying a new application...`);
-                yield appService.createApp(appLocation, params);
+                yield appService.createApp({
+                    appLocation,
+                    parameters: params,
+                    roleRestrictions: inputs.roleRestrictions,
+                });
             }
             else
                 throw new Error('There is already an app for this environment. Enable "allow_multiple_apps" to create a new one.');
@@ -23283,7 +23293,7 @@ class AppService {
         this.inputs = inputs;
         this.appIdUploaded = null;
     }
-    createApp(appLocation, parameters, roleRestrictions) {
+    createApp({ appLocation, parameters, roleRestrictions }) {
         return __awaiter(this, void 0, void 0, function* () {
             const appConfig = this.getManifest(appLocation);
             const { type, path } = appLocation;
@@ -23300,7 +23310,7 @@ class AppService {
             return { id: String(installation.app_id) };
         });
     }
-    updateApp(appId, appLocation, parameters, roleRestrictions) {
+    updateApp({ appId, appLocation, parameters, roleRestrictions, }) {
         return __awaiter(this, void 0, void 0, function* () {
             const appConfig = this.getManifest(appLocation);
             const { type, path } = appLocation;
@@ -23470,6 +23480,7 @@ exports.isEqual = isEqual;
 const stringToArrayOfIds = (value) => {
     const arrayString = value.split(',').filter((id) => id);
     const wrongFormatArray = arrayString.filter((id) => isNaN(Number(id)));
+    console.log({ value, arrayString, wrongFormatArray });
     if (wrongFormatArray.length)
         `The following role IDs are not numbers: ${wrongFormatArray.join(', ')}.`;
     return arrayString.map((id) => Number(id));
