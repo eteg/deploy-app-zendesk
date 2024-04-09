@@ -23242,6 +23242,7 @@ class ZendeskAPI {
     }
     updateInstallation({ installationId, appId, settings, }) {
         return __awaiter(this, void 0, void 0, function* () {
+            console.log({ installationId, appId, settings });
             const { data } = yield this.api.put(`/apps/installations/${installationId}`, {
                 app_id: appId,
                 settings,

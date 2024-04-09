@@ -112,6 +112,7 @@ export default class ZendeskAPI {
     appId,
     settings,
   }: UpdateInstallation): Promise<Installation> {
+    console.log({ installationId, appId, settings });
     const { data } = await this.api.put<Installation>(
       `/apps/installations/${installationId}`,
       {
