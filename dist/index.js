@@ -23036,6 +23036,7 @@ const file_1 = __nccwpck_require__(456);
 const json_1 = __nccwpck_require__(3810);
 const ZendeskAPI_1 = __importDefault(__nccwpck_require__(237));
 const AppService_1 = __importDefault(__nccwpck_require__(9660));
+const string_1 = __nccwpck_require__(1380);
 const { ref, eventName, payload: { repository }, } = github.context;
 function getAuthenticateParams() {
     const subdomain = (0, core_1.getInput)('zendesk_subdomain', { required: true });
@@ -23060,6 +23061,7 @@ function getAppInput() {
     const zendeskAppsConfigPath = (0, core_1.getInput)('zendesk_apps_config_path').replace(/(\/)$/g, '') || '';
     const appId = (0, core_1.getInput)('app_id');
     const allowMultipleApps = (0, core_1.getInput)('allow_multiple_apps') === 'true';
+    const roleRestrictions = (0, string_1.stringToArrayOfIds)((0, core_1.getInput)('zendesk_role_restrictions') || '');
     if (appPath && appPackage) {
         throw new Error("Parameters validation: You can't fill both 'path' and 'package' parameters.");
     }
@@ -23075,6 +23077,7 @@ function getAppInput() {
         params,
         appId,
         allowMultipleApps,
+        roleRestrictions,
     };
 }
 function run() {
@@ -23102,7 +23105,9 @@ function run() {
                 type: appPath ? 'dir' : 'zip',
             };
             if (appService.defineToCreateOrUpdateApp(zendeskConfig) === 'UPDATE') {
-                const id = appId || ids[env];
+                const id = Number(appId || ids[env]);
+                if (!Number.isInteger(id))
+                    throw new Error(`Invalid appId. Expected a integer but got: ${id}`);
                 (0, shelljs_1.echo)(`📌 Updating an existing application with appId ${id}...`);
                 yield appService.updateApp(id, appLocation, params);
             }
@@ -23182,7 +23187,7 @@ class ZendeskAPI {
     deployExistingApp(uploadId, appName, appId) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const { data } = yield this.api.put(`/apps/${String(appId)}`, { upload_id: Number(uploadId), name: appName }, { headers: { Accept: '*/*' } });
+                const { data } = yield this.api.put(`/apps/${appId}`, { upload_id: uploadId, name: appName }, { headers: { Accept: '*/*' } });
                 return data;
             }
             catch (error) {
@@ -23220,11 +23225,11 @@ class ZendeskAPI {
             return data;
         });
     }
-    createInstallation(parameters, manifest, app_id) {
+    createInstallation({ appId, settings, }) {
         return __awaiter(this, void 0, void 0, function* () {
             const { data } = yield this.api.post('/apps/installations', {
-                app_id,
-                settings: Object.assign({ name: manifest.name }, parameters),
+                app_id: appId,
+                settings,
             });
             return data;
         });
@@ -23235,11 +23240,11 @@ class ZendeskAPI {
             return data;
         });
     }
-    updateInstallation(parameters, manifest, app_id, installation_id) {
+    updateInstallation({ installationId, appId, settings, }) {
         return __awaiter(this, void 0, void 0, function* () {
-            const { data } = yield this.api.put(`/apps/installations/${installation_id}`, {
-                app_id,
-                settings: Object.assign({ name: manifest.name }, parameters),
+            const { data } = yield this.api.put(`/apps/installations/${installationId}`, {
+                app_id: appId,
+                settings,
             });
             return data;
         });
@@ -23277,7 +23282,7 @@ class AppService {
         this.inputs = inputs;
         this.appIdUploaded = null;
     }
-    createApp(appLocation, parameters) {
+    createApp(appLocation, parameters, roleRestrictions) {
         return __awaiter(this, void 0, void 0, function* () {
             const appConfig = this.getManifest(appLocation);
             const { type, path } = appLocation;
@@ -23286,7 +23291,10 @@ class AppService {
             const { job_id: jobId } = yield this.zendeskApi.deployApp(id, appConfig.name);
             const { app_id: appId } = yield this.zendeskApi.getUploadJobStatus(jobId);
             const params = this.filterParameters(appConfig, parameters);
-            const installation = yield this.zendeskApi.createInstallation(this.cleanParameters(params), appConfig, appId);
+            const installation = yield this.zendeskApi.createInstallation({
+                appId,
+                settings: Object.assign({ name: appConfig.name, role_restrictions: roleRestrictions }, this.cleanParameters(params)),
+            });
             this.appIdUploaded = String(installation.app_id);
             return { id: String(installation.app_id) };
         });
@@ -23304,7 +23312,11 @@ class AppService {
             if (!installation)
                 throw new Error('Installation not found');
             const params = this.filterParameters(appConfig, parameters);
-            const updatedInstallation = yield this.zendeskApi.updateInstallation(this.cleanParameters(params), appConfig, appId, installation.id);
+            const updatedInstallation = yield this.zendeskApi.updateInstallation({
+                installationId: installation.id,
+                appId,
+                settings: Object.assign({ name: appConfig.name, role_restrictions: [] }, this.cleanParameters(params)),
+            });
             this.appIdUploaded = String(updatedInstallation.app_id);
             return { id: String(updatedInstallation.app_id) };
         });
@@ -23449,11 +23461,19 @@ exports.isDefinedAndIsNotArray = isDefinedAndIsNotArray;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.isEqual = void 0;
+exports.stringToArrayOfIds = exports.isEqual = void 0;
 const isEqual = (a, b) => {
     return a.toLowerCase() === b.toLowerCase();
 };
 exports.isEqual = isEqual;
+const stringToArrayOfIds = (value) => {
+    const arrayString = value.split(',').filter((id) => id);
+    const wrongFormatArray = arrayString.filter((id) => isNaN(Number(id)));
+    if (wrongFormatArray.length)
+        `The following role IDs are not numbers: ${wrongFormatArray.join(', ')}.`;
+    return arrayString.map((id) => Number(id));
+};
+exports.stringToArrayOfIds = stringToArrayOfIds;
 
 
 /***/ }),

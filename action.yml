@@ -25,7 +25,7 @@ inputs:
     required: false
   zendesk_role_restrictions:
     description: "Role IDs with permission to use the application, separated by comma"
-    required: true
+    required: false
   zendesk_subdomain:
     description: "Zendesk subdomain where the app will be deployed"
     required: true
