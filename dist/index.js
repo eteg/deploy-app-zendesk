@@ -23065,6 +23065,7 @@ function getAppInput() {
     const roleRestrictions = roleRestrictionsInput
         ? (0, string_1.stringToArrayOfIds)(roleRestrictionsInput)
         : undefined;
+    console.log({ roleRestrictions });
     if (appPath && appPackage) {
         throw new Error("Parameters validation: You can't fill both 'path' and 'package' parameters.");
     }
