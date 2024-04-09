@@ -3,9 +3,10 @@ import { echo } from 'shelljs';
 import * as github from '@actions/github';
 import { normalize } from 'path';
 import { isZipFile } from './utils/file';
-import { fileToJSON, isDefinedAndIsNotArray, jsonToFile } from './utils/json';
+import { fileToJSON, jsonToFile } from './utils/json';
 import ZendeskAPI from './providers/ZendeskAPI';
 import AppService from './services/AppService';
+import { stringToArrayOfIds } from './utils/string';
 
 const {
   ref,
@@ -48,6 +49,10 @@ function getAppInput(): AppInputs {
   const appId = getInput('app_id');
   const allowMultipleApps = getInput('allow_multiple_apps') === 'true';
 
+  const roleRestrictions = stringToArrayOfIds(
+    getInput('zendesk_role_restrictions') || '',
+  );
+
   if (appPath && appPackage) {
     throw new Error(
       "Parameters validation: You can't fill both 'path' and 'package' parameters.",
@@ -70,6 +75,7 @@ function getAppInput(): AppInputs {
     params,
     appId,
     allowMultipleApps,
+    roleRestrictions,
   };
 }
 
@@ -111,7 +117,11 @@ async function run() {
     };
 
     if (appService.defineToCreateOrUpdateApp(zendeskConfig) === 'UPDATE') {
-      const id = appId || (ids[env] as string);
+      const id = Number(appId || (ids[env] as string));
+
+      if (!Number.isInteger(id))
+        throw new Error(`Invalid appId. Expected a integer but got: ${id}`);
+
       echo(`📌 Updating an existing application with appId ${id}...`);
       await appService.updateApp(id, appLocation, params);
     } else if (

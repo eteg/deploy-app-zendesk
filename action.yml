@@ -23,6 +23,9 @@ inputs:
   zendesk_apps_config_path:
     description: "Path of file 'zendesk.apps.config.json'. Default to './'"
     required: false
+  zendesk_role_restrictions:
+    description: "Role IDs with permission to use the application, separated by comma"
+    required: true
   zendesk_subdomain:
     description: "Zendesk subdomain where the app will be deployed"
     required: true

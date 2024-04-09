@@ -41,7 +41,16 @@ type AppPayload = {
   single_install: boolean;
 };
 
-type Installation = {
+type RoleRestrictions = number[];
+
+interface InstallationParameters extends Record<string, any> {}
+
+interface InstallationSettings extends InstallationParameters {
+  name: string;
+  role_restrictions?: RoleRestrictions;
+}
+
+interface Installation {
   app_id: number;
   name?: string;
   collapsible: boolean;
@@ -49,9 +58,19 @@ type Installation = {
   id: number;
   plan?: string;
   requirements: Array<Record<string, any>>;
-  settings: Array<Record<string, any>>;
+  settings: InstallationParameters;
   updated_at: string;
-};
+  role_restrictions: RoleRestrictions;
+}
+
+interface CreateInstallation {
+  appId: number;
+  settings: InstallationSettings;
+}
+
+interface UpdateInstallation extends CreateInstallation {
+  installationId: number;
+}
 
 type ManifestParameter = {
   name: string;
@@ -75,4 +94,5 @@ type AppInputs = {
   params: Record<string, string>;
   appId: string;
   allowMultipleApps: boolean;
+  roleRestrictions: RoleRestrictions;
 };

@@ -13,7 +13,8 @@ export default class AppService {
 
   async createApp(
     appLocation: AppLocation,
-    parameters: Record<string, string>,
+    parameters: InstallationParameters,
+    roleRestrictions?: RoleRestrictions,
   ) {
     const appConfig = this.getManifest(appLocation);
 
@@ -29,11 +30,14 @@ export default class AppService {
 
     const params = this.filterParameters(appConfig, parameters);
 
-    const installation = await this.zendeskApi.createInstallation(
-      this.cleanParameters(params),
-      appConfig,
+    const installation = await this.zendeskApi.createInstallation({
       appId,
-    );
+      settings: {
+        name: appConfig.name,
+        role_restrictions: roleRestrictions,
+        ...this.cleanParameters(params),
+      },
+    });
 
     this.appIdUploaded = String(installation.app_id);
 
@@ -41,9 +45,9 @@ export default class AppService {
   }
 
   async updateApp(
-    appId: string,
+    appId: number,
     appLocation: AppLocation,
-    parameters: Record<string, string>,
+    parameters: InstallationParameters,
   ) {
     const appConfig = this.getManifest(appLocation);
 
@@ -68,12 +72,15 @@ export default class AppService {
 
     const params = this.filterParameters(appConfig, parameters);
 
-    const updatedInstallation = await this.zendeskApi.updateInstallation(
-      this.cleanParameters(params),
-      appConfig,
+    const updatedInstallation = await this.zendeskApi.updateInstallation({
+      installationId: installation.id,
       appId,
-      installation.id,
-    );
+      settings: {
+        name: appConfig.name,
+        role_restrictions: [],
+        ...this.cleanParameters(params),
+      },
+    });
 
     this.appIdUploaded = String(updatedInstallation.app_id);
 
@@ -114,7 +121,7 @@ export default class AppService {
     return manifest;
   }
 
-  private filterParameters(manifest: Manifest, params: Record<string, string>) {
+  private filterParameters(manifest: Manifest, params: InstallationParameters) {
     const paramsWithoutValue = Object.entries(params).filter(
       ([_, value]) => typeof value === 'undefined',
     );
@@ -152,7 +159,7 @@ export default class AppService {
     return parameters;
   }
 
-  private cleanParameters(parameters: Record<string, string>) {
+  private cleanParameters(parameters: InstallationParameters) {
     const entries = Object.entries(parameters);
 
     return Object.fromEntries(
