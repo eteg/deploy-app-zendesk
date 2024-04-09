@@ -23065,7 +23065,6 @@ function getAppInput() {
     const roleRestrictions = roleRestrictionsInput
         ? (0, string_1.stringToArrayOfIds)(roleRestrictionsInput)
         : undefined;
-    console.log({ roleRestrictions });
     if (appPath && appPackage) {
         throw new Error("Parameters validation: You can't fill both 'path' and 'package' parameters.");
     }
@@ -23487,7 +23486,7 @@ const stringToArrayOfIds = (value) => {
     const arrayString = value.split(',').filter((id) => id);
     const wrongFormatArray = arrayString.filter((id) => isNaN(Number(id)));
     if (wrongFormatArray.length)
-        `The following role IDs are not numbers: ${wrongFormatArray.join(', ')}.`;
+        throw new Error(`The following role IDs are not numbers: ${wrongFormatArray.join(', ')}.`);
     return arrayString.map((id) => Number(id));
 };
 exports.stringToArrayOfIds = stringToArrayOfIds;

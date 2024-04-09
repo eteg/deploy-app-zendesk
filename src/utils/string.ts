@@ -7,7 +7,9 @@ export const stringToArrayOfIds = (value: string) => {
   const wrongFormatArray = arrayString.filter((id) => isNaN(Number(id)));
 
   if (wrongFormatArray.length)
-    `The following role IDs are not numbers: ${wrongFormatArray.join(', ')}.`;
+    throw new Error(
+      `The following role IDs are not numbers: ${wrongFormatArray.join(', ')}.`,
+    );
 
   return arrayString.map((id) => Number(id));
 };
