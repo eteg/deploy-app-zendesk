@@ -53,7 +53,6 @@ function getAppInput(): AppInputs {
   const roleRestrictions = roleRestrictionsInput
     ? stringToArrayOfIds(roleRestrictionsInput)
     : undefined;
-  console.log({ roleRestrictions });
 
   if (appPath && appPackage) {
     throw new Error(
