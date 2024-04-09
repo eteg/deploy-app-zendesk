@@ -72,6 +72,16 @@ interface UpdateInstallation extends CreateInstallation {
   installationId: number;
 }
 
+interface CreateApp {
+  appLocation: AppLocation;
+  parameters: InstallationParameters;
+  roleRestrictions?: RoleRestrictions;
+}
+
+interface UpdateApp extends CreateApp {
+  appId: number;
+}
+
 type ManifestParameter = {
   name: string;
   type: string;

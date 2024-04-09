@@ -53,6 +53,8 @@ function getAppInput(): AppInputs {
     getInput('zendesk_role_restrictions') || '',
   );
 
+  console.log({ roleRestrictions });
+
   if (appPath && appPackage) {
     throw new Error(
       "Parameters validation: You can't fill both 'path' and 'package' parameters.",
@@ -123,17 +125,21 @@ async function run() {
         throw new Error(`Invalid appId. Expected a integer but got: ${id}`);
 
       echo(`📌 Updating an existing application with appId ${id}...`);
-      await appService.updateApp(
-        id,
+      await appService.updateApp({
+        appId: id,
         appLocation,
-        params,
-        inputs.roleRestrictions,
-      );
+        parameters: params,
+        roleRestrictions: inputs.roleRestrictions,
+      });
     } else if (
       appService.defineToCreateOrUpdateApp(zendeskConfig) === 'CREATE'
     ) {
       echo(`✨ Deploying a new application...`);
-      await appService.createApp(appLocation, params);
+      await appService.createApp({
+        appLocation,
+        parameters: params,
+        roleRestrictions: inputs.roleRestrictions,
+      });
     } else
       throw new Error(
         'There is already an app for this environment. Enable "allow_multiple_apps" to create a new one.',

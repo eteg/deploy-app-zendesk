@@ -5,6 +5,7 @@ export const isEqual = (a: string, b: string) => {
 export const stringToArrayOfIds = (value: string) => {
   const arrayString = value.split(',').filter((id) => id);
   const wrongFormatArray = arrayString.filter((id) => isNaN(Number(id)));
+  console.log({ value, arrayString, wrongFormatArray });
 
   if (wrongFormatArray.length)
     `The following role IDs are not numbers: ${wrongFormatArray.join(', ')}.`;

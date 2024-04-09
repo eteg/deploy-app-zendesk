@@ -11,11 +11,7 @@ export default class AppService {
 
   private appIdUploaded: string | null = null;
 
-  async createApp(
-    appLocation: AppLocation,
-    parameters: InstallationParameters,
-    roleRestrictions?: RoleRestrictions,
-  ) {
+  async createApp({ appLocation, parameters, roleRestrictions }: CreateApp) {
     const appConfig = this.getManifest(appLocation);
 
     const { type, path } = appLocation;
@@ -44,12 +40,12 @@ export default class AppService {
     return { id: String(installation.app_id) };
   }
 
-  async updateApp(
-    appId: number,
-    appLocation: AppLocation,
-    parameters: InstallationParameters,
-    roleRestrictions?: RoleRestrictions,
-  ) {
+  async updateApp({
+    appId,
+    appLocation,
+    parameters,
+    roleRestrictions,
+  }: UpdateApp) {
     const appConfig = this.getManifest(appLocation);
 
     const { type, path } = appLocation;
