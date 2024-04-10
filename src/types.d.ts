@@ -79,6 +79,15 @@ interface CreateApp {
   roleRestrictions?: RoleRestrictions;
 }
 
+interface DeployApp {
+  uploadId: number;
+  name: string;
+}
+
+interface DeployExistingApp extends DeployApp {
+  appId: number;
+}
+
 interface UpdateApp extends CreateApp {
   appId: number;
 }

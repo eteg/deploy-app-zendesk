@@ -29,25 +29,20 @@ export default class ZendeskAPI {
     return data;
   }
 
-  async deployApp(uploadId: string, name: string): Promise<{ job_id: string }> {
-    const payload: { upload_id: string; name?: string } = {
+  async deployApp({ uploadId, name }: DeployApp): Promise<{ job_id: string }> {
+    const { data } = await this.api.post('/apps.json', {
       upload_id: uploadId,
-    };
-
-    if (name) {
-      payload.name = name;
-    }
-
-    const { data } = await this.api.post('/apps.json', payload);
+      name,
+    });
 
     return data;
   }
 
-  async deployExistingApp(uploadId: number, appName: string, appId: number) {
+  async deployExistingApp({ uploadId, name, appId }: DeployExistingApp) {
     try {
       const { data } = await this.api.put(
         `/apps/${appId}`,
-        { upload_id: uploadId, name: appName },
+        { upload_id: uploadId, name },
         { headers: { Accept: '*/*' } },
       );
 

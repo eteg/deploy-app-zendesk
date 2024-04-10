@@ -17,11 +17,11 @@ export default class AppService {
     const { type, path } = appLocation;
     const appPath = type === 'dir' ? this.packageApp(path).outputFile : path;
 
-    const { id } = await this.zendeskApi.uploadApp(appPath);
-    const { job_id: jobId } = await this.zendeskApi.deployApp(
-      id,
-      appConfig.name,
-    );
+    const { id: uploadId } = await this.zendeskApi.uploadApp(appPath);
+    const { job_id: jobId } = await this.zendeskApi.deployApp({
+      uploadId,
+      name: appConfig.name,
+    });
     const { app_id: appId } = await this.zendeskApi.getUploadJobStatus(jobId);
 
     const params = this.filterParameters(appConfig, parameters);
@@ -52,11 +52,11 @@ export default class AppService {
     const appPath = type === 'dir' ? this.packageApp(path).outputFile : path;
 
     const { id: uploadId } = await this.zendeskApi.uploadApp(appPath);
-    const { job_id: jobId } = await this.zendeskApi.deployExistingApp(
+    const { job_id: jobId } = await this.zendeskApi.deployExistingApp({
       uploadId,
-      appConfig.name,
+      name: appConfig.name,
       appId,
-    );
+    });
     const { app_id: uploadedAppId } =
       await this.zendeskApi.getUploadJobStatus(jobId);
     const { installations } = await this.zendeskApi.getInstallations();
