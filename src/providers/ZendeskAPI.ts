@@ -85,11 +85,11 @@ export default class ZendeskAPI {
   async createInstallation({
     appId,
     settings,
-    role_restrictions,
+    roleRestrictions,
   }: CreateInstallation): Promise<Installation> {
     const { data } = await this.api.post<Installation>('/apps/installations', {
       app_id: appId,
-      role_restrictions,
+      role_restrictions: roleRestrictions,
       settings,
     });
 
@@ -108,13 +108,13 @@ export default class ZendeskAPI {
     installationId,
     appId,
     settings,
-    role_restrictions,
+    roleRestrictions,
   }: UpdateInstallation): Promise<Installation> {
     const { data } = await this.api.put<Installation>(
       `/apps/installations/${installationId}`,
       {
         app_id: appId,
-        role_restrictions,
+        role_restrictions: roleRestrictions,
         settings,
       },
     );

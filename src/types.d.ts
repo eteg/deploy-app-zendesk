@@ -66,7 +66,7 @@ interface Installation {
 interface CreateInstallation {
   appId: number;
   settings: InstallationSettings;
-  role_restrictions?: RoleRestrictions;
+  roleRestrictions?: RoleRestrictions;
 }
 
 interface UpdateInstallation extends CreateInstallation {
