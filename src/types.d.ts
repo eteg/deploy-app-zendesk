@@ -103,7 +103,7 @@ type AppInputs = {
   appPackage: string;
   zendeskAppsConfigPath: string;
   params: Record<string, string>;
-  appId: string;
+  appId?: number;
   allowMultipleApps: boolean;
   roleRestrictions?: RoleRestrictions;
 };

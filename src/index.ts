@@ -7,6 +7,7 @@ import { fileToJSON, jsonToFile } from './utils/json';
 import ZendeskAPI from './providers/ZendeskAPI';
 import AppService from './services/AppService';
 import { stringToArrayOfIds } from './utils/string';
+import { validateIntegerInput } from './utils/number';
 
 const {
   ref,
@@ -46,7 +47,8 @@ function getAppInput(): AppInputs {
   const appPackage = getInput('package').replace(/(\/)$/g, '');
   const zendeskAppsConfigPath =
     getInput('zendesk_apps_config_path').replace(/(\/)$/g, '') || '';
-  const appId = getInput('app_id');
+  const appId = validateIntegerInput(getInput('app_id'));
+
   const allowMultipleApps = getInput('allow_multiple_apps') === 'true';
 
   const roleRestrictionsInput = getInput('zendesk_role_restrictions');
@@ -118,10 +120,13 @@ async function run() {
     };
 
     if (appService.defineToCreateOrUpdateApp(zendeskConfig) === 'UPDATE') {
-      const id = Number(appId || (ids[env] as string));
+      const envId = validateIntegerInput(ids[env]);
+      const id = appId || envId;
 
-      if (!Number.isInteger(id))
-        throw new Error(`Invalid appId. Expected a integer but got: ${id}`);
+      if (!id)
+        throw new Error(
+          `Missing appId from input and not found ID from environment ${env} to update.`,
+        );
 
       echo(`📌 Updating an existing application with appId ${id}...`);
       await appService.updateApp({
