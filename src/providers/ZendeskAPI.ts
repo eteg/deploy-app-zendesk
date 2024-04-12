@@ -29,25 +29,20 @@ export default class ZendeskAPI {
     return data;
   }
 
-  async deployApp(uploadId: string, name: string): Promise<{ job_id: string }> {
-    const payload: { upload_id: string; name?: string } = {
+  async deployApp({ uploadId, name }: DeployApp): Promise<{ job_id: string }> {
+    const { data } = await this.api.post('/apps.json', {
       upload_id: uploadId,
-    };
-
-    if (name) {
-      payload.name = name;
-    }
-
-    const { data } = await this.api.post('/apps.json', payload);
+      name,
+    });
 
     return data;
   }
 
-  async deployExistingApp(uploadId: string, appName: string, appId: string) {
+  async deployExistingApp({ uploadId, name, appId }: DeployExistingApp) {
     try {
       const { data } = await this.api.put(
-        `/apps/${String(appId)}`,
-        { upload_id: Number(uploadId), name: appName },
+        `/apps/${appId}`,
+        { upload_id: uploadId, name },
         { headers: { Accept: '*/*' } },
       );
 
@@ -87,17 +82,15 @@ export default class ZendeskAPI {
     return data;
   }
 
-  async createInstallation(
-    parameters: Record<string, string>,
-    manifest: Manifest,
-    app_id: string,
-  ): Promise<Installation> {
+  async createInstallation({
+    appId,
+    settings,
+    roleRestrictions,
+  }: CreateInstallation): Promise<Installation> {
     const { data } = await this.api.post<Installation>('/apps/installations', {
-      app_id,
-      settings: {
-        name: manifest.name,
-        ...parameters,
-      },
+      app_id: appId,
+      role_restrictions: roleRestrictions,
+      settings,
     });
 
     return data;
@@ -111,20 +104,18 @@ export default class ZendeskAPI {
     return data;
   }
 
-  async updateInstallation(
-    parameters: Record<string, string>,
-    manifest: Manifest,
-    app_id: string,
-    installation_id: number,
-  ): Promise<Installation> {
+  async updateInstallation({
+    installationId,
+    appId,
+    settings,
+    roleRestrictions,
+  }: UpdateInstallation): Promise<Installation> {
     const { data } = await this.api.put<Installation>(
-      `/apps/installations/${installation_id}`,
+      `/apps/installations/${installationId}`,
       {
-        app_id,
-        settings: {
-          name: manifest.name,
-          ...parameters,
-        },
+        app_id: appId,
+        role_restrictions: roleRestrictions,
+        settings,
       },
     );
 

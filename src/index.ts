@@ -3,9 +3,11 @@ import { echo } from 'shelljs';
 import * as github from '@actions/github';
 import { normalize } from 'path';
 import { isZipFile } from './utils/file';
-import { fileToJSON, isDefinedAndIsNotArray, jsonToFile } from './utils/json';
+import { fileToJSON, jsonToFile } from './utils/json';
 import ZendeskAPI from './providers/ZendeskAPI';
 import AppService from './services/AppService';
+import { stringToArrayOfIds } from './utils/string';
+import { validateIntegerInput } from './utils/number';
 
 const {
   ref,
@@ -45,8 +47,14 @@ function getAppInput(): AppInputs {
   const appPackage = getInput('package').replace(/(\/)$/g, '');
   const zendeskAppsConfigPath =
     getInput('zendesk_apps_config_path').replace(/(\/)$/g, '') || '';
-  const appId = getInput('app_id');
+  const appId = validateIntegerInput(getInput('app_id'));
+
   const allowMultipleApps = getInput('allow_multiple_apps') === 'true';
+
+  const roleRestrictionsInput = getInput('zendesk_role_restrictions');
+  const roleRestrictions = roleRestrictionsInput
+    ? stringToArrayOfIds(roleRestrictionsInput)
+    : undefined;
 
   if (appPath && appPackage) {
     throw new Error(
@@ -70,6 +78,7 @@ function getAppInput(): AppInputs {
     params,
     appId,
     allowMultipleApps,
+    roleRestrictions,
   };
 }
 
@@ -111,14 +120,30 @@ async function run() {
     };
 
     if (appService.defineToCreateOrUpdateApp(zendeskConfig) === 'UPDATE') {
-      const id = appId || (ids[env] as string);
+      const envId = validateIntegerInput(ids[env]);
+      const id = appId || envId;
+
+      if (!id)
+        throw new Error(
+          `Missing appId from input and not found ID from environment ${env} to update.`,
+        );
+
       echo(`📌 Updating an existing application with appId ${id}...`);
-      await appService.updateApp(id, appLocation, params);
+      await appService.updateApp({
+        appId: id,
+        appLocation,
+        parameters: params,
+        roleRestrictions: inputs.roleRestrictions,
+      });
     } else if (
       appService.defineToCreateOrUpdateApp(zendeskConfig) === 'CREATE'
     ) {
       echo(`✨ Deploying a new application...`);
-      await appService.createApp(appLocation, params);
+      await appService.createApp({
+        appLocation,
+        parameters: params,
+        roleRestrictions: inputs.roleRestrictions,
+      });
     } else
       throw new Error(
         'There is already an app for this environment. Enable "allow_multiple_apps" to create a new one.',

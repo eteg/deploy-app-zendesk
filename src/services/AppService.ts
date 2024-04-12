@@ -11,51 +11,52 @@ export default class AppService {
 
   private appIdUploaded: string | null = null;
 
-  async createApp(
-    appLocation: AppLocation,
-    parameters: Record<string, string>,
-  ) {
-    const appConfig = this.getManifest(appLocation);
-
-    const { type, path } = appLocation;
-    const appPath = type === 'dir' ? this.packageApp(path).outputFile : path;
-
-    const { id } = await this.zendeskApi.uploadApp(appPath);
-    const { job_id: jobId } = await this.zendeskApi.deployApp(
-      id,
-      appConfig.name,
-    );
-    const { app_id: appId } = await this.zendeskApi.getUploadJobStatus(jobId);
-
-    const params = this.filterParameters(appConfig, parameters);
-
-    const installation = await this.zendeskApi.createInstallation(
-      this.cleanParameters(params),
-      appConfig,
-      appId,
-    );
-
-    this.appIdUploaded = String(installation.app_id);
-
-    return { id: String(installation.app_id) };
-  }
-
-  async updateApp(
-    appId: string,
-    appLocation: AppLocation,
-    parameters: Record<string, string>,
-  ) {
+  async createApp({ appLocation, parameters, roleRestrictions }: CreateApp) {
     const appConfig = this.getManifest(appLocation);
 
     const { type, path } = appLocation;
     const appPath = type === 'dir' ? this.packageApp(path).outputFile : path;
 
     const { id: uploadId } = await this.zendeskApi.uploadApp(appPath);
-    const { job_id: jobId } = await this.zendeskApi.deployExistingApp(
+    const { job_id: jobId } = await this.zendeskApi.deployApp({
       uploadId,
-      appConfig.name,
+      name: appConfig.name,
+    });
+    const { app_id: appId } = await this.zendeskApi.getUploadJobStatus(jobId);
+
+    const params = this.filterParameters(appConfig, parameters);
+
+    const installation = await this.zendeskApi.createInstallation({
       appId,
-    );
+      roleRestrictions,
+      settings: {
+        name: appConfig.name,
+        ...this.cleanParameters(params),
+      },
+    });
+
+    this.appIdUploaded = String(installation.app_id);
+
+    return { id: String(installation.app_id) };
+  }
+
+  async updateApp({
+    appId,
+    appLocation,
+    parameters,
+    roleRestrictions,
+  }: UpdateApp) {
+    const appConfig = this.getManifest(appLocation);
+
+    const { type, path } = appLocation;
+    const appPath = type === 'dir' ? this.packageApp(path).outputFile : path;
+
+    const { id: uploadId } = await this.zendeskApi.uploadApp(appPath);
+    const { job_id: jobId } = await this.zendeskApi.deployExistingApp({
+      uploadId,
+      name: appConfig.name,
+      appId,
+    });
     const { app_id: uploadedAppId } =
       await this.zendeskApi.getUploadJobStatus(jobId);
     const { installations } = await this.zendeskApi.getInstallations();
@@ -68,12 +69,15 @@ export default class AppService {
 
     const params = this.filterParameters(appConfig, parameters);
 
-    const updatedInstallation = await this.zendeskApi.updateInstallation(
-      this.cleanParameters(params),
-      appConfig,
+    const updatedInstallation = await this.zendeskApi.updateInstallation({
+      installationId: installation.id,
       appId,
-      installation.id,
-    );
+      roleRestrictions,
+      settings: {
+        name: appConfig.name,
+        ...this.cleanParameters(params),
+      },
+    });
 
     this.appIdUploaded = String(updatedInstallation.app_id);
 
@@ -114,7 +118,7 @@ export default class AppService {
     return manifest;
   }
 
-  private filterParameters(manifest: Manifest, params: Record<string, string>) {
+  private filterParameters(manifest: Manifest, params: InstallationParameters) {
     const paramsWithoutValue = Object.entries(params).filter(
       ([_, value]) => typeof value === 'undefined',
     );
@@ -152,7 +156,7 @@ export default class AppService {
     return parameters;
   }
 
-  private cleanParameters(parameters: Record<string, string>) {
+  private cleanParameters(parameters: InstallationParameters) {
     const entries = Object.entries(parameters);
 
     return Object.fromEntries(

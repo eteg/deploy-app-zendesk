@@ -41,7 +41,16 @@ type AppPayload = {
   single_install: boolean;
 };
 
-type Installation = {
+type RoleRestrictions = number[];
+
+interface InstallationParameters
+  extends Record<string, string | number | boolean | null> {}
+
+interface InstallationSettings extends InstallationParameters {
+  name: string;
+}
+
+interface Installation {
   app_id: number;
   name?: string;
   collapsible: boolean;
@@ -49,9 +58,39 @@ type Installation = {
   id: number;
   plan?: string;
   requirements: Array<Record<string, any>>;
-  settings: Array<Record<string, any>>;
+  settings: InstallationParameters;
   updated_at: string;
-};
+  role_restrictions: RoleRestrictions;
+}
+
+interface CreateInstallation {
+  appId: number;
+  settings: InstallationSettings;
+  roleRestrictions?: RoleRestrictions;
+}
+
+interface UpdateInstallation extends CreateInstallation {
+  installationId: number;
+}
+
+interface CreateApp {
+  appLocation: AppLocation;
+  parameters: InstallationParameters;
+  roleRestrictions?: RoleRestrictions;
+}
+
+interface DeployApp {
+  uploadId: number;
+  name: string;
+}
+
+interface DeployExistingApp extends DeployApp {
+  appId: number;
+}
+
+interface UpdateApp extends CreateApp {
+  appId: number;
+}
 
 type ManifestParameter = {
   name: string;
@@ -73,6 +112,7 @@ type AppInputs = {
   appPackage: string;
   zendeskAppsConfigPath: string;
   params: Record<string, string>;
-  appId: string;
+  appId?: number;
   allowMultipleApps: boolean;
+  roleRestrictions?: RoleRestrictions;
 };
