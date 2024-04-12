@@ -23037,6 +23037,7 @@ const json_1 = __nccwpck_require__(3810);
 const ZendeskAPI_1 = __importDefault(__nccwpck_require__(237));
 const AppService_1 = __importDefault(__nccwpck_require__(9660));
 const string_1 = __nccwpck_require__(1380);
+const number_1 = __nccwpck_require__(6755);
 const { ref, eventName, payload: { repository }, } = github.context;
 function getAuthenticateParams() {
     const subdomain = (0, core_1.getInput)('zendesk_subdomain', { required: true });
@@ -23059,7 +23060,7 @@ function getAppInput() {
     const appPath = (0, core_1.getInput)('path').replace(/(\/)$/g, '');
     const appPackage = (0, core_1.getInput)('package').replace(/(\/)$/g, '');
     const zendeskAppsConfigPath = (0, core_1.getInput)('zendesk_apps_config_path').replace(/(\/)$/g, '') || '';
-    const appId = (0, core_1.getInput)('app_id');
+    const appId = (0, number_1.validateIntegerInput)((0, core_1.getInput)('app_id'));
     const allowMultipleApps = (0, core_1.getInput)('allow_multiple_apps') === 'true';
     const roleRestrictionsInput = (0, core_1.getInput)('zendesk_role_restrictions');
     const roleRestrictions = roleRestrictionsInput
@@ -23108,9 +23109,10 @@ function run() {
                 type: appPath ? 'dir' : 'zip',
             };
             if (appService.defineToCreateOrUpdateApp(zendeskConfig) === 'UPDATE') {
-                const id = Number(appId || ids[env]);
-                if (!Number.isInteger(id))
-                    throw new Error(`Invalid appId. Expected a integer but got: ${id}`);
+                const envId = (0, number_1.validateIntegerInput)(ids[env]);
+                const id = appId || envId;
+                if (!id)
+                    throw new Error(`Missing appId from input and not found ID from environment ${env} to update.`);
                 (0, shelljs_1.echo)(`📌 Updating an existing application with appId ${id}...`);
                 yield appService.updateApp({
                     appId: id,
@@ -23184,22 +23186,19 @@ class ZendeskAPI {
             return data;
         });
     }
-    deployApp(uploadId, name) {
+    deployApp({ uploadId, name }) {
         return __awaiter(this, void 0, void 0, function* () {
-            const payload = {
+            const { data } = yield this.api.post('/apps.json', {
                 upload_id: uploadId,
-            };
-            if (name) {
-                payload.name = name;
-            }
-            const { data } = yield this.api.post('/apps.json', payload);
+                name,
+            });
             return data;
         });
     }
-    deployExistingApp(uploadId, appName, appId) {
+    deployExistingApp({ uploadId, name, appId }) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const { data } = yield this.api.put(`/apps/${appId}`, { upload_id: uploadId, name: appName }, { headers: { Accept: '*/*' } });
+                const { data } = yield this.api.put(`/apps/${appId}`, { upload_id: uploadId, name }, { headers: { Accept: '*/*' } });
                 return data;
             }
             catch (error) {
@@ -23237,11 +23236,11 @@ class ZendeskAPI {
             return data;
         });
     }
-    createInstallation({ appId, settings, role_restrictions, }) {
+    createInstallation({ appId, settings, roleRestrictions, }) {
         return __awaiter(this, void 0, void 0, function* () {
             const { data } = yield this.api.post('/apps/installations', {
                 app_id: appId,
-                role_restrictions,
+                role_restrictions: roleRestrictions,
                 settings,
             });
             return data;
@@ -23253,11 +23252,11 @@ class ZendeskAPI {
             return data;
         });
     }
-    updateInstallation({ installationId, appId, settings, role_restrictions, }) {
+    updateInstallation({ installationId, appId, settings, roleRestrictions, }) {
         return __awaiter(this, void 0, void 0, function* () {
             const { data } = yield this.api.put(`/apps/installations/${installationId}`, {
                 app_id: appId,
-                role_restrictions,
+                role_restrictions: roleRestrictions,
                 settings,
             });
             return data;
@@ -23301,13 +23300,16 @@ class AppService {
             const appConfig = this.getManifest(appLocation);
             const { type, path } = appLocation;
             const appPath = type === 'dir' ? this.packageApp(path).outputFile : path;
-            const { id } = yield this.zendeskApi.uploadApp(appPath);
-            const { job_id: jobId } = yield this.zendeskApi.deployApp(id, appConfig.name);
+            const { id: uploadId } = yield this.zendeskApi.uploadApp(appPath);
+            const { job_id: jobId } = yield this.zendeskApi.deployApp({
+                uploadId,
+                name: appConfig.name,
+            });
             const { app_id: appId } = yield this.zendeskApi.getUploadJobStatus(jobId);
             const params = this.filterParameters(appConfig, parameters);
             const installation = yield this.zendeskApi.createInstallation({
                 appId,
-                role_restrictions: roleRestrictions,
+                roleRestrictions,
                 settings: Object.assign({ name: appConfig.name }, this.cleanParameters(params)),
             });
             this.appIdUploaded = String(installation.app_id);
@@ -23320,7 +23322,11 @@ class AppService {
             const { type, path } = appLocation;
             const appPath = type === 'dir' ? this.packageApp(path).outputFile : path;
             const { id: uploadId } = yield this.zendeskApi.uploadApp(appPath);
-            const { job_id: jobId } = yield this.zendeskApi.deployExistingApp(uploadId, appConfig.name, appId);
+            const { job_id: jobId } = yield this.zendeskApi.deployExistingApp({
+                uploadId,
+                name: appConfig.name,
+                appId,
+            });
             const { app_id: uploadedAppId } = yield this.zendeskApi.getUploadJobStatus(jobId);
             const { installations } = yield this.zendeskApi.getInstallations();
             const installation = installations.find((item) => item.app_id === Number(uploadedAppId));
@@ -23330,7 +23336,7 @@ class AppService {
             const updatedInstallation = yield this.zendeskApi.updateInstallation({
                 installationId: installation.id,
                 appId,
-                role_restrictions: roleRestrictions,
+                roleRestrictions,
                 settings: Object.assign({ name: appConfig.name }, this.cleanParameters(params)),
             });
             this.appIdUploaded = String(updatedInstallation.app_id);
@@ -23467,6 +23473,29 @@ const jsonToFile = (filePath, json) => {
 exports.jsonToFile = jsonToFile;
 const isDefinedAndIsNotArray = (value) => Boolean(value && !Array.isArray(value));
 exports.isDefinedAndIsNotArray = isDefinedAndIsNotArray;
+
+
+/***/ }),
+
+/***/ 6755:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.validateIntegerInput = void 0;
+const validateIntegerInput = (input) => {
+    const invalidInputError = () => new Error(`Invalid input. Expected integer but got: ${input}`);
+    if (!input)
+        return undefined;
+    if (typeof input !== 'string' && typeof input !== 'number')
+        throw invalidInputError();
+    const number = Number(input);
+    if (!Number.isInteger(number))
+        throw invalidInputError();
+    return number;
+};
+exports.validateIntegerInput = validateIntegerInput;
 
 
 /***/ }),
