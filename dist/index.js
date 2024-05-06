@@ -23109,8 +23109,7 @@ function run() {
                 type: appPath ? 'dir' : 'zip',
             };
             if (appService.defineToCreateOrUpdateApp(zendeskConfig) === 'UPDATE') {
-                const envId = (0, number_1.validateIntegerInput)(ids[env]);
-                const id = appId || envId;
+                const id = appId || (0, number_1.validateIntegerInput)(ids[env]);
                 if (!id)
                     throw new Error(`Missing appId from input and not found ID from environment ${env} to update.`);
                 (0, shelljs_1.echo)(`📌 Updating an existing application with appId ${id}...`);

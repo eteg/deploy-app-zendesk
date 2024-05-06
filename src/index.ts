@@ -120,8 +120,7 @@ async function run() {
     };
 
     if (appService.defineToCreateOrUpdateApp(zendeskConfig) === 'UPDATE') {
-      const envId = validateIntegerInput(ids[env]);
-      const id = appId || envId;
+      const id = appId || validateIntegerInput(ids[env]);
 
       if (!id)
         throw new Error(
