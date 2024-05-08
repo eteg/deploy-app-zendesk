@@ -1,5 +1,6 @@
 import ZendeskAPI from '../providers/ZendeskAPI';
 import { fileToJSON, isDefinedAndIsNotArray } from '../utils/json';
+import { validateIntegerInput } from '../utils/number';
 import { isEqual } from '../utils/string';
 import AdmZip from 'adm-zip';
 
@@ -205,5 +206,33 @@ export default class AppService {
       !(zendeskAppConfig.ids[env] as string[]).includes(this.appIdUploaded)
     )
       (zendeskAppConfig.ids[env] as string[]).push(this.appIdUploaded);
+  }
+
+  public defineAppIdToUpdate(
+    availableAppIds: Record<string, AppId>,
+    environment: string,
+    inputAppId?: number,
+  ) {
+    if (inputAppId) {
+      return inputAppId;
+    }
+
+    const environmentAppId = availableAppIds[environment];
+
+    if (Array.isArray(environmentAppId)) {
+      throw new Error(
+        `'allow_multiple_apps' config was previously activated for this environment. You should provide a specific app id through the 'app_id' field.`,
+      );
+    }
+
+    const appId = validateIntegerInput(environmentAppId);
+
+    if (!appId) {
+      throw new Error(
+        `Missing appId from input and not found ID from environment ${environment} to update.`,
+      );
+    }
+
+    return appId;
   }
 }

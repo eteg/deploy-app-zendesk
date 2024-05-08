@@ -23109,10 +23109,7 @@ function run() {
                 type: appPath ? 'dir' : 'zip',
             };
             if (appService.defineToCreateOrUpdateApp(zendeskConfig) === 'UPDATE') {
-                const envId = (0, number_1.validateIntegerInput)(ids[env]);
-                const id = appId || envId;
-                if (!id)
-                    throw new Error(`Missing appId from input and not found ID from environment ${env} to update.`);
+                const id = appService.defineAppIdToUpdate(ids, env, appId);
                 (0, shelljs_1.echo)(`📌 Updating an existing application with appId ${id}...`);
                 yield appService.updateApp({
                     appId: id,
@@ -23287,6 +23284,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const json_1 = __nccwpck_require__(3810);
+const number_1 = __nccwpck_require__(6755);
 const string_1 = __nccwpck_require__(1380);
 const adm_zip_1 = __importDefault(__nccwpck_require__(6761));
 class AppService {
@@ -23425,6 +23423,20 @@ class AppService {
         else if (Array.isArray(zendeskAppConfig.ids[env]) &&
             !zendeskAppConfig.ids[env].includes(this.appIdUploaded))
             zendeskAppConfig.ids[env].push(this.appIdUploaded);
+    }
+    defineAppIdToUpdate(availableAppIds, environment, inputAppId) {
+        if (inputAppId) {
+            return inputAppId;
+        }
+        const environmentAppId = availableAppIds[environment];
+        if (Array.isArray(environmentAppId)) {
+            throw new Error(`'allow_multiple_apps' config was previously activated for this environment. You should provide a specific app id through the 'app_id' field.`);
+        }
+        const appId = (0, number_1.validateIntegerInput)(environmentAppId);
+        if (!appId) {
+            throw new Error(`Missing appId from input and not found ID from environment ${environment} to update.`);
+        }
+        return appId;
     }
 }
 exports["default"] = AppService;

@@ -120,13 +120,7 @@ async function run() {
     };
 
     if (appService.defineToCreateOrUpdateApp(zendeskConfig) === 'UPDATE') {
-      const envId = validateIntegerInput(ids[env]);
-      const id = appId || envId;
-
-      if (!id)
-        throw new Error(
-          `Missing appId from input and not found ID from environment ${env} to update.`,
-        );
+      const id = appService.defineAppIdToUpdate(ids, env, appId);
 
       echo(`📌 Updating an existing application with appId ${id}...`);
       await appService.updateApp({
