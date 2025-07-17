@@ -86,6 +86,8 @@ async function run() {
   try {
     const dateTime = new Date().toLocaleString('pt-BR');
     echo(`💡 Job started at ${dateTime}`);
+    echo(`ENDERSON TESTE`);
+
     echo(`🎉 This job was automatically triggered by a ${eventName} event.`);
     echo(
       `🔎 The name of your branch is ${

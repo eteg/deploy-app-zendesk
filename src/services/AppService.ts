@@ -73,11 +73,11 @@ export default class AppService {
     const updatedInstallation = await this.zendeskApi.updateInstallation({
       installationId: installation.id,
       appId,
-      roleRestrictions,
-      settings: {
-        // name: appConfig.name,
-        ...this.cleanParameters(params),
-      },
+      // roleRestrictions,
+      // settings: {
+      //   // name: appConfig.name,
+      //   ...this.cleanParameters(params),
+      // },
     });
 
     this.appIdUploaded = String(updatedInstallation.app_id);
