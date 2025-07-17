@@ -23107,7 +23107,7 @@ function run() {
         try {
             const dateTime = new Date().toLocaleString('pt-BR');
             (0, shelljs_1.echo)(`💡 Job started at ${dateTime}`);
-            (0, shelljs_1.echo)(`ENDERSON TESTE`);
+            (0, shelljs_1.echo)(`ENDERSON TESTE 2`);
             (0, shelljs_1.echo)(`🎉 This job was automatically triggered by a ${eventName} event.`);
             (0, shelljs_1.echo)(`🔎 The name of your branch is ${((_a = ref.split('/')) === null || _a === void 0 ? void 0 : _a[2]) || 'unknown'} and your repository is ${(repository === null || repository === void 0 ? void 0 : repository.name) || 'unknown'}.`);
             (0, shelljs_1.echo)(`🔐 Checking if all credentials for authentications and required inputs are here.`);
@@ -23267,15 +23267,12 @@ class ZendeskAPI {
             return data;
         });
     }
-    updateInstallation({ installationId, appId
-    // settings,
-    // roleRestrictions,
-     }) {
+    updateInstallation({ installationId, appId, settings, roleRestrictions, }) {
         return __awaiter(this, void 0, void 0, function* () {
             const { data } = yield this.api.put(`/apps/installations/${installationId}`, {
                 app_id: appId,
-                // role_restrictions: roleRestrictions,
-                // settings,
+                role_restrictions: roleRestrictions,
+                settings,
             });
             return data;
         });
@@ -23355,11 +23352,8 @@ class AppService {
             const updatedInstallation = yield this.zendeskApi.updateInstallation({
                 installationId: installation.id,
                 appId,
-                // roleRestrictions,
-                // settings: {
-                //   // name: appConfig.name,
-                //   ...this.cleanParameters(params),
-                // },
+                roleRestrictions,
+                settings: Object.assign({}, this.cleanParameters(params)),
             });
             this.appIdUploaded = String(updatedInstallation.app_id);
             return { id: String(updatedInstallation.app_id) };
