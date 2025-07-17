@@ -47,7 +47,7 @@ interface InstallationParameters
   extends Record<string, string | number | boolean | null> {}
 
 interface InstallationSettings extends InstallationParameters {
-  name: string;
+  name?: string;
 }
 
 interface Installation {

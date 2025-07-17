@@ -75,7 +75,6 @@ export default class AppService {
       appId,
       roleRestrictions,
       settings: {
-        name: appConfig.name,
         ...this.cleanParameters(params),
       },
     });
