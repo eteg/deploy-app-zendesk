@@ -23301,6 +23301,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+const shelljs_1 = __nccwpck_require__(3516);
 const json_1 = __nccwpck_require__(3810);
 const number_1 = __nccwpck_require__(6755);
 const string_1 = __nccwpck_require__(1380);
@@ -23349,6 +23350,8 @@ class AppService {
             if (!installation)
                 throw new Error('Installation not found');
             const params = this.filterParameters(appConfig, parameters);
+            (0, shelljs_1.echo)(JSON.stringify(Object.assign({}, this.cleanParameters(params))));
+            (0, shelljs_1.echo)('name:' + appConfig.name);
             const updatedInstallation = yield this.zendeskApi.updateInstallation({
                 installationId: installation.id,
                 appId,

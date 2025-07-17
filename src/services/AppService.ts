@@ -1,3 +1,4 @@
+import { echo } from 'shelljs';
 import ZendeskAPI from '../providers/ZendeskAPI';
 import { fileToJSON, isDefinedAndIsNotArray } from '../utils/json';
 import { validateIntegerInput } from '../utils/number';
@@ -70,12 +71,14 @@ export default class AppService {
 
     const params = this.filterParameters(appConfig, parameters);
 
+    echo(JSON.stringify({ ...this.cleanParameters(params) }));
+    echo('name:' + appConfig.name);
+
     const updatedInstallation = await this.zendeskApi.updateInstallation({
       installationId: installation.id,
       appId,
       roleRestrictions,
       settings: {
-        // name: appConfig.name,
         ...this.cleanParameters(params),
       },
     });
