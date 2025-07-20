@@ -74,10 +74,7 @@ export default class AppService {
       installationId: installation.id,
       appId,
       roleRestrictions,
-      settings: {
-        name: appConfig.name,
-        ...this.cleanParameters(params),
-      },
+      settings: this.cleanParameters(params),
     });
 
     this.appIdUploaded = String(updatedInstallation.app_id);

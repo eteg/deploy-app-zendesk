@@ -23335,7 +23335,7 @@ class AppService {
                 installationId: installation.id,
                 appId,
                 roleRestrictions,
-                settings: Object.assign({ name: appConfig.name }, this.cleanParameters(params)),
+                settings: this.cleanParameters(params),
             });
             this.appIdUploaded = String(updatedInstallation.app_id);
             return { id: String(updatedInstallation.app_id) };
