@@ -17,25 +17,28 @@ const {
 
 function getAuthenticateParams(): AuthenticateZendesk {
   const subdomain = getInput('zendesk_subdomain', { required: true });
-  const email = getInput('zendesk_email', { required: true });
-  const apiToken = getInput('zendesk_api_token', { required: true });
+  const email = getInput('zendesk_email', { required: false });
+  const apiToken = getInput('zendesk_api_token', { required: false });
+  const accessToken = getInput('zendesk_access_token', { required: false });
+
+  if (!subdomain) {
+    throw new Error(
+      'Authentication parameters validation: "zendesk_subdomain" is required.',
+    );
+  }
+
+  if (!((email && apiToken) || accessToken)) {
+    throw new Error(
+      'Authentication parameters validation: You must provide either "zendesk_email" and "zendesk_api_token" or "zendesk_access_token".',
+    );
+  }
 
   const auth: AuthenticateZendesk = {
     subdomain,
     email,
     apiToken,
+    accessToken,
   };
-
-  const missingAuthParams = Object.keys(auth).filter(
-    (param) => typeof auth[param as keyof AuthenticateZendesk] !== 'string',
-  );
-
-  if (missingAuthParams.length)
-    throw new Error(
-      `Following authentication variables missing their values: ${missingAuthParams
-        .map((param) => param)
-        .join(', ')}`,
-    );
 
   return auth;
 }
