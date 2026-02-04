@@ -23041,18 +23041,21 @@ const number_1 = __nccwpck_require__(6755);
 const { ref, eventName, payload: { repository }, } = github.context;
 function getAuthenticateParams() {
     const subdomain = (0, core_1.getInput)('zendesk_subdomain', { required: true });
-    const email = (0, core_1.getInput)('zendesk_email', { required: true });
-    const apiToken = (0, core_1.getInput)('zendesk_api_token', { required: true });
+    const email = (0, core_1.getInput)('zendesk_email', { required: false });
+    const apiToken = (0, core_1.getInput)('zendesk_api_token', { required: false });
+    const accessToken = (0, core_1.getInput)('zendesk_access_token', { required: false });
+    if (!subdomain) {
+        throw new Error('Authentication parameters validation: "zendesk_subdomain" is required.');
+    }
+    if (!((email && apiToken) || accessToken)) {
+        throw new Error('Authentication parameters validation: You must provide either "zendesk_email" and "zendesk_api_token" or "zendesk_access_token".');
+    }
     const auth = {
         subdomain,
         email,
         apiToken,
+        accessToken,
     };
-    const missingAuthParams = Object.keys(auth).filter((param) => typeof auth[param] !== 'string');
-    if (missingAuthParams.length)
-        throw new Error(`Following authentication variables missing their values: ${missingAuthParams
-            .map((param) => param)
-            .join(', ')}`);
     return auth;
 }
 function getAppInput() {
@@ -23164,14 +23167,18 @@ const form_data_1 = __importDefault(__nccwpck_require__(4334));
 const fs_1 = __importDefault(__nccwpck_require__(7147));
 const axios_1 = __importDefault(__nccwpck_require__(8757));
 class ZendeskAPI {
-    constructor({ apiToken, email, subdomain }) {
+    constructor({ apiToken, email, subdomain, accessToken, }) {
         this.api = axios_1.default.create({
             baseURL: `https://${subdomain}.zendesk.com/api/v2`,
-            auth: {
-                username: `${email}/token`,
-                password: apiToken,
-            },
         });
+        if (apiToken && email) {
+            const authString = Buffer.from(`${email}/token:${apiToken}`).toString('base64');
+            this.api.defaults.headers.common['Authorization'] = `Basic ${authString}`;
+        }
+        else {
+            this.api.defaults.headers.common['Authorization'] =
+                `Bearer ${accessToken}`;
+        }
     }
     uploadApp(appFilePath) {
         return __awaiter(this, void 0, void 0, function* () {
