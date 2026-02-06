@@ -5,14 +5,25 @@ import axios, { AxiosInstance } from 'axios';
 export default class ZendeskAPI {
   private api: AxiosInstance;
 
-  constructor({ apiToken, email, subdomain }: AuthenticateZendesk) {
+  constructor({
+    apiToken,
+    email,
+    subdomain,
+    accessToken,
+  }: AuthenticateZendesk) {
     this.api = axios.create({
       baseURL: `https://${subdomain}.zendesk.com/api/v2`,
-      auth: {
-        username: `${email}/token`,
-        password: apiToken,
-      },
     });
+
+    if (apiToken && email) {
+      const authString = Buffer.from(`${email}/token:${apiToken}`).toString(
+        'base64',
+      );
+      this.api.defaults.headers.common['Authorization'] = `Basic ${authString}`;
+    } else {
+      this.api.defaults.headers.common['Authorization'] =
+        `Bearer ${accessToken}`;
+    }
   }
 
   async uploadApp(appFilePath: string) {

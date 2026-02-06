@@ -31,10 +31,13 @@ inputs:
     required: true
   zendesk_email:
     description: "Zendesk email to authenticate"
-    required: true
+    required: false
   zendesk_api_token:
     description: "Zendesk api token to authenticate"
-    required: true
+    required: false
+  zendesk_access_token:
+    description: "Zendesk access token to authenticate"
+    required: false
 runs:
   using: "node16"
   main: "dist/index.js"

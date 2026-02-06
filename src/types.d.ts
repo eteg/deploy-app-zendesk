@@ -5,9 +5,10 @@ type ManifestParamProps = {
 };
 
 type AuthenticateZendesk = {
-  email: string;
+  email?: string;
   subdomain: string;
-  apiToken: string;
+  apiToken?: string;
+  accessToken?: string;
 };
 
 type ZendeskAppsConfig = {
